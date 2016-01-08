@@ -24,9 +24,21 @@ end
 
 function optimize(tbl) --removes emty slots it tabeles by reducing indexes
 	local tempTbl = {}
+	local size = 0
+	local i = 1
 	
-	for _, v it pairs(tbl) do
-		tempTbl[#tempTbl + 1] = v
+	for k, v in pairs(tbl) do
+		if type(k) == 'number' then size = size + 1 end
+	end
+	
+	while true do
+		if tbl[i] then
+			tempTbl[#tempTbl + 1] = tbl[i]
+			size = size - 1
+		end
+		
+		if size == 0 then break end
+		i = i + 1
 	end
 	
 	return tempTbl
