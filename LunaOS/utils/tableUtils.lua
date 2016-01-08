@@ -12,7 +12,7 @@ function range(tbl, start, finish)
 	return tempTbl
 end
 
-function geEmptyIndex(tbl)
+function getEmptyIndex(tbl)
 	i = 1
 	
 	while tbl[i] do --we set the PID of the process to the lowest avalible PID
