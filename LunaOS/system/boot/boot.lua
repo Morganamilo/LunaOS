@@ -1,18 +1,14 @@
 --must load the APILoader before we can load other APIs
-os.loadAPI('/LunaOS/utils/APILoader.lua')
-_G['APILoader.lua'].loadList('LunaOS/boot/APIs', true)
+os.loadAPI('/LunaOS/system/utils/APILoader.lua')
+_G['APILoader.lua'].loadList('/LunaOS/system/boot/APIs', true)
 
 
 function f1() 
-	d = {"notning yet","n"}
-	for n = 1, 10 do
-		print("i am 1    ",unpack(d))
-		if n == 4 then print("going to 2") 
-			kernel.gotpoPID(2)
-			end
-		--for n = 1, 10000 do print(n) end
-		d = {coroutine.yield('char', 'mouse_click')}
-	end
+term.setCursorBlink(true)
+	d = coroutine.yield("char")
+	print(d)
+	
+	
 end
 
 function f2() 
