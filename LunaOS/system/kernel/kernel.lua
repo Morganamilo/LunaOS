@@ -43,8 +43,13 @@ function getProcesses()
 	return  _processes
 end
 
+function getRunning()
+	return _runningPID
+end
+
 function isSU()
-	return _runningPID and _processes[_runningPID].SU
+	if not _runningPID then return true end --if the kernel is not in use give root
+	return _processes[_runningPID].SU
 end
 
 
