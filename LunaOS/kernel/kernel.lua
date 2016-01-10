@@ -4,8 +4,8 @@
 --when a process errors the process is kissed and a report is sent back
 
 local _processes = {}
-local _runnindHistory = {}
-local _runnindPID = 1
+local _runningHistory = {}
+local _runningPID
 
 local externelHandleError
 local showErrors = true
@@ -15,10 +15,12 @@ function setShowErrors(bool)
 	showErrors = bool
 end
 
+--allows an error to be handled by an extarnaly such as a GUI
 function setErrorHandler(func)
 	assert(type(func) == "function", "Error: function expected got " .. type(func))
 	externelHandleError = func
 end
+
 
 local function handleError(proc, data)
 	--was not sure if i wanted errors to be coloured as it would force the text colour to be while after the error
@@ -41,59 +43,78 @@ function getProcesses()
 	return  _processes
 end
 
-function killProcess(PID)
-	os.sleep(.2)
-	local removeLinks = false
 
-	local function killChildren(parentPID) --recursively kills all the children of given PID
-		for child = 1, #_processes[parentPID].children do
-			--print("killing child " .. (_processes[parentPID].children[child]))
-			killProcess(_processes[parentPID].children[child])
+function killProcess(PID)
+	if PID then assert(_processes[PID], "Error: PID " .. PID .. " is invalid or does not exist") end
+
+	--ruturns  a table of the process and all its children and all its sub children and so on
+	local function getAllChildren(PID)
+		local allChildren = {PID}
+		local parentPID = _processes[PID].parent
+		local i = 1
+		local highestPID
+				
+		while allChildren[i] do
+			for _, v in pairs(_processes[allChildren[i]].children) do
+				allChildren[#allChildren + 1] = v
+			end
+			
+			i = i + 1
 		end
+		
+		return allChildren
 	end
 	
-	local function removeLinksToParent(childPID) --if a child dies, the parent needs to be told
-		local parent = _processes[_processes[childPID].parent]
-		
+	--only tell the parent of its death if there is a parent
+	local parent = _processes[_processes[PID].parent]
+	if parent then 
 		for child = 1, #parent.children do
-			if parent.children[child] == childPID then 
-				print("removing link to " ..  childPID .. " inside of " .. parent.PID)
+			if parent.children[child] == PID then 
+				print("removing link to " ..  PID .. " inside of " .. parent.PID)
 				table.remove(parent.children, child)
 			end
 		end
 	end
 	
-	
-	if PID then assert(_processes[PID], "Error: PID " .. PID .. " is invalid or does not exist") end
-	
-	local index = tableUtils.isInTable(_runnindHistory, PID)
-	if index then
-		table.remove(_runnindHistory, index)
+	for _, v in pairs(getAllChildren(PID)) do
+		print('killed ' .. v)
+		_processes[v] = nil
 	end
 	
-	if _processes[PID].parent then  removeLinksToParent(PID) end
-	if #_processes[PID].children > 0 then killChildren(PID) end
+	--removes the process from the _runninHistory
+	local index = tableUtils.isInTable(_runningHistory, PID)
+	if index then
+		table.remove(_runningHistory, index)
+	end
 	
 	
-	print('killed ' .. PID)
-	_processes[PID] = nil
+	--when a process is killed the process that takes over is decided it the order as follows
+				--its parent
+				--the process that ran last and is still alive
+				--the process with the highest PID
+				--nil
+				
+	 if table.getn(_processes) > 0 then highestPID = table.getn(_processes)
+	 else highestPID = nil end
+	
+	_runningPID = parentPID or _runningHistory[#_runningHistory] or highestPID
 end
 
 
 function gotoPID(PID)
 	assert(_processes[PID], "Error: PID " .. PID .. " is invalid or does not exist")
-	_runnindPID = PID
+	_runningPID = PID
 	
-	local index = tableUtils.isInTable(_runnindHistory, PID)
+	local index = tableUtils.isInTable(_runningHistory, PID)
 	
 	--if the PID is already in the history move it to the top
 	if index then
-		table.remove(_runnindHistory, index)
+		table.remove(_runningHistory, index)
 	end
 	
-	_runnindHistory[#_runnindHistory] = PID
-	
+	_runningHistory[#_runningHistory] = PID
 end
+
 
 --func		is the fuction everytime the process is called
 --name 	in the processes name for the user
@@ -124,12 +145,13 @@ function newProcess(func, parent, name, desc)
 	return PID
 end
 
+
 function startProcesses()
 	local data = {}
 	local waitingFor
 
-	while #tableUtils.optimize(_processes) > 0 do
-		local currentProc = _processes[_runnindPID]
+	while #tableUtils.optimize(_processes) > 0 and _runningPID do
+		local currentProc = _processes[_runningPID]
 	
 		data = {coroutine.resume(currentProc.co, unpack(data))}
 		success = data[1]
@@ -143,19 +165,13 @@ function startProcesses()
 		if coroutine.status(currentProc.co) == "dead" then
 			killProcess(currentProc.PID)
 			data = {} --data is wiped so it does not get passed to the next processes
-			
-			--when a process is killed the process that takes over is decided it the order as follows
-				--its parent
-				--the process that ran last and is still alive
-				--the process with the highest PID
-			_runnindPID = currentProc.parent or _runnindHistory[#_runnindHistory] or table.getn(_processes)
 		end
 		
 		waitingFor = data
 			
 		repeat 
 			data = {coroutine.yield()}
-			--if data[1] == "terminate" then killProcess(_runnindPID) end
+			--if data[1] == "terminate" then killProcess(_runningPID) end
 			if data[1] == "terminate" then error() end
 		until (tableUtils.isInTable(waitingFor, data[1]) or #waitingFor == 0)
 	end
