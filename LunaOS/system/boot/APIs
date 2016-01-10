@@ -1,2 +1,2 @@
-LunaOS/kernel/kernel.lua
-LunaOS/utils
+LunaOS/system/kernel/kernel.lua
+LunaOS/system/utils
