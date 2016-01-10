@@ -1,162 +1,162 @@
+--the kernel allows multiple processes to be created
+--only one process can run at a time
+--process can pause to let another process run then continue
+--when a process errors the process is kissed and a report is sent back
+
 local _processes = {}
-local _eventQue = {}
-local jumpToPID
+local _runnindHistory = {}
+local _runnindPID = 1
+
+local externelHandleError
+local showErrors = true
+
+function setShowErrors(bool)
+	assert(type(bool) == "boolean", "Error: function expected got " .. type(func))
+	showErrors = bool
+end
+
+function setErrorHandler(func)
+	assert(type(func) == "function", "Error: function expected got " .. type(func))
+	externelHandleError = func
+end
+
+local function handleError(proc, data)
+	--was not sure if i wanted errors to be coloured as it would force the text colour to be while after the error
+	--although the crashed process may have had some colour set, and if it crashed before it set it back
+	--then the colour would leak into another program
+	term.setTextColor(colors.red)
+
+	print("Error: process Has crashed")
+	print("\tPID: ".. proc.PID)
+	print("\tName: ".. proc.name)
+	print("\tReason: ".. data)
+	print("Returning to processes\n")
+	
+	term.setTextColor(1)
+	os.sleep(1)
+end
 
 
 function getProcesses()
 	return  _processes
 end
 
-
-function getEventQue()
-	return  _eventQue
-end
-
-
 function killProcess(PID)
-	assert(_processes[PID], "Error: PID " .. PID .. " is invalid or does not exist")
+	os.sleep(.2)
+	local removeLinks = false
+
+	local function killChildren(parentPID) --recursively kills all the children of given PID
+		for child = 1, #_processes[parentPID].children do
+			--print("killing child " .. (_processes[parentPID].children[child]))
+			killProcess(_processes[parentPID].children[child])
+		end
+	end
+	
+	local function removeLinksToParent(childPID) --if a child dies, the parent needs to be told
+		local parent = _processes[_processes[childPID].parent]
+		
+		for child = 1, #parent.children do
+			if parent.children[child] == childPID then 
+				print("removing link to " ..  childPID .. " inside of " .. parent.PID)
+				table.remove(parent.children, child)
+			end
+		end
+	end
+	
+	
+	if PID then assert(_processes[PID], "Error: PID " .. PID .. " is invalid or does not exist") end
+	
+	local index = tableUtils.isInTable(_runnindHistory, PID)
+	if index then
+		table.remove(_runnindHistory, index)
+	end
+	
+	if _processes[PID].parent then  removeLinksToParent(PID) end
+	if #_processes[PID].children > 0 then killChildren(PID) end
+	
+	
 	print('killed ' .. PID)
 	_processes[PID] = nil
 end
 
 
 function gotoPID(PID)
-	jumpToPID = PID
-	coroutine.yield()
-end
-
-
-function queEvent(event, ...)
-	if isWainingfor(event) then
-		_eventQue[tableUtils.getEmptyIndex(_eventQue)] = {event, ...}
-	end
-end
-
-
-function queEventNow(event, ...)
-	queEvent(event, ...)
-	coroutine.yield() 
-end
-
-
-function getWaitingEvents()
-	local events = {}
+	assert(_processes[PID], "Error: PID " .. PID .. " is invalid or does not exist")
+	_runnindPID = PID
 	
-	for _, v in pairs(_processes) do
-		event[#event + 1] = v.waitingFor[1]
+	local index = tableUtils.isInTable(_runnindHistory, PID)
+	
+	--if the PID is already in the history move it to the top
+	if index then
+		table.remove(_runnindHistory, index)
 	end
 	
-	return event
+	_runnindHistory[#_runnindHistory] = PID
+	
 end
 
-
-function isWainingfor(event)
-	for _, v in pairs(_eventQue) do
-		if v[1] == event then return false end
-	end
-
-	for _, v in pairs(_processes) do
-		if v.waitingFor then
-			if v.waitingFor[1] == event then return true end
-		end
-	end
-	
-	return false
-end
-
---[[
-processes should be run if:
-	it has never range
-	if it yielded nil
-	or if an event in nte que matches its yield 
---]]
-local function processesShouldBeRun(proc)
-	if proc then
-		if not proc.waitingFor then
-			return true
-		else
-			for k, v in pairs(_eventQue) do
-				if proc.waitingFor[1]  == v[1] then return true, k end
-			end
-		end
-	end
-	
-	return false
-end 
-
-
---[[
-func		is the fuction everytime the process is called
-time		is how often the processes should run. a time of 2 would run every 2 seconds 
-desc		is a description of the processes for the user
---]]
-function newProcess(func, time, desc)
+--func		is the fuction everytime the process is called
+--name 	in the processes name for the user
+--desc		is a description of the processes for the user
+function newProcess(func, parent, name, desc)
 	assert(type(func) == "function", "Error: function expected got " .. type(func))
+	
+	if name then
+		assert(type(name) == "string", "Error: string expected got " .. type(name))
+	end
+	
+	if desc then
+		assert(type(desc) == "string", "Error: string expected got " .. type(desc))
+	end	
 
 	local PID = tableUtils.getEmptyIndex(_processes)
-	local time = time or 0
-	local desc = desc or ""
+	local name = name or ''
+	local desc = desc or ''
+	
+	if parent then
+		--tells the parent it has children
+		assert(_processes[parent], "Error: PID " .. parent .. " is invalid or does not exist")
+		_processes[parent].children[#_processes[parent].children + 1] = PID
+	end
 	
 	local co = coroutine.create(func)
-	_processes[PID] = {co = co, time = time, desc = desc, PID = PID}
+	_processes[PID] = {co = co, parent = parent, children = {}, name = name, desc = desc, PID = PID}
 	return PID
 end
 
-
---process can still spawn new processes while inside startProcesses()
 function startProcesses()
-	repeat
-		local processes = {}
+	local data = {}
+	local waitingFor
+
+	while #tableUtils.optimize(_processes) > 0 do
+		local currentProc = _processes[_runnindPID]
+	
+		data = {coroutine.resume(currentProc.co, unpack(data))}
+		success = data[1]
+		table.remove(data, 1) --removes sucess from the data
 		
-		processes = tableUtils.optimize(_processes)
-		
-		local procCount = #processes
-		
-		for n = 1, procCount do
-			local status
-			local event 
-			local pSBR, queKey = processesShouldBeRun(processes[n])
-			
-			if  pSBR  then
-				local time = os.clock()
-			
-				if (processes[n].lastRun or 0) <= time - processes[n].time then --if atleast the specified time has passed
-					processes[n].lastRun = time
-					
-					_processes[n].waitingFor = {coroutine.resume(processes[n].co, _eventQue[queKey])}
-					print(unpack(_processes[n].waitingFor))
-					
-					if (_eventQue[queKey]) then
-						_eventQue[queKey] = nil
-						tableUtils.optimize(_eventQue)
-					end
-					
-					--print(queKey)
-				
-					status = _processes[n].waitingFor[1]
-					event =  _processes[n].waitingFor[2]
-					
-					_processes[n].waitingFor = tableUtils.range(_processes[n].waitingFor, 2, #_processes[n].waitingFor)
-					if #_processes[n].waitingFor == 0 then _processes[n].waitingFor = nil end
-			
-					if coroutine.status( processes[n].co) == "dead" then
-						killProcess( processes[n].PID)
-						processes[n] = nil
-						procCount = procCount - 1
-					end
-				end
-			end
-			
-			local timer = os.startTimer(0.05)
-			backroundData = {coroutine.yield()}
-			
-			if backroundData[1] ~= "timer" then 
-				os.cancelTimer(timer)
-				print(unpack(backroundData))
-				queEvent(unpack(backroundData)) 
-			end
+		if not success then
+			if showErrors then handleError(currentProc, data[1]) end
+			if externelHandleError then pcall(externelHandleError, currentProc, data[1]) end
 		end
 		
-		os.sleep(0) --stops too long without yielding error
-	until (procCount <= 0)
+		if coroutine.status(currentProc.co) == "dead" then
+			killProcess(currentProc.PID)
+			data = {} --data is wiped so it does not get passed to the next processes
+			
+			--when a process is killed the process that takes over is decided it the order as follows
+				--its parent
+				--the process that ran last and is still alive
+				--the process with the highest PID
+			_runnindPID = currentProc.parent or _runnindHistory[#_runnindHistory] or table.getn(_processes)
+		end
+		
+		waitingFor = data
+			
+		repeat 
+			data = {coroutine.yield()}
+			--if data[1] == "terminate" then killProcess(_runnindPID) end
+			if data[1] == "terminate" then error() end
+		until (tableUtils.isInTable(waitingFor, data[1]) or #waitingFor == 0)
+	end
 end
