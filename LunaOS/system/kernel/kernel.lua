@@ -43,6 +43,10 @@ function getProcesses()
 	return  _processes
 end
 
+function isSU()
+	return _runningPID and _processes[_runningPID].SU
+end
+
 
 function killProcess(PID)
 	errorUtils.assert(_processes[PID], "Error: PID " .. tostring(PID) .. " is invalid or does not exist", 2)
@@ -113,13 +117,16 @@ function gotoPID(PID)
 	end
 	
 	_runningHistory[#_runningHistory] = PID
+	os.queueEvent('switch')
+	coroutine.yield()
 end
 
 
 --func		is the fuction everytime the process is called
 --name 	in the processes name for the user
 --desc		is a description of the processes for the user
-function newProcess(func, parent, name, desc)
+
+function newProcessInternal(func, parent, name, desc, SU)
 	errorUtils.assert(type(func) == "function", "Error: function expected got " .. type(func), 2)
 	
 	if name then
@@ -141,8 +148,22 @@ function newProcess(func, parent, name, desc)
 	end
 	
 	local co = coroutine.create(func)
-	_processes[PID] = {co = co, parent = parent, children = {}, name = name, desc = desc, PID = PID}
+	_processes[PID] = {co = co, parent = parent, children = {}, name = name, desc = desc, PID = PID, SU = SU}
 	return PID
+end
+
+
+function newProcess(func, parent, name, desc)
+	newProcessInternal(func, parent, name, desc, false)
+end
+
+
+function newRootProcess(func, parent, name, desc)
+	if isSU() or (#tableUtils.optimize(_processes) <= 0) then
+		newProcessInternal(func, parent, name, desc, true)
+	else
+		error("Error: process with PID " .. _runningPID .. " tried to start a newProcess as Root", 2)
+	end
 end
 
 
@@ -150,7 +171,6 @@ function startProcesses()
 	if #tableUtils.optimize(_processes) <= 0 or not _runningPID then return end
 
 	local data = {}
-	local waitingFor
 
 	while true do
 		local currentProc = _processes[_runningPID]
@@ -168,14 +188,14 @@ function startProcesses()
 			killProcess(currentProc.PID)
 			data = {} --data is wiped so it does not get passed to the next processes
 			if #tableUtils.optimize(_processes) <= 0 or not _runningPID then break end
-		end
-		
-		waitingFor = data
+		else --only process its yield if the process is still alive
+			local waitingFor = data
 			
-		repeat 
-			data = {coroutine.yield()}
-			--if data[1] == "terminate" then killProcess(_runningPID) end
-			if data[1] == "terminate" then error() end
-		until (tableUtils.isInTable(waitingFor, data[1]) or #waitingFor == 0)
+			repeat 
+				data = {coroutine.yield()}
+				--if data[1] == "terminate" then killProcess(_runningPID) end
+				if data[1] == "terminate" then error() end
+			until (tableUtils.isInTable(waitingFor, data[1]) or #waitingFor == 0)
+		end
 	end
 end
