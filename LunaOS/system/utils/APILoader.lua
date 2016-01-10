@@ -1,3 +1,15 @@
+local function makeReadOnly(tbl)
+	local tempTbl = {}
+	local mt = {  
+		__index = tbl,
+		__newindex = function (t,k,v)
+		error("Error: attempt to update a read-only table", 2)
+		end
+	}
+	setmetatable(tempTbl, mt)
+	return tempTbl
+end
+
 function loadDir(path, displaySuccess)
 	for _, file in pairs(fs.list(path)) do
 		load(fs.combine(path, file), displaySuccess)
@@ -5,7 +17,9 @@ function loadDir(path, displaySuccess)
 end
 
 function loadList(path, displaySuccess)
-	local file = fs.open(path, 'r')
+	local file, err = fs.open(path, 'r')
+	if err then error(err, 2) end
+
 	local currentLine
 	
 	while true do
@@ -26,7 +40,7 @@ function load(path, displaySuccess)
 		
 		
 		if name ~= newName[1] then
-			_G[newName] = _G[name]
+			_G[newName] = makeReadOnly(_G[name])
 			_G[name] = nil
 			
 			if displaySuccess then print("Loaded " .. name .. " as " .. newName) end
@@ -34,6 +48,6 @@ function load(path, displaySuccess)
 			if displaySuccess then print("Loaded " .. name) end
 		end
 	else
-		error("Error: failed to load " .. path)
+		error("Error: failed to load " .. path, 2)
 	end
 end

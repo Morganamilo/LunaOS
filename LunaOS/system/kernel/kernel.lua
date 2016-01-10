@@ -11,13 +11,13 @@ local externelHandleError
 local showErrors = true
 
 function setShowErrors(bool)
-	assert(type(bool) == "boolean", "Error: function expected got " .. type(func))
+	errorUtils.assert(type(bool) == "boolean", "Error: function expected got " .. type(func), 2)
 	showErrors = bool
 end
 
 --allows an error to be handled by an extarnaly such as a GUI
 function setErrorHandler(func)
-	assert(type(func) == "function", "Error: function expected got " .. type(func))
+	errorUtils.assert(type(func) == "function", "Error: function expected got " .. type(func), 2)
 	externelHandleError = func
 end
 
@@ -45,7 +45,7 @@ end
 
 
 function killProcess(PID)
-	if PID then assert(_processes[PID], "Error: PID " .. PID .. " is invalid or does not exist") end
+	errorUtils.assert(_processes[PID], "Error: PID " .. tostring(PID) .. " is invalid or does not exist", 2)
 
 	--ruturns  a table of the process and all its children and all its sub children and so on
 	local function getAllChildren(PID)
@@ -70,14 +70,14 @@ function killProcess(PID)
 	if parent then 
 		for child = 1, #parent.children do
 			if parent.children[child] == PID then 
-				print("removing link to " ..  PID .. " inside of " .. parent.PID)
+				--print("removing link to " ..  PID .. " inside of " .. parent.PID)
 				table.remove(parent.children, child)
 			end
 		end
 	end
 	
 	for _, v in pairs(getAllChildren(PID)) do
-		print('killed ' .. v)
+		--print('killed ' .. v)
 		_processes[v] = nil
 	end
 	
@@ -102,7 +102,7 @@ end
 
 
 function gotoPID(PID)
-	assert(_processes[PID], "Error: PID " .. PID .. " is invalid or does not exist")
+	errorUtils.assert(_processes[PID], "Error: PID " .. tostring(PID) .. " is invalid or does not exist", 2)
 	_runningPID = PID
 	
 	local index = tableUtils.isInTable(_runningHistory, PID)
@@ -120,14 +120,14 @@ end
 --name 	in the processes name for the user
 --desc		is a description of the processes for the user
 function newProcess(func, parent, name, desc)
-	assert(type(func) == "function", "Error: function expected got " .. type(func))
+	errorUtils.assert(type(func) == "function", "Error: function expected got " .. type(func), 2)
 	
 	if name then
-		assert(type(name) == "string", "Error: string expected got " .. type(name))
+		errorUtils.assert(type(name) == "string", "Error: string expected got " .. type(name), 2)
 	end
 	
 	if desc then
-		assert(type(desc) == "string", "Error: string expected got " .. type(desc))
+		errorUtils.assert(type(desc) == "string", "Error: string expected got " .. type(desc), 2)
 	end	
 
 	local PID = tableUtils.getEmptyIndex(_processes)
@@ -136,7 +136,7 @@ function newProcess(func, parent, name, desc)
 	
 	if parent then
 		--tells the parent it has children
-		assert(_processes[parent], "Error: PID " .. parent .. " is invalid or does not exist")
+		errorUtils.assert(_processes[parent], "Error: PID " .. parent .. " is invalid or does not exist", 2)
 		_processes[parent].children[#_processes[parent].children + 1] = PID
 	end
 	
@@ -147,6 +147,8 @@ end
 
 
 function startProcesses()
+	if #tableUtils.optimize(_processes) <= 0 or not _runningPID then return end
+
 	local data = {}
 	local waitingFor
 

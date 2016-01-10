@@ -3,11 +3,14 @@ os.loadAPI('/LunaOS/system/utils/APILoader.lua')
 _G['APILoader.lua'].loadList('/LunaOS/system/boot/APIs', true)
 
 
+
+
 function f1() 
 term.setCursorBlink(true)
-	d = coroutine.yield("char")
-	print(d)
-	
+	for n = 1, 10 do
+	d, a = coroutine.yield("char", "mouse_click")
+	print(a)
+	end
 	
 end
 
@@ -28,7 +31,7 @@ kernel.newProcess( f2, 3 )
 kernel.newProcess( f2, 3 )
 kernel.newProcess( f2, 3 )
 
-
+--kernel.gotoPID(1)
 --kernel.newProcess( function() for n = 1, 10 do print('i am 1  '..n) coroutine.yield() if n == 3 then print("n is 3 i shall be back") coroutine.yield('tevent') print("i am back") end end end, 1 )
 --kernel.newProcess( function() for n = 1, 10 do print('i am 2  '..n) coroutine.yield() if n == 7 then print"n is 7 sending signal to 1"  kernel.queEventNow('tevent') end end end, 1 )
 
