@@ -50,6 +50,7 @@ end
 
 function killProcess(PID)
 	errorUtils.assert(_processes[PID], "Error: PID " .. tostring(PID) .. " is invalid or does not exist", 2)
+	errorUtils.assert(_processes[_runningPID].SU or not _processes[PID].SU,  "Error:  process with PID " .. tostring(_runningPID) .. " tried to kill process " .. PID .. ": Access denied" , 2)
 
 	--ruturns  a table of the process and all its children and all its sub children and so on
 	local function getAllChildren(PID)
@@ -162,7 +163,7 @@ function newRootProcess(func, parent, name, desc)
 	if isSU() or (#tableUtils.optimize(_processes) <= 0) then
 		newProcessInternal(func, parent, name, desc, true)
 	else
-		error("Error: process with PID " .. _runningPID .. " tried to start a newProcess as Root", 2)
+		error("Error: process with PID " .. _runningPID .. " tried to start a new process as root: Access denied", 2)
 	end
 end
 
