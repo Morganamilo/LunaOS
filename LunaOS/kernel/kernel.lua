@@ -150,7 +150,7 @@ function startProcesses()
 	local data = {}
 	local waitingFor
 
-	while #tableUtils.optimize(_processes) > 0 and _runningPID do
+	while true do
 		local currentProc = _processes[_runningPID]
 	
 		data = {coroutine.resume(currentProc.co, unpack(data))}
@@ -165,6 +165,7 @@ function startProcesses()
 		if coroutine.status(currentProc.co) == "dead" then
 			killProcess(currentProc.PID)
 			data = {} --data is wiped so it does not get passed to the next processes
+			if #tableUtils.optimize(_processes) <= 0 or not _runningPID then break end
 		end
 		
 		waitingFor = data
