@@ -12,7 +12,9 @@ end
 
 function loadDir(path, displaySuccess)
 	for _, file in pairs(fs.list(path)) do
-		load(fs.combine(path, file), displaySuccess)
+		if not fs.isDir(file) then
+			load(fs.combine(path, file), displaySuccess)
+		end
 	end
 end
 
@@ -50,6 +52,8 @@ function load(path, displaySuccess)
 	else
 		error("Error: failed to load " .. path, 2)
 	end
+	
+	os.sleep(.05)
 end
 
 function unload(API)
