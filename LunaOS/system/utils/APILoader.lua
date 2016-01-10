@@ -51,3 +51,7 @@ function load(path, displaySuccess)
 		error("Error: failed to load " .. path, 2)
 	end
 end
+
+function unload(API)
+	os.unloadAPI(API)
+end
