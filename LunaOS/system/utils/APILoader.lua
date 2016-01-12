@@ -11,6 +11,9 @@ local function makeReadOnly(tbl)
 end
 
 function loadDir(path, displaySuccess)
+	if type(path) ~= "string" then error("Error: string expected got " .. type(path), 2) end
+	if not fs.isDir(path) then error("Error: " .. path .. " is not a directory", 2) end
+	
 	for _, file in pairs(fs.list(path)) do
 		if not fs.isDir(file) then
 			load(fs.combine(path, file), displaySuccess)
@@ -19,8 +22,10 @@ function loadDir(path, displaySuccess)
 end
 
 function loadList(path, displaySuccess)
+	if type(path) ~= "string" then error("Error: string expected got " .. type(path), 2) end
+
 	local file, err = fs.open(path, 'r')
-	if err then error(err, 2) end
+	if not file then error("Error: failed to open " .. path, 2) end
 
 	local currentLine
 	
@@ -33,9 +38,14 @@ function loadList(path, displaySuccess)
 			else load(currentLine, displaySuccess) end
 		end
 	end
+	
+	file.close()
 end
 
 function load(path, displaySuccess)
+	if type(path) ~= "string" then error("Error: string expected got " .. type(path), 2) end
+	if fs.getName(path):sub(1,1) == '.' then return end --ignore files starting with '.' 
+
 	if os.loadAPI(path) then
 		local name = fs.getName(path)
 		local newName = name:gmatch("([^.]+)")():gsub(" ", "_")
