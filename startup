@@ -1,1 +1,1 @@
-shell.run("LunaOS/system/boot/boot.lua")
+dofile("LunaOS/system/boot/boot.lua")
