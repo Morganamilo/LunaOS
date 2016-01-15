@@ -37,3 +37,13 @@ function isInTable(tbl, element)
 	
 	return false
 end
+
+function copy(tbl)
+	local tempTbl = {}
+
+	for k, v in pairs(tbl) do 
+		tempTbl[k] = v
+	end
+	
+	return setmetatable(tempTbl, getmetatable(tbl))
+end
