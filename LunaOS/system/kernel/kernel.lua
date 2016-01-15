@@ -5,10 +5,26 @@
 
 local _processes = {}
 local _runningHistory = {}
+local _env = {}
 local _runningPID
+
+local rootEnv = _G
+local userEnv = _G
 
 local externelHandleError
 local showErrors = true
+
+local function getEnv(SU)
+	local env = tableUtils.copy(_ENV)
+	env._G = env
+	
+	if not SU then
+		env.print = function() print("nope") end
+		env.y = "yp."
+	end
+	
+	return env
+end
 
 function setShowErrors(bool)
 	errorUtils.assert(type(bool) == "boolean", "Error: function expected got " .. type(func), 2)
@@ -87,8 +103,8 @@ function killProcess(PID)
 	end
 	
 	for _, v in pairs(getAllChildren(PID)) do
-		--print('killed ' .. v)
 		_processes[v] = nil
+		_env[PID] = nil
 	end
 	
 	--removes the process from the _runninHistory
@@ -132,20 +148,14 @@ end
 --name 	in the processes name for the user
 --desc		is a description of the processes for the user
 
-function newProcessInternal(func, parent, name, desc, SU)
-	errorUtils.assert(type(func) == "function", "Error: function expected got " .. type(func), 2)
-	
-	if name then
-		errorUtils.assert(type(name) == "string", "Error: string expected got " .. type(name), 2)
-	end
-	
-	if desc then
-		errorUtils.assert(type(desc) == "string", "Error: string expected got " .. type(desc), 2)
-	end	
-
+local function newProcessInternal(func, parent, name, desc, SU)
 	local PID = tableUtils.getEmptyIndex(_processes)
 	local name = name or ''
 	local desc = desc or ''
+	
+	errorUtils.assert(type(func) == "function", "Error: function expected got " .. type(func), 2)
+	errorUtils.assert(type(name) == "string", "Error: string expected got " .. type(name), 2)
+	errorUtils.assert(type(desc) == "string", "Error: string expected got " .. type(desc), 2)
 	
 	if parent then
 		--tells the parent it has children
@@ -153,7 +163,11 @@ function newProcessInternal(func, parent, name, desc, SU)
 		_processes[parent].children[#_processes[parent].children + 1] = PID
 	end
 	
-	local co = coroutine.create(func)
+	local env = getEnv(SU)
+	_env[PID] = env -- sandboxes each process
+	
+	local co = coroutine.create(setfenv(func, env))
+	
 	_processes[PID] = {co = co, parent = parent, children = {}, name = name, desc = desc, PID = PID, SU = SU}
 	return PID
 end
@@ -165,11 +179,8 @@ end
 
 
 function newRootProcess(func, parent, name, desc)
-	if isSU() or (#tableUtils.optimize(_processes) <= 0) then
-		newProcessInternal(func, parent, name, desc, true)
-	else
-		error("Error: process with PID " .. _runningPID .. " tried to start a new process as root: Access denied", 2)
-	end
+	errorUtils.assert(isSU(), "Error: process with PID " .. (_runningPID or "") .. " tried to start a new process as root: Access denied", 2)
+	newProcessInternal(func, parent, name, desc, true)
 end
 
 
@@ -180,7 +191,6 @@ function startProcesses()
 
 	while true do
 		local currentProc = _processes[_runningPID]
-	
 		data = {coroutine.resume(currentProc.co, unpack(data))}
 		success = data[1]
 		table.remove(data, 1) --removes sucess from the data
