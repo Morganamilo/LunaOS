@@ -1,43 +1,71 @@
---must load the APILoader before we can load other APIs
-os.loadAPI('/LunaOS/system/utils/APILoader.lua')
-_G['APILoader.lua'].loadList('/LunaOS/system/boot/APIs', true)
+dofile("/LunaOS/system/APIs/log.lua") -- load this first so we always have acess to log
+--dofile("/LunaOS/system/APIs/log.lua") 
 
+dofile("/LunaOS/system/apis/override.lua")
 
+os.loadAPI("LunaOS/system/object/object.lua")
+
+os.loadAPIDir("LunaOS/system/utils/") -- everything in utils must be safe to be called by non root processes
+os.loadAPI("/LunaOS/system/APIs/time.lua")
+os.loadAPI("/LunaOS/system/kernel/kernel.lua")
+log.i("Finished loading APIs")
 
 
 function f1() 
-term.setCursorBlink(true)
-	for n = 1, 10 do
-	d, a = coroutine.yield("char", "mouse_click")
-	print(a)
-	end
+	print("abcd")
+	print("abcd")
+	print("abcd")
+	--coroutine.yield()
+	--kernel.goto(1, 'p','y','f')
+	--r = {kernel.gotoPID(2, "p")}
+	print("abcd")
+	print("abcd")
+	print("abcd")
+	kernel.gotoPID(2)
+	print("------------------------------------")
+	print("abcd")
+	print("abcd")
+	print("abcd")
+	print("abcd")
+	--print(r[2])
+	print("abcd")
+	
 	
 end
 
-function f2() 
-	d = {"notning yet"}
-	for n = 1, 10 do
-		print("i am 2")
-		--for n = 1, 10000 do print(n) end
-		d = {coroutine.yield()} -- coroutine is spelt wrong so it will error here
-	end
+function f2()
+	print("zzzz")
+	print("zzzz")
+	print("zzzz")
+	print("zzzz")
+	print("zzzz")
+	kernel.killProcess(2)
+	print("1234567890")
+	print("1234567890")
+	print("1234567890")
+	print("1234567890")
+	print("1234567890")
+	print("1234567890")
+	print("1234567890")
+	print("1234567890")
+	print("1234567890")
+	print("1234567890")
+	
 end
 
 
-kernel.newProcess( f1 )
-kernel.newProcess( f2, 1 )
-kernel.newProcess( f2, 2 )
-kernel.newProcess( f2, 3 )
-kernel.newProcess( f2, 3 )
-kernel.newProcess( f2, 3 )
+pid = kernel.newProcess( f1 )
+kernel.newRootProcess( f2 )
+
 
 --kernel.gotoPID(1)
 --kernel.newProcess( function() for n = 1, 10 do print('i am 1  '..n) coroutine.yield() if n == 3 then print("n is 3 i shall be back") coroutine.yield('tevent') print("i am back") end end end, 1 )
 --kernel.newProcess( function() for n = 1, 10 do print('i am 2  '..n) coroutine.yield() if n == 7 then print"n is 7 sending signal to 1"  kernel.queEventNow('tevent') end end end, 1 )
 
 
-kernel.startProcesses()
+kernel.startProcesses(pid)
 
 -- os.loadAPI("/p")
 -- p.waitForAll(function() print('here i go') while true do print('weeee')  end end,
 				-- function() print('here i go2') while true do print('weeee2')  end end)
+				--]]
