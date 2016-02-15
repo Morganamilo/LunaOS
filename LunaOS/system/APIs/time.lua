@@ -1,21 +1,29 @@
 local weekNames = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"}
 local monthNames = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"}
 
-isRealTime = true --give the program a chance to check if the time is real before ending up with 01/01/1970
+isRealTime = false --give the program a chance to check if the time is real before ending up with 01/01/1970
 
 local function initTime()
 	local timeRequest = http.get("http://www.convert-unix-time.com/api?timestamp=now")
 	if not timeRequest then
 		log.i("No connection it server, using local time")
-		isRealTime = false
 		return 0
 	end --if we cant get a time just use 0
 	
 	local returnedTime = timeRequest.readLine()
-	return tonumber(returnedTime:sub(returnedTime:find("?t=") + 3,-3)) - math.floor(os.clock()) --incase this in called late
+	
+	if not returnedTime:find("?t=") then
+		log.i("Invalid response, using local time")
+		return 0
+	end
+	
+	isRealTime = true
+	
+	returnedTime = tonumber(returnedTime:sub(returnedTime:find("?t=") + 3,-3))
+	return returnedTime - math.floor(os.clock()) --for this to properly return the teme at boot we must take away the system up time
 end
 
-local timeAtBoot = initTime() --cashe the time at boot so we dont nee to access the webserver everytime we need ti check the time
+local timeAtBoot = initTime() --cashe the time at boot so we dont nee to access the webserver everytime we need to check the time
 
 function time()
 	return timeAtBoot + math.floor(os.clock())
