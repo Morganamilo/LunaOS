@@ -1,29 +1,34 @@
 local weekNames = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"}
 local monthNames = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"}
-
-isRealTime = false --give the program a chance to check if the time is real before ending up with 01/01/1970
+local realTime = false --give the program a chance to check if the time is real before ending up with 01/01/1970
 
 local function initTime()
-	local timeRequest = http.get("http://www.convert-unix-time.com/api?timestamp=now")
-	if not timeRequest then
-		log.i("No connection it server, using local time")
-		return 0
-	end --if we cant get a time just use 0
+	local timer = os.startTimer(5)
+	local timeRequest = http.request("http://lunadb.ddns.net/time.php")
+	local event, url, data
+	repeat 
+		event, url, data = coroutine.yield()
+	until (event == "timer" and url == timer) or event == "http_success" or event == "http_failure"
 	
-	local returnedTime = timeRequest.readLine()
-	
-	if not returnedTime:find("?t=") then
-		log.i("Invalid response, using local time")
-		return 0
+	if event == "http_failiure" then
+		log.i("No connection to server, using local time")
+		return 0 --if we cant get the real time just use 0
 	end
+	
+	if event == "timer" then
+		log.i("request timed out, using local time")
+		return 0 --if we cant get the real time just use 0
+	end 
+	
+	local returnedTime = data.readLine()
+	returnedTime = tonumber(returnedTime)
 	
 	isRealTime = true
 	
-	returnedTime = tonumber(returnedTime:sub(returnedTime:find("?t=") + 3,-3))
 	return returnedTime - math.floor(os.clock()) --for this to properly return the teme at boot we must take away the system up time
 end
 
-local timeAtBoot = initTime() --cashe the time at boot so we dont nee to access the webserver everytime we need to check the time
+local timeAtBoot = initTime() --cache the time at boot so we dont nee to access the webserver everytime we need to check the time
 
 function time()
 	return timeAtBoot + math.floor(os.clock())
@@ -64,7 +69,7 @@ function timef(s, t)
 	
 	day = tmpDays - monthsInDays[month]
 
-	s=s:gsub("\00", " ") --this is all i could think of to escape
+	s=s:gsub("\00", " ") --this is all i could think of to escape %%4
 	s=s:gsub("(%%%%)", "\00")
 	s=s:gsub("%%c", "%%x, %%X")
 	s=s:gsub("%%x", "%%d/%%m/%%Y")
@@ -86,4 +91,8 @@ function timef(s, t)
 	s=s:gsub("\00", "%%")
 	
 	return s 
+end
+
+function isRealTime()
+	return realTime
 end
