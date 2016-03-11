@@ -37,6 +37,7 @@ function optimize(tbl) --removes empty slots in tables by changing the keys
 end
 
 function copy(tbl)
+	 if type(tbl) ~= 'table' then return tbl end
 	local tempTbl = {}
 
 	for k, v in pairs(tbl) do 
@@ -51,7 +52,7 @@ function deepCopy(obj, seen)
   if type(obj) ~= 'table' then return obj end
   if seen and seen[obj] then return seen[obj] end
 
-  -- New table; mark it as seen an copy recursively.
+  -- New table; mark it as seen and copy recursively.
   local s = seen or {}
   local res = setmetatable({}, getmetatable(obj))
   s[obj] = res
@@ -73,3 +74,23 @@ function lowestIndex(tbl)
 	
 	return k
 end
+
+function combine(tbl1, tbl2)
+	errorUtils.expect(tbl1, 'table')
+	errorUtils.expect(tbl2, 'table')
+	
+	local tempTbl = {}
+	
+	for _,v in pairs(tbl1) do
+		tempTbl[#tempTbl + 1] = v
+	end
+	
+	for _,v in pairs(tbl2) do
+		tempTbl[#tempTbl + 1] = v
+	end
+	
+	return tempTbl
+end
+
+
+
