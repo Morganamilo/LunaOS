@@ -1,61 +1,67 @@
+term.clear()
+term.setCursorPos(1,1)
 dofile("/LunaOS/system/APIs/log.lua") -- load this first so we always have acess to log
---dofile("/LunaOS/system/APIs/log.lua") 
-
 dofile("/LunaOS/system/apis/override.lua")
-
 os.loadAPI("LunaOS/system/object/object.lua")
-
+os.loadAPI("/LunaOS/system/APIs/LunaOS.lua")
 os.loadAPIDir("LunaOS/system/utils/") -- everything in utils must be safe to be called by non root processes
 os.loadAPI("/LunaOS/system/APIs/time.lua")
 os.loadAPI("/LunaOS/system/kernel/kernel.lua")
-log.i("Finished loading APIs")
+os.loadAPI("/LunaOS/system/APIs/fs.lua")
+log.i("------- Finished loading APIs -------")
+
+term.setTextColor(2048)
+print("lunaOS Version " .. LunaOS.getVersion())
+term.setTextColor(1)
 
 
 function f1() 
-	print("abcd")
-	print("abcd")
-	print("abcd")
-	--coroutine.yield()
-	--kernel.goto(1, 'p','y','f')
-	--r = {kernel.gotoPID(2, "p")}
-	print("abcd")
-	print("abcd")
-	print("abcd")
+	--_G.a = 55
+	--print(_G.a)
+	--print(_ENV.a)
+	--print(a)
+	--p = kernel.newProcess(f2)
+	--kernel.gotoPID(p)
+	--kernel.runProgram('lunashell', true)
+	dofile("rom/programs/shell")
+	--[[print(1)
+	_G.a = 66
+	print(_G.a)
+	print(_ENV.a)
+	print(a)
+	print = nil
+	print(5)
 	kernel.gotoPID(2)
-	print("------------------------------------")
-	print("abcd")
-	print("abcd")
-	print("abcd")
-	print("abcd")
-	--print(r[2])
-	print("abcd")
-	
+	print(1)
+	print(_G.a)
+	print(a)]]
 	
 end
 
 function f2()
+	print(_G.a)
+	print(_ENV.a)
+	print(a)
+	dofile("rom/programs/shell")
+	--[[
+	print(_G.a)
+	print(_ENV.a)
+	print(a)
+	kernel.gotoPID(1)
+	print(2)
+	_G.os.shutdown()
 	print("zzzz")
 	print("zzzz")
 	print("zzzz")
 	print("zzzz")
-	print("zzzz")
-	kernel.killProcess(2)
-	print("1234567890")
-	print("1234567890")
-	print("1234567890")
-	print("1234567890")
-	print("1234567890")
-	print("1234567890")
-	print("1234567890")
-	print("1234567890")
-	print("1234567890")
-	print("1234567890")
+	print("zzzz")]]
+	
 	
 end
 
 
-pid = kernel.newProcess( f1 )
-kernel.newRootProcess( f2 )
+pid = kernel.newRootProcess( f1, nil, "LunaShell" )
+kernel.newProcess( f2 )
 
 
 --kernel.gotoPID(1)
