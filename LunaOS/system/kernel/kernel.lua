@@ -6,12 +6,31 @@
 local _processes = {} --table of all processes
 local _runningHistory = {} --keeps the order of which process was open last and was open before that etcetera
 local _env = {} --contains the enviroment of each process
-local _runningPID --pid of the currently running process
+local _runningPID --pid of the currently running process 
+local errorFunc
+
+function setErrorHandle()
+	errorUtils.assertLog(isSU(), "Error: process with PID " .. (_runningPID or "") .. " tried to change error handler: Access denied", 2, nil, "Warning")
+end
+
 
 --returns the stock enviroment for each process 
-local function getEnv(SU)
-	return _ENV
+function getEnv(SU)
+	local env = tableUtils.deepCopy(_ENV)
+	
+	env._G = env
+	env._ENV = env
+	
+	setfenv(1, env)
+	--dofile("/LunaOS/system/apis/override.lua")
+	
+	if not SU then
+		dofile("/LunaOS/system/apis/userOverride.lua")
+	end
+	
+	return env
 end
+
 
 
 --outputs a process error to the screen
@@ -25,14 +44,14 @@ local function handleError(proc, data)
 	print("\tReason: ".. data)
 	print("Returning to processes\n")
 	
-	term.setTextColor(colocs.white)
+	term.setTextColor(colors.white)
 	os.sleep(1)
 end
 
 --func		is the fuction that becomes the processes thread
---name 	in the processes name for the user
+--name 	is the processes name for the user
 --desc		is a description of the processes for the user
-local function newProcessInternal(func, parent, name, desc, SU)
+local function newProcessInternal(func, parent, name, desc, SU, dir)
 	errorUtils.assert(type(func)  == "function", "Error: function expected got " .. type(func), 3)
 	errorUtils.assert(type(name) == "string" or "nil", "Error: string expected got "       .. type(name), 3)
 	errorUtils.assert(type(desc)  == "string" or "nil", "Error: string expected got "       .. type(desc), 3)
@@ -51,14 +70,14 @@ local function newProcessInternal(func, parent, name, desc, SU)
 	_env[PID] = env -- sandboxes each process
 	
 	setfenv(func, env)
-	setfenv(function() 
-		dofile("/LunaOS/system/apis/override.lua")
+	--setfenv(function() 
+		--dofile("/LunaOS/system/apis/override.lua")
 		--if not SU then dofile("/LunaOS/system/apis/userOverride.lua") end
-	end, env)()
+	--end, env)()
 	
 	local co = coroutine.create(func)
 	
-	_processes[PID] = {co = co, parent = parent, children = {}, name = name, desc = desc, PID = PID, SU = SU}
+	_processes[PID] = {co = co, parent = parent, children = {}, name = name, desc = desc, PID = PID, SU = SU, dir = dir}
 	log.i("Created new " .. (SU and "Root" or "User") .. " process with PID " .. PID)
 	return PID
 end
@@ -72,6 +91,51 @@ function newRootProcess(func, parent, name, desc)
 	return newProcessInternal(func, parent, name, desc, true)
 end
 
+local function runProgramInternal(program, root, ...)
+	local root = "/lunaos/programs/"
+	local name
+	local args = unpack(arg)
+	args.n = nil
+	
+	if fs.isDir(root .. program) then
+		if fs.isFile(fs.combine(root, program, program .. '.lua')) then
+			name = program .. '.lua'
+		elseif fs.isFile(fs.combine(root, program, program)) then
+			name = program
+		elseif fs.isFile(fs.combine(root, program, 'main.lua')) then
+			name = 'main.lua'
+		elseif fs.isFile(fs.combine(root, program, 'main')) then
+			name = 'main'
+		elseif fs.isFile(fs.combine(root, program, 'startup.lua')) then
+			name = 'startup.lua'
+		elseif fs.isFile(fs.combine(root, program, 'startup')) then
+			name = 'startup'
+		end
+	end
+	
+	if not name then return end
+	
+	local PID = newProcessInternal(
+		function() local file = loadfile(fs.combine(root, program, name)) setfenv(file, getfenv(1)) file(args) end,
+		_runningPID,
+		program,
+		desc,
+		su,
+		fs.combine(root, program)
+	)
+
+	kernel.gotoPID(PID)
+end
+
+function runProgram(program, ...)
+	runProgramInternal(program, false, arg)
+end
+
+function runRootProgram(program, ...)
+	errorUtils.assertLog(isSU(), "Error: process with PID " .. (_runningPID or "") .. " tried to start a new program as root: Access denied", 2, nil, "Warning")
+	runProgramInternal(program, true, arg)
+end
+
 --ruturns a copy of all processes excluding the thread
 function getProcesses()
 	local procs = {}
@@ -83,8 +147,20 @@ function getProcesses()
 	return procs
 end
 
+function getProcess(n)
+	local proc = tableUtils.copy(_processes[n])
+	proc.co = nil
+	return proc
+	
+end
 function getRunning()
 	return _runningPID
+end
+
+function getRunningProgram()
+	if _runningPID then
+		return _processes[_runningPID].dir
+	end
 end
 
 function isSU()
@@ -137,7 +213,7 @@ function killProcess(PID)
 		--iterate over our parent's children until we find ourself
 		for child = 1, #parent.children do
 			if parent.children[child] == PID then
-				log.i("Telling " .. parent.PID "it no longer has child " .. PID)
+				log.i("Telling " .. parent.PID .. " it no longer has child " .. PID)
 				table.remove(parent.children, child)
 			end
 		end
@@ -156,6 +232,7 @@ function killProcess(PID)
 	end
 	
 	log.i("Finished killing: " .. PID)
+	print("killed " .. PID)
 	
 	--decide the process that takes over
 	local newRunning = thisPoc.parent or _runningHistory[#_runningHistory]
@@ -198,7 +275,11 @@ function startProcesses(PID)
 			 
 			repeat
 				event = {coroutine.yield()}
-				if event[1] == "terminate" then error("Killed process " .. _runningPID, 0) end
+				if event[1] == "terminate" then 
+					printError("Killed process " .. _runningPID)
+					killProcess(_runningPID)
+					break
+					end
 			until tableUtils.isIn(data, event[1]) or #data == 0
 			
 			data = event
@@ -208,11 +289,3 @@ function startProcesses(PID)
 
 		log.i("Kernel has finished running")
 end
-
-
-
-
-
-
-
-
