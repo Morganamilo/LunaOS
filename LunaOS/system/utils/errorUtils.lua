@@ -19,6 +19,21 @@ function assertLog(v, message, code, logMessage, flag)
 end
 
 function expect(var, typ, required, code)
-	if not var and not required then return end
-	assert(type(var) == typ, "Error: " .. typ .. " expected got " .. type(var), getCode(code))
+	if var == nil and not required then return end
+	
+	local errorMsg = "Error: " .. typ
+	if not required then errorMsg = errorMsg .. " or nil" end
+	errorMsg = errorMsg .. " expected, got " .. type(var)
+	
+	assert(type(var) == typ, errorMsg, getCode(code or 2))
+end
+
+function expectNamed(name, var, typ, required, code)
+	if var == nil and not required then return end
+	
+	local errorMsg = "Error: " .. typ
+	if not required then errorMsg = errorMsg .. " or nil" end
+	errorMsg = errorMsg .. " expected for " .. name .. ", got " .. type(var)
+	
+	assert(type(var) == typ, errorMsg, getCode(code or 2))
 end
