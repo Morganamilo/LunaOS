@@ -10,7 +10,7 @@ local function initTime()
 		event, url, data = coroutine.yield()
 	until (event == "timer" and url == timer) or event == "http_success" or event == "http_failure"
 	
-	if event == "http_failiure" then
+	if event == "http_failure" then
 		log.i("No connection to server, using local time")
 		return 0 --if we cant get the real time just use 0
 	end
