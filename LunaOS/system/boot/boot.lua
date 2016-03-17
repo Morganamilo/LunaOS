@@ -1,8 +1,3 @@
-term.clear()
-term.setCursorPos(1,1)
-
-print("Booting...")
-
 dofile("/LunaOS/system/apis/override.lua")
 dofile("/LunaOS/system/APIs/log.lua")
 
@@ -26,7 +21,8 @@ os.initAPIs()
 log.i("------- Finished loading APIs -------")
 
 
-
+term.clear()
+term.setCursorPos(1,1)
 term.setTextColor(2048)
 print("lunaOS Version " .. lunaOS.getProp("version"))
 term.setTextColor(1)
