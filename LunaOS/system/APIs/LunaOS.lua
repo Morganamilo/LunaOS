@@ -1,3 +1,5 @@
-function getVersion()
-	return "0.1a"
+local properties = jsonUtils.decodeFile("/lunaos/system/properties.json")
+
+function getProp(prop)
+	return properties[prop]
 end
