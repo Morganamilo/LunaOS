@@ -28,7 +28,7 @@ log.i("------- Finished loading APIs -------")
 
 
 term.setTextColor(2048)
-print("lunaOS Version " .. LunaOS.getProp("version")
+print("lunaOS Version " .. lunaOS.getProp("version"))
 term.setTextColor(1)
 
 
