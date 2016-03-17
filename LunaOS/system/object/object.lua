@@ -43,7 +43,7 @@ local function changeObjectValue(tbl, k, v)
 	end
 end
 
---when an object looks for noe of its members
+--when an object looks for one of its members
 --first look in object.self
 --otherwise look in object.nonStatic (only return the value is a function)
 --finally look in object.super
