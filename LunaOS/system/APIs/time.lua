@@ -71,6 +71,37 @@ function timef(s, t)
 
 	s=s:gsub("\00", " ") --this is all i could think of to escape %%4
 	s=s:gsub("(%%%%)", "\00")
+	
+	local characterClasses = {
+		Y =  tostring(year),
+		y =  tostring(year):sub(3),
+		B = monthNames[month],
+		b = monthNames[month]:sub(1,3),
+		w = tostring(weekday),
+		A = weekNames[weekday],
+		a = weekNames[weekday]:sub(1,3),
+		d = string.format("%02d", day),
+		H = string.format("%02d", hours),
+		I = string.format("%02d", hours % 12),
+		M = string.format("%02d", minutes),
+		m = string.format("%02d", month),
+		S = string.format("%02d", seconds),
+		p = (hours <= 12 and "AM" or "PM")
+	}
+	
+	characterClasses.X = characterClasses.I .. ":" .. characterClasses.M .. ":" .. characterClasses.p
+	characterClasses.x = characterClasses.d .. "/" .. characterClasses.m .. "/" .. characterClasses.y
+	characterClasses.c = characterClasses.x .. ", " .. characterClasses.X
+	
+	for class, result in pairs(characterClasses) do
+		s = s:gsub('%%' .. class, result)
+	end
+	
+	s=s:gsub("\00", "%%")
+	
+	
+	--[[s=s:gsub("\00", " ") --this is all i could think of to escape %%4
+	s=s:gsub("(%%%%)", "\00")
 	s=s:gsub("%%c", "%%x, %%X")
 	s=s:gsub("%%x", "%%d/%%m/%%Y")
 	s=s:gsub("%%X", "%%I:%%M:%%S %%p")
@@ -88,7 +119,9 @@ function timef(s, t)
 	s=s:gsub("%%m", string.format("%02d", month))
 	s=s:gsub("%%S", string.format("%02d", seconds))
 	s=s:gsub("%%p", hours <= 12 and "AM" or "PM")
-	s=s:gsub("\00", "%%")
+	s=s:gsub("\00", "%%")]]
+	
+	--s=s:gsub("[^%%](%%Y)", tostring(year))
 	
 	return s 
 end
