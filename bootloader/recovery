@@ -1,0 +1,100 @@
+local sizeX, sizeY = term.getSize()
+local primaryColour = 2048
+local secondaryColour = 8
+local backColour = 128
+local selectedColour = 512
+local selected = 1
+
+local options = {
+	{
+		name = "Reboot System",
+		desc = "Reboots the system",
+		action = os.reboot
+	},
+	
+	{
+		name = "Use Craft OS",
+		desc = "Boot into the defaut Computercraft shell",
+		action = "craftos"
+	},
+	
+	{
+		name = "Fix Permissions",
+		desc = "Resets all permissions to their default value",
+		action = "fixperms"
+	},
+	
+	{
+		name = "Wipe Data",
+		desc = "Wipes all data, reseting the OS to a clean install",
+		action = "wipedata"
+	},
+	
+	{
+		name = "Uninstall",
+		desc = "Uninstall the OS",
+		action = "uninstall"
+	}
+}
+
+local desc = options[selected].desc
+
+local function writeCenter(str, line , colour, backColour)
+	term.setCursorPos(1 ,line)
+	
+	if colour then term.setTextColor(colour) end
+	if backColour then term.setBackgroundColor(backColour) end
+	term.write(string.rep(" ", sizeX/2 - #str/2) .. str .. string.rep(" ", sizeX/2 - #str/2  + 1))
+end
+
+local function writeLine(y, colour)
+	term.setCursorPos(1,y)
+	if colour then term.setTextColor(colour) end
+	term.write(string.rep("-", sizeX))
+end
+
+local function updateDesc()
+	term.setCursorPos(1, sizeY)
+	term.setTextColor(secondaryColour)
+	term.write(desc)
+end
+
+local function updateDisplay()
+	term.setBackgroundColor(backColour)
+	term.clear()
+
+	writeLine(2, primaryColour)
+	writeLine(sizeY - 1, primaryColour)
+	
+	writeCenter("LunaOS Recovery", 1,  2048)
+	
+	updateDesc()
+	
+	for k,v in pairs(options) do
+		local backColour = k == selected and selectedColour or backColour
+		writeCenter(v.name, k + 3, secondaryColour, backColour)
+	end
+	
+end
+
+while true do
+	updateDisplay()
+	local event, key = coroutine.yield("key")
+	
+	if key == 200 then --up
+		selected = ((selected - 2) % #options) +1 
+		desc = options[selected].desc
+	elseif key == 208 then --down
+		selected = (selected % #options) + 1
+		desc = options[selected].desc
+	elseif key == 28 then --enter
+		if type(options[selected].action) == "function" then
+			options[selected].action()
+		elseif type(options[selected].action) == "string" then
+			desc = "Running..."
+			local sucess, res = pcall(dofile, fs.combine("/bootloader", options[selected].action))
+			desc = res or "Completed"
+		end
+	end
+end
+	
