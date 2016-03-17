@@ -6,16 +6,38 @@
 local _processes = {} --table of all processes
 local _runningHistory = {} --keeps the order of which process was open last and was open before that etcetera
 local _env = {} --contains the enviroment of each process
-local _runningPID --pid of the currently running process 
+local _runningPID = nil --pid of the currently running process 
+local programDataPath = "/lunaos/data/data"
+local fs = fs
 local errorFunc
+local programPath = lunaOS.getProp("programPath")
+
+--overide the default loadfile so we can give it acess to the default file system
+local loadfile = function( _sFile )
+    local file = fs.open( _sFile, "r" )
+    if file then
+        local func, err = loadstring( file.readAll(), fs.getName( _sFile ) )
+        file.close()
+        return func, err
+    end
+    return nil, "File not found"
+end
+
+function getProgramDataPath()
+	return programDataPath
+end
 
 function setErrorHandle()
 	errorUtils.assertLog(isSU(), "Error: process with PID " .. (_runningPID or "") .. " tried to change error handler: Access denied", 2, nil, "Warning")
 end
 
+function setEventListener()
+	error("not yet implemented")
+end
+
 
 --returns the stock enviroment for each process 
-function getEnv(SU)
+local function getEnv(SU)
 	local env = tableUtils.deepCopy(_ENV)
 	
 	env._G = env
@@ -25,7 +47,7 @@ function getEnv(SU)
 	--dofile("/LunaOS/system/apis/override.lua")
 	
 	if not SU then
-		dofile("/LunaOS/system/apis/userOverride.lua")
+		--dofile("/LunaOS/system/apis/userOverride.lua")
 	end
 	
 	return env
@@ -91,44 +113,49 @@ function newRootProcess(func, parent, name, desc)
 	return newProcessInternal(func, parent, name, desc, true)
 end
 
-local function runProgramInternal(program, root, ...)
-	local root = "/lunaos/programs/"
+local function runProgramInternal(program, su, ...)
+	local root = fs.combine(programPath, program)
 	local name
 	local args = unpack(arg)
 	args.n = nil
 	
-	if fs.isDir(root .. program) then
-		if fs.isFile(fs.combine(root, program, program .. '.lua')) then
-			name = program .. '.lua'
-		elseif fs.isFile(fs.combine(root, program, program)) then
-			name = program
-		elseif fs.isFile(fs.combine(root, program, 'main.lua')) then
-			name = 'main.lua'
-		elseif fs.isFile(fs.combine(root, program, 'main')) then
-			name = 'main'
-		elseif fs.isFile(fs.combine(root, program, 'startup.lua')) then
-			name = 'startup.lua'
-		elseif fs.isFile(fs.combine(root, program, 'startup')) then
-			name = 'startup'
-		end
+	errorUtils.assert(fs.isDir(root), "Error: Program does not exist", 2)
+	
+	fs.isFile = fs.exists
+	
+	if fs.isFile(fs.combine(root, program .. '.lua')) then
+		name = program .. '.lua'
+	elseif fs.isFile(fs.combine(root, program)) then
+		name = program
+	elseif fs.isFile(fs.combine(root, 'main.lua')) then
+		name = 'main.lua'
+	elseif fs.isFile(fs.combine(root, 'main')) then
+		name = 'main'
+	elseif fs.isFile(fs.combine(root, 'startup.lua')) then
+		name = 'startup.lua'
+	elseif fs.isFile(fs.combine(root, 'startup')) then
+		name = 'startup'
+	else
+		error("Error: Missing startup file", 2)
 	end
 	
-	if not name then return end
+	local file = loadfile(fs.combine(root, name))
+	setfenv(file, getfenv(1)) 
 	
 	local PID = newProcessInternal(
-		function() local file = loadfile(fs.combine(root, program, name)) setfenv(file, getfenv(1)) file(args) end,
-		_runningPID,
+		function() file(args) end,
+		nil,
 		program,
 		desc,
 		su,
-		fs.combine(root, program)
+		root
 	)
 
 	kernel.gotoPID(PID)
 end
 
 function runProgram(program, ...)
-	runProgramInternal(program, false, arg)
+	return runProgramInternal(program, false, arg)
 end
 
 function runRootProgram(program, ...)
@@ -144,6 +171,7 @@ function getProcesses()
 		procs[k] = v
 		procs[k].co = nil
 	end
+	
 	return procs
 end
 
@@ -153,13 +181,22 @@ function getProcess(n)
 	return proc
 	
 end
+
 function getRunning()
 	return _runningPID
 end
 
-function getRunningProgram()
+function getRunningProgramPath()
 	if _runningPID then
 		return _processes[_runningPID].dir
+	end
+end
+
+function getRunningProgram()
+	local path = getRunningProgramPath()
+	
+	if path then
+		return fs.getName(path)
 	end
 end
 
@@ -188,7 +225,7 @@ function gotoPID(PID, ...)
 end
 
 
-local function getAllChildren(PID)
+function getAllChildren(PID)
 	local allChildren = {PID}
 	local parentPID = _processes[PID].parent
 	local i = 1
