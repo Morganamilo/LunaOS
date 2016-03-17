@@ -1,62 +1,44 @@
 term.clear()
 term.setCursorPos(1,1)
-dofile("/LunaOS/system/APIs/log.lua") -- load this first so we always have acess to log
+
+print("Booting...")
+
 dofile("/LunaOS/system/apis/override.lua")
-os.loadAPI("LunaOS/system/object/object.lua")
-os.loadAPI("/LunaOS/system/APIs/LunaOS.lua")
-os.loadAPIDir("LunaOS/system/utils/") -- everything in utils must be safe to be called by non root processes
+dofile("/LunaOS/system/APIs/log.lua")
+
+os.loadAPIDir("LunaOS/system/utils/")
+
+log.init()
+log.init = nil
+os.initAPIs()
+
+log.i("------- Finished loading utils -------")
+
+os.loadAPI("/LunaOS/system/APIs/lunaOS.lua")
 os.loadAPI("/LunaOS/system/APIs/time.lua")
+os.loadAPI("LunaOS/system/object/object.lua")
 os.loadAPI("/LunaOS/system/kernel/kernel.lua")
+
+
 os.loadAPI("/LunaOS/system/APIs/fs.lua")
+os.initAPIs()
+
 log.i("------- Finished loading APIs -------")
 
+
+
 term.setTextColor(2048)
-print("lunaOS Version " .. LunaOS.getVersion())
+print("lunaOS Version " .. LunaOS.getProp("version")
 term.setTextColor(1)
 
 
 function f1() 
-	--_G.a = 55
-	--print(_G.a)
-	--print(_ENV.a)
-	--print(a)
-	--p = kernel.newProcess(f2)
-	--kernel.gotoPID(p)
-	--kernel.runProgram('lunashell', true)
-	dofile("rom/programs/shell")
-	--[[print(1)
-	_G.a = 66
-	print(_G.a)
-	print(_ENV.a)
-	print(a)
-	print = nil
-	print(5)
 	kernel.gotoPID(2)
-	print(1)
-	print(_G.a)
-	print(a)]]
-	
+	dofile("rom/programs/lua")
 end
 
 function f2()
-	print(_G.a)
-	print(_ENV.a)
-	print(a)
-	dofile("rom/programs/shell")
-	--[[
-	print(_G.a)
-	print(_ENV.a)
-	print(a)
-	kernel.gotoPID(1)
-	print(2)
-	_G.os.shutdown()
-	print("zzzz")
-	print("zzzz")
-	print("zzzz")
-	print("zzzz")
-	print("zzzz")]]
-	
-	
+	dofile("rom/programs/lua")
 end
 
 
