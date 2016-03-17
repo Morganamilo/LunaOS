@@ -1,8 +1,10 @@
 local oldFs = fs
+local permData
+local permPath = lunaOS.getProp("permPath")
+local dataPath = lunaOS.getProp("dataPath")
 
 getName = oldFs.getName
 getDir  = oldFs.getDir
-
 
 --------------------------------------------------------------------------------------
 --permissions
@@ -11,18 +13,16 @@ getDir  = oldFs.getDir
 --store perm data in memory for faster access
 --only use the file if we are changing a perm and not just reading 
 
-local function getPermData()
-	local file = errorUtils.assert(oldFs.open("/LunaOS/system/data/perms.json", "r"), "Error: File Permissions are missing", 0)
+ function getPermData()
+	local file = errorUtils.assert(oldFs.open(permPath, "r"), "Error: File Permissions are missing", 0)
 	local data = file.readAll()
 	file.close()
 	
 	return errorUtils.assert(jsonUtils.decode(data), "Error: File permissions are corupt", 0)
 end
 
-local permData = getPermData()
-
 local function saveData()
-	local file = oldFs.open("/LunaOS/system/data/perms.json", "w")
+	local file = oldFs.open(permPath, "w")
 	local data = jsonUtils.encode(permData)
 	file.write(data)
 	file.close()	
@@ -32,7 +32,6 @@ local function deletePerm(path)
 	if oldFs.isDir(path) then
 		for _,v in pairs(listAllSubObjects(path)) do
 			permData[combine(v):lower()] = nil
-			print('rm', combine(v):lower())
 		end
 	end
 	
@@ -55,7 +54,7 @@ end
 
 function setPerm(path, perm)
 	errorUtils.expect(path, "string", true, 2)
-	errorUtils.assert(kernel.isSu(), "Error: permission denied", 2)
+	--errorUtils.assert(kernel.isSU(), "Error: permission denied", 2)
 	errorUtils.assert(oldFs.exists(path), "Error: File does not exist", 2)
 	errorUtils.assert(perm >= 0 and perm <= 3, "Error: Invalid permission", 2)
 	
@@ -65,7 +64,7 @@ end
 
 function setPermTree(path, perm)
 	errorUtils.expect(path, "string", true, 2)
-	errorUtils.assert(kernel.isSu(), "Error: permission denied", 2)
+	--errorUtils.assert(kernel.isSU(), "Error: permission denied", 2)
 	errorUtils.assert(oldFs.isDir(path), "Error: Not a directory", 2)
 	errorUtils.assert(perm >= 0 and perm <= 3, "Error: Invalid permission", 2)
 	
@@ -122,7 +121,13 @@ function getPermTree(path)
 end
 
 function hasReadPerm(path)
+	if kernel.isSU() then return true end
 	errorUtils.expect(path, "string", true, 2)
+	
+	local program = kernel.getRunningProgram()
+	if program and isSubdirOf(combine(dataPath, program), path) then 
+		return true
+	end
 	
 	local perm = getEffectivePerm(path)
 	return perm == 1 or perm == 3
@@ -130,6 +135,12 @@ end
 
 function hasReadPermTree(path)
 	errorUtils.expect(path, "string", true, 2)
+	if kernel.isSU() then return true end
+	
+	local program = kenel.getRunningProgram()
+	if program and isSubdirOf(combine(kernel.getProgramDataPath(), program), path) then 
+		return true
+	end
 	
 	if not hasReadPerm(path) then return false end
 	local permTree = getPermTree(path)
@@ -138,6 +149,12 @@ end
 
 function hasWritePerm(path)
 	errorUtils.expect(path, "string", true, 2)
+	if kernel.isSU() and not oldFs.isReadOnly(path) then return true end
+	
+	local program = kernel.getRunningProgram()
+	if program and isSubdirOf(combine(dataPath, program), path) then 
+		return true
+	end
 	
 	local perm = getEffectivePerm(path)
 	return perm >= 2 and not oldFs.isReadOnly(path)
@@ -145,6 +162,7 @@ end
 
 function hasWritePermTree(path)
 	errorUtils.expect(path, "string", true, 2)
+	if kernel.isSU() and not oldFs.isReadOnly(path) then return true end
 	
 	if not hasWritePerm(path) then return false end
 	local permTree = getPermTree(path)
@@ -153,16 +171,29 @@ end
 
 function isReadOnly(path)
 	errorUtils.expect(path, "string", true, 2)
-		
-	local perm = getEffectivePerm(path)
-	return (perm == 2 or perm <= 1)  or oldFs.isReadOnly(path)
+	return not hasWritePerm(path)  or oldFs.isReadOnly(path)
 end
 
 -----------------------------------------------------------------------------------------
 --overridden functions
 -----------------------------------------------------------------------------------------
 
-local symLinks = {}
+--local symLinks = {}
+
+function isSubdirOf(dir, subdir)
+	errorUtils.expect(dir, "string", true)
+	errorUtils.expect(subdir, "string", true)
+
+	dir = combine(dir):lower()
+	subdir = combine(subdir):lower()
+	
+	while subdir ~= '' and #subdir > #dir do
+		subdir = getDir(subdir)
+		if dir == subdir then return true end
+	end
+	
+	return false
+end
 
 function combine(...)
 	local combinedString = ''
@@ -388,7 +419,7 @@ function open(path, mode)
 		errorUtils.assert(hasReadPerm(path), "Error: permission denied", 2)
 	elseif mode == 'w' or mode == 'wb' or mode == 'a' or mode == 'ab' then
 		errorUtils.assert(hasWritePerm(path), "Error: permission denied", 2)
-		setPerm(path, getPerm(path))
+		permData[combine(path):lower()] = getPerm(path)
 	else
 		error("Error: Unsupported mode")
 	end
@@ -409,8 +440,6 @@ end
 function find(path)
 	errorUtils.expect(path, "string", true, 2)
 	errorUtils.assert(hasReadPerm(path), "Error: permission denied", 2)
-	errorUtils.assert(oldFs.isDir(path), "Error: Not a directory", 2)
-	
 	return oldFs.find(path)
 end
 
@@ -440,3 +469,7 @@ function unLink(link)
 	symLinks[combine(link):lower()] = nil
 	oldFs.delete(link)
 end]]
+
+------------------------------------------------------------------------
+
+permData = getPermData()
