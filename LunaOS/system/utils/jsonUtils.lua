@@ -127,7 +127,7 @@ function localFuncs.parseArray(str, start)
 		if c == "]" then
 			return array, start + 1
 		elseif c ~= "," then
-			error("Error: Expected ',' near" .. start, 1)
+			error("Error: Expected ',' near" .. start, 0)
 		end
 	end
 end
@@ -151,7 +151,7 @@ function localFuncs.parseObject(str, start)
 		if c == "}" then
 			return object, start + 1
 		elseif c ~= "," then
-			error("Error: Expected ',' near " .. start, 1)
+			error("Error: Expected ',' near " .. start, 0)
 		end
 	end
 end
@@ -166,7 +166,7 @@ function localFuncs.parsePair(str, start)
 	errorUtils.assert(type(key) == "string", "Error: key must be string near" .. start, 0)
 	
 	if c ~= ":" then
-		error("Error: Expected ':' near" .. start)
+		error("Error: Expected ':' near " .. start, 0)
 	else
 		c, start = localFuncs.nextValue(str, start + 1) 
 	end
@@ -240,9 +240,11 @@ function localFuncs.parseNonString(str, start)
 	error("Error: Invalid value near" .. start, 0)
 end
 
+-----------------------------------------------------------------------------
 
 function decode(str)
-	errorUtils.assert(type(str) == "string", "Error: String expected got " .. type(str), 2)
+	errorUtils.expect(str, "string", true)
+	
 	local result
 	local c, start = localFuncs.nextValue(str, 1)
 	
@@ -258,7 +260,8 @@ function decode(str)
 end
 
 function decodeFile(path)
-	errorUtils.assert(fs.isFile(path), "Error: not a flie", 2)
+	errorUtils.expect(path, "string", true)
+	errorUtils.assert(fs.exists(path) and not fs.isDir(path), "Error: not a flie", 2)
 	
 	local file = fs.open(path, 'r')
 	local data = file.readAll()
