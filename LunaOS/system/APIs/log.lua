@@ -1,15 +1,21 @@
-local clearAtBoot = true
-local serverIsReachable = http.get('http://lunadb.ddns.net/') ~= nil
+local clearAtBoot
+local logPath
+local serverPath
+local useServer
+local enabled
+local serverIsReachable
+local fs = fs
 
 local function initFile()
-	local file = fs.open("/LunaOS/system/LunaOS.log", "w")
+	local file = fs.open(logPath, "w")
 	file.write("--- LunaOS Log ---\n")
 	file.close()
 end
 
 local function writeToDB()
+	if not useServer then return end
 	local sql = "p=LunaOS&sql=INSERT%20INTO%20Logs%20(Time,Type,message)%20VALUES%20"
-	local file = fs.open("/LunaOS/system/LunaOS.log","r")
+	local file = fs.open(logPath,"r")
 	if not file then return end
 	
 	file.readLine() -- skip the first line
@@ -21,35 +27,36 @@ local function writeToDB()
 		local time = line:gmatch('%[.-,')():sub(2,-2)
 		local type = line:gmatch('(,.-)%]')():sub(3)
 		local message = line:gmatch('%].*')():sub(3)
-		--sql = sql .. "('0','a','m'),"
+		
 		sql = sql .. "('" .. textutils.urlEncode(time:gsub("\\","\\\\"):gsub("'","\\'")) .. "','" .. 
 			textutils.urlEncode(type:gsub("\\","\\\\"):gsub("'","\\'")) .. "','" .. 
 			textutils.urlEncode(message:gsub("\\","\\\\"):gsub("'","\\'")) .. "'),"
 	end
 	
 	sql = sql:sub(1,-2)
-	if not http.post("http://lunadb.ddns.net/", sql) then print("db") end
 	
 end
 
 log = {
 	log = function(message, flag)
+		if not (enabled and logPath) then return end
 		if type(message) ~= "string" then error("Error: string expected got " .. type(message)) end
 		if type(flag) ~= "string" then error("Error: string expected got " .. type(flag)) end
 		
 		flag = flag:gsub("%]","}"):gsub("%[","{")
-	
-		if not fs.exists("/LunaOS/system/LunaOS.log") or fs.isDir("/LunaOS/system/LunaOS.log") then
+		
+		if not fs.exists(logPath) then
 			initFile()
 		end
 	
-		local file = fs.open("/LunaOS/system/LunaOS.log", "a")
+		local file = fs.open(logPath, "a")
 		if file then
 			if time and time.isRealTime then
 				file.write(time.timef("[%Y-%m-%d %H:%M:%S, ") .. flag .. "] ".. message .. "\n")
 			else
 				file.write("[" .. os.clock() .. ", " .. flag .. "] ".. message .. "\n")
 			end
+			
 			file.close()
 		end
 	end,
@@ -61,8 +68,24 @@ log = {
 	s = function(message) log(message, "Severe") end
 }
 
-if serverIsReachable then writeToDB() end
-if clearAtBoot then initFile() end
-
 setmetatable(log, {__call = function(t, message, flag) log.log(message, flag) end})
-log("---------- Booting ----------","Boot")
+ 
+function log.init()
+	local config = jsonUtils.decodeFile("lunaos/data/system/log.json")
+	
+	clearAtBoot = errorUtils.assert(config.clearAtBoot ~= nil, "Error: Missing config data: clearAtBoot")
+	logPath = errorUtils.assert(config.logPath, "Error: Missing config data: logPath")
+	serverPath = errorUtils.assert(config.serverPath, "Error: Missing config data: serverPath")
+	
+	errorUtils.assert(config.enabled ~= nil, "Error: Missing config data: enabled")
+	errorUtils.assert(config.useServer ~= nil, "Error: Missing config data: useServer")
+	enabled = config.enabled
+	useServer = config.useServer
+	
+	serverIsReachable = http.get(serverPath) ~= nil
+	
+	if serverIsReachable then writeToDB() end
+	if clearAtBoot then initFile() end
+	
+	log("---------- Booting ----------","Boot")
+end
