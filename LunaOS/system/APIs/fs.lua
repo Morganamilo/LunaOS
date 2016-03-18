@@ -137,7 +137,7 @@ function hasReadPermTree(path)
 	errorUtils.expect(path, "string", true, 2)
 	if kernel.isSU() then return true end
 	
-	local program = kenel.getRunningProgram()
+	local program = kernel.getRunningProgram()
 	if program and isSubdirOf(combine(kernel.getProgramDataPath(), program), path) then 
 		return true
 	end
