@@ -7,10 +7,13 @@ local _processes = {} --table of all processes
 local _runningHistory = {} --keeps the order of which process was open last and was open before that etcetera
 local _env = {} --contains the enviroment of each process
 local _runningPID = nil --pid of the currently running process 
+local _waitingFor = {}
+
 local programDataPath = "/lunaos/data/data"
 local fs = fs
-local errorFunc
+local windowHandler
 local programPath = lunaOS.getProp("programPath")
+
 
 --overide the default loadfile so we can give it acess to the default file system
 local loadfile = function( _sFile )
@@ -23,18 +26,25 @@ local loadfile = function( _sFile )
     return nil, "File not found"
 end
 
+function cirticalError(msg)
+	term.clear()
+	term.setCursorPos(1,1)
+	term.write("Critical Error")
+	term.setCursorPos(1,2)
+	term.write(msg)
+	term.setCursorPos(1,2)
+	term.write("Press any key to shutdown")
+	coroutine.yield("key")
+	os.shutdown()
+end
+
 function getProgramDataPath()
 	return programDataPath
 end
 
-function setErrorHandle()
-	errorUtils.assertLog(isSU(), "Error: process with PID " .. (_runningPID or "") .. " tried to change error handler: Access denied", 2, nil, "Warning")
+function setWindowHandler(tbl)
+	windowHandler = tbl
 end
-
-function setEventListener()
-	error("not yet implemented")
-end
-
 
 --returns the stock enviroment for each process 
 local function getEnv(SU)
@@ -53,22 +63,6 @@ local function getEnv(SU)
 	return env
 end
 
-
-
---outputs a process error to the screen
-local function handleError(proc, data)
-	log.e("Process " .. proc.name .. " (" ..  proc.PID .. ") has crashed: " .. data)
-	term.setTextColor(colors.red)
-
-	print("Error: process Has crashed")
-	print("\tPID: ".. proc.PID)
-	print("\tName: ".. proc.name)
-	print("\tReason: ".. data)
-	print("Returning to processes\n")
-	
-	term.setTextColor(colors.white)
-	os.sleep(1)
-end
 
 --func		is the fuction that becomes the processes thread
 --name 	is the processes name for the user
@@ -98,8 +92,10 @@ local function newProcessInternal(func, parent, name, desc, SU, dir)
 	--end, env)()
 	
 	local co = coroutine.create(func)
+	local window = windowHandler.newWindow(PID)
+	env.term.native = function() return window end
 	
-	_processes[PID] = {co = co, parent = parent, children = {}, name = name, desc = desc, PID = PID, SU = SU, dir = dir}
+	_processes[PID] = {co = co, parent = parent, children = {}, name = name, desc = desc, PID = PID, SU = SU, dir = dir, window = window}
 	log.i("Created new " .. (SU and "Root" or "User") .. " process with PID " .. PID)
 	return PID
 end
@@ -111,6 +107,14 @@ end
 function newRootProcess(func, parent, name, desc)
 	errorUtils.assertLog(isSU(), "Error: process with PID " .. (_runningPID or "") .. " tried to start a new process as root: Access denied", 2, nil, "Warning")
 	return newProcessInternal(func, parent, name, desc, true)
+end
+
+function runFile(path, parent, name, desc)
+	return newProcess(function() dofile(path) end, parent, name, desc)
+end
+
+function newRootFile(path, parent, name, desc)
+	return newRootProcess(function() dofile(path) end, parent, name, desc)
 end
 
 local function runProgramInternal(program, su, ...)
@@ -150,8 +154,6 @@ local function runProgramInternal(program, su, ...)
 		su,
 		root
 	)
-
-	kernel.gotoPID(PID)
 end
 
 function runProgram(program, ...)
@@ -168,16 +170,20 @@ function getProcesses()
 	local procs = {}
 	
 	for k, v in pairs(_processes) do
-		procs[k] = v
+		procs[k] = tableUtils.copy(v)
 		procs[k].co = nil
+		procs[k].window = nil
 	end
 	
 	return procs
 end
 
 function getProcess(n)
+	if not _processes[n] then return end
+
 	local proc = tableUtils.copy(_processes[n])
 	proc.co = nil
+	proc.window = nil
 	return proc
 	
 end
@@ -211,8 +217,6 @@ function gotoPID(PID, ...)
 	errorUtils.assert(_processes[PID], "Error: PID " .. tostring(PID) .. " is invalid or does not exist", 2)
 	log.i("Going to PID " .. PID)
 	
-	_runningPID = PID
-	
 	--if the PID is already in the history move it to the top
 	local index = tableUtils.isIn(_runningHistory, PID)
 	if index then
@@ -220,6 +224,11 @@ function gotoPID(PID, ...)
 	end
 	
 	_runningHistory[#_runningHistory + 1] = PID
+	
+	local old = _runningPID and _processes[_runningPID].window or nil
+	windowHandler.gotoWindow(old, _processes[PID].window)
+	_runningPID = PID
+	
 	os.queueEvent('goto', unpack(arg))
 	return coroutine.yield("goto")
 end
@@ -257,9 +266,10 @@ function killProcess(PID)
 	end
 	
 	for _, v in pairs(getAllChildren(PID)) do
-		log.i("killing " .. PID)
+		log.i("killing " .. v)
 		_processes[v] = nil
-		_env[PID] = nil
+		_waitingFor[v] = nil
+		_env[v] = nil
 		
 		--removes the process from the _runningHistory
 		local index = tableUtils.isIn(_runningHistory, v)
@@ -268,61 +278,96 @@ function killProcess(PID)
 		end
 	end
 	
+	_runningPID = nil
+	
 	log.i("Finished killing: " .. PID)
 	print("killed " .. PID)
 	
 	--decide the process that takes over
-	local newRunning = thisPoc.parent or _runningHistory[#_runningHistory]
+	local newRunning = thisPoc.parent or _runningHistory[#_runningHistory] or tableUtils.lowestIndex(_processes)
 	if newRunning then
 		gotoPID(newRunning) 
 	else
 		_runningPID = nil
-		os.queueEvent("stop")
-		coroutine.yield("stop")
+		--os.queueEvent("stop")
+		--coroutine.yield("stop")
 	end
+end
+
+local function resume(co, data)	
+	data = { coroutine.resume(co, unpack(data)) }
+	local success = table.remove(data, 1)
+	return success, data
+end
+
+local function next(data)
+	if  _waitingFor[_runningPID] then return _waitingFor[_runningPID]  end
+	
+	local currentProc = _processes[_runningPID]
+	local success
+	local event
+	
+	success, data = resume(currentProc.co, data)
+	
+	if not success then --handle error
+		currentProc.co = coroutine.create(function() windowHandler.handleError(currentProc, data[1]) end)
+		data = {}
+	end
+	
+	if coroutine.status(currentProc.co) == 'dead' then --handle death
+		killProcess(currentProc.PID)
+		data = {}
+	end
+	
+	return data
+end
+
+local function getYield(data)
+	local proc = _runningPID
+	local event
+	
+	repeat
+		event = {coroutine.yield()} --the event we get + extra data
+		
+		if proc ~= _runningPID then --if the process has changed since we starded the loop
+			if _processes[proc] then _waitingFor[proc] = data end
+			return data 
+		else
+			_waitingFor[proc] = nil
+		end
+		
+		local success, res = pcall(windowHandler.handleEvent, event)
+		if not success then cirticalError(res) end
+	until tableUtils.isIn(data, event[1]) or #data == 0
+	
+	return event
 end
 
 --starts the specified pocess
 function startProcesses(PID)
-	--stop if a process is already running. gotoPID should be used instead
-	if _runningPID then return end
-	
 	errorUtils.assert(_processes[PID], "Error: PID " .. tostring(PID) .. " is invalid or does not exist", 2)
-	_runningHistory[#_runningHistory + 1] = PID
-	_runningPID = PID
+	errorUtils.assert(not _runningPID, "Error: kernel already running", 2)
+	gotoPID(PID)
 	
-	local data = {}
+	local success, res = pcall(windowHandler.init)
+	if not success then cirticalError(res) end
+	
+	local data = {} --the events we are listening for
+	
 	while _runningPID do
-		local currentProc = _processes[_runningPID]
-		data = { coroutine.resume(currentProc.co, unpack(data)) }
-		success = data[1]
-		table.remove(data, 1) --give success its own varible then remove it from the table
-
-		if not success then
-			handleError(currentProc, data[1])
-		end
-
-		if coroutine.status(currentProc.co) == "dead" then
-			killProcess(currentProc.PID)
-			--if table.getn(_processes) == 0 or not _runningPID then break end
-			data = {} --data is wiped so it does not get passed to the next processes
-		else
-			 --process its yield if the process is still alive
-			 local event
-			 
-			repeat
-				event = {coroutine.yield()}
-				if event[1] == "terminate" then 
-					printError("Killed process " .. _runningPID)
-					killProcess(_runningPID)
-					break
-					end
-			until tableUtils.isIn(data, event[1]) or #data == 0
-			
-			data = event
-		end
-		
+		data = next(data)
+		data = getYield(data)
 	end
-
-		log.i("Kernel has finished running")
+	
+	os.shutdown()
 end
+
+
+
+
+
+
+
+
+
+

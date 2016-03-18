@@ -20,16 +20,9 @@ os.initAPIs()
 
 log.i("------- Finished loading APIs -------")
 
-
-term.clear()
-term.setCursorPos(1,1)
-term.setTextColor(2048)
-print("lunaOS Version " .. lunaOS.getProp("version"))
-term.setTextColor(1)
-
+kernel.setWindowHandler(os.loadAPI("/lunaos/system/kernel/windowHandler.lua", true))
 
 function f1() 
-	kernel.gotoPID(2)
 	dofile("rom/programs/lua")
 end
 
@@ -38,8 +31,8 @@ function f2()
 end
 
 
-pid = kernel.newRootProcess( f1, nil, "LunaShell" )
-kernel.newProcess( f2 )
+pid = kernel.newRootProcess( f1, nil, "proc 1" )
+kernel.newProcess( f2, nil, "proc 2" )
 
 
 --kernel.gotoPID(1)
@@ -48,8 +41,3 @@ kernel.newProcess( f2 )
 
 
 kernel.startProcesses(pid)
-
--- os.loadAPI("/p")
--- p.waitForAll(function() print('here i go') while true do print('weeee')  end end,
-				-- function() print('here i go2') while true do print('weeee2')  end end)
-				--]]
