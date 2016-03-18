@@ -3,12 +3,14 @@ local monthNames = {"January", "February", "March", "April", "May", "June", "Jul
 local realTime = false --give the program a chance to check if the time is real before ending up with 01/01/1970
 
 local function initTime()
-	local timer = os.startTimer(5)
+	local timer = os.startTimer(1)
 	local timeRequest = http.request("http://lunadb.ddns.net/time.php")
 	local event, url, data
 	repeat 
 		event, url, data = coroutine.yield()
 	until (event == "timer" and url == timer) or event == "http_success" or event == "http_failure"
+	
+	os.cancelTimer(timer)
 	
 	if event == "http_failure" then
 		log.i("No connection to server, using local time")
@@ -22,6 +24,11 @@ local function initTime()
 	
 	local returnedTime = data.readLine()
 	returnedTime = tonumber(returnedTime)
+	
+	if not returnedTime then
+		log.i("invalid response, using local time")
+		return 0
+	end
 	
 	isRealTime = true
 	
