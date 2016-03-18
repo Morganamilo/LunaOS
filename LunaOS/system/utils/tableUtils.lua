@@ -10,8 +10,8 @@ end
 
 function range(tbl, start, finish)
 	errorUtils.expect(tbl, "table", true)
-	errorUtils.expect(start, "number", true)
-	errorUtils.expect(finish, "number", true)
+	errorUtils.expect(start, "number", false)
+	errorUtils.expect(finish, "number", false)
 	
 	local tempTbl = {}
 	start = start or 1
@@ -109,7 +109,7 @@ function lowestIndex(tbl)
 		end
 	end
 	
-	return k
+	return lowest
 end
 
 function combine(tbl1, tbl2)
