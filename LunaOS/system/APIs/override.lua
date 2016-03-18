@@ -5,9 +5,10 @@ local isLoading = {}
 local toInit = {}
 local oldfs = fs
 
-function os.loadAPI(path)
+os.pullEvent = coroutine.yield
+
+function os.loadAPI(path, locally)
 	if type(path) ~= "string" then error("Error: string expected got " .. type(path), 2) end
-	if kernel and loadAsRoot and not kernel.isSU() then error("Error: permission denied", 2) end
 	
 	local name = fs.getName(path):gmatch("([^.]+)")():gsub(" ", "_")
         
@@ -19,7 +20,6 @@ function os.loadAPI(path)
 	log.i("Loading API " .. path)
 	
 	local env = {}
-	if loadAsRoot then env.fs = oldfs end
 		
 	setmetatable(env, {__index = getfenv(), __metatable = ""})
 	local APIFunc, err = loadfile(path)
@@ -44,12 +44,14 @@ function os.loadAPI(path)
 			APITable[k] =  v
 	end
 	
-	_G[name] = APITable
+	if not locally then
+		_G[name] = APITable
+	end
 	
 	isLoading[path] = nil
 	toInit[#toInit + 1] = name
 	log.i("Succsess: loaded " .. path .. " as " .. name)
-	return APITable
+	return locally and APITable or true
 end
 
 function os.unloadAPI(name)
@@ -58,9 +60,8 @@ function os.unloadAPI(name)
 	end
 end
 
-function os.loadAPIList(path, loadAsRoot)
+function os.loadAPIList(path)
 	if type(path) ~= "string" then error("Error: string expected got " .. type(path), 2) end
-	if kernel and loadAsRoot and not kernel.isSU() then error("Error: permission denied", 2) end
 
 	local file = fs.open(path, 'r')
 	if file then
@@ -72,9 +73,9 @@ function os.loadAPIList(path, loadAsRoot)
 			
 			if fs.exists(currentLine) then 
 				if fs.isDir(currentLine) then
-					os.loadAPIDir(currentLine, loadAsRoot)
+					os.loadAPIDir(currentLine)
 				else 
-					os.loadAPI(currentLine, loadAsRoot)
+					os.loadAPI(currentLine)
 				end
 			end
 		end
@@ -83,14 +84,13 @@ function os.loadAPIList(path, loadAsRoot)
 	end
 end
 
-function os.loadAPIDir(path, loadAsRoot)
+function os.loadAPIDir(path)
 	if type(path) ~= "string" then error("Error: string expected got " .. type(path), 2) end
 	if not fs.isDir(path) then error("Error: " .. path .. " is not a directory", 2) end
-	if kernel and loadAsRoot and not kernel.isSU() then error("Error: permission denied", 2) end
 	
 	for _, file in pairs(fs.list(path)) do
 		if not fs.isDir(file) then
-			os.loadAPI(fs.combine(path, file), loadAsRoot)
+			os.loadAPI(fs.combine(path, file))
 		end
 	end
 end
