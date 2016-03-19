@@ -26,6 +26,7 @@ local timer = os.startTimer(.5)
 while true do
 	local event, key = coroutine.yield()
 	if event == 'key' and key == 42 then
+		os.cancelTimer(timer)
 		dofile("bootloader/recovery")
 		break
 	elseif event == 'timer' and key == timer then
