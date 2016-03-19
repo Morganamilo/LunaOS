@@ -110,21 +110,27 @@ function newRootProcess(func, parent, name, desc)
 	return newProcessInternal(func, parent, name, desc, true)
 end
 
-function runFile(path, parent, name, desc)
-	return newProcess(function() dofile(path) end, parent, name, desc)
+function runFile(path, parent, name, desc, ...)
+	local file, err = loadfile(path)
+	errorUtils.assert(file, err, 2)
+	setfenv(file, getfenv(1)) 
+	
+	return newProcess(function() file(unpack(arg)) end, parent, name, desc)
 end
 
-function newRootFile(path, parent, name, desc)
-	return newRootProcess(function() dofile(path) end, parent, name, desc)
+function runRootFile(path, parent, name, desc, ...)
+	local file, err = loadfile(path)
+	errorUtils.assert(file, err, 2)
+	setfenv(file, getfenv(1)) 
+	
+	return newRootProcess(function() file(arg) end, parent, name, desc)
 end
 
-local function runProgramInternal(program, su, ...)
+local function runProgramInternal(program, su, args)
 	errorUtils.expect(program, 'string', true, 3)
 	
 	local root = fs.combine(programPath, program)
 	local name
-	local args = unpack(arg)
-	args.n = nil
 	
 	errorUtils.assert(fs.isDir(root), "Error: Program does not exist", 2)
 	
@@ -146,11 +152,12 @@ local function runProgramInternal(program, su, ...)
 		error("Error: Missing startup file", 2)
 	end
 	
-	local file = loadfile(fs.combine(root, name))
+	local file, err = loadfile(fs.combine(root, name))
+	errorUtils.assert(file, err, 3)
 	setfenv(file, getfenv(1)) 
 	
 	local PID = newProcessInternal(
-		function() file(args) end,
+		function() file(unpack(args)) end,
 		nil,
 		program,
 		desc,
