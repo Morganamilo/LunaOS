@@ -5,6 +5,7 @@ local i = 0
 local xSize, ySize = term.getSize()
 local banner
 local windows = setmetatable({}, {__mode = "v"})
+local extended = false
 
 local dead = coroutine.create(function() while true do print(3) end end)
 
@@ -76,8 +77,14 @@ function updateBanner(event)
 	end
 	
 	term.setBackgroundColor(128)
-	term.setCursorPos(xSize, 3)
+	
+	term.setCursorPos(xSize - 1, 3)
+	term.write(extended and "^" or "V")
+	
+	--term.setCursorPos(xSize, 3)
 	term.write("X")
+	
+	
 	
 	restore()
 end
@@ -88,6 +95,12 @@ function handleEvent(event) --called every time an event happens
 		if event[3] == xSize then
 			--if we hit the X kill the program
 			kernel.killProcess(kernel.getRunning())
+		elseif event[3] == xSize - 1 then
+			--extended
+			extended = not extended
+			if extended then banner.reposition(1,1,xSize,10) 
+			else banner.reposition(1,1,xSize,3) end 
+			
 		elseif kernel.getProcess(event[3]) then
 			--goto the prcess clicked
 			kernel.gotoPID(event[3])
