@@ -71,7 +71,7 @@ log = {
 setmetatable(log, {__call = function(t, message, flag) log.log(message, flag) end})
  
 function log.init()
-	local config = jsonUtils.decodeFile("LunaOS/data/system/log.json")
+	local config = jsonUtils.decodeFile("lunaos/data/system/log.json")
 	
 	clearAtBoot = errorUtils.assert(config.clearAtBoot ~= nil, "Error: Missing config data: clearAtBoot")
 	logPath = errorUtils.assert(config.logPath, "Error: Missing config data: logPath")

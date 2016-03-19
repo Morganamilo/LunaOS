@@ -20,7 +20,7 @@ os.initAPIs()
 
 log.i("------- Finished loading APIs -------")
 
-kernel.setWindowHandler(os.loadAPI("/LunaOS/system/kernel/windowHandler.lua", true))
+kernel.setWindowHandler(os.loadAPI("/lunaos/system/kernel/windowHandler.lua", true))
 
 function f1() 
 	dofile("rom/programs/lua")

@@ -31,7 +31,7 @@ while true do
 		break
 	elseif event == 'timer' and key == timer then
 		term.clear()
-		dofile("LunaOS/system/boot/boot.lua")
+		dofile("lunaos/system/boot/boot.lua")
 		break
 	end
 end
