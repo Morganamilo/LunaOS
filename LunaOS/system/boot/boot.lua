@@ -36,8 +36,11 @@ kernel.newProcess( f2, nil, "proc 2" )
 
 
 --kernel.gotoPID(1)
---kernel.newProcess( function() for n = 1, 10 do print('i am 1  '..n) coroutine.yield() if n == 3 then print("n is 3 i shall be back") coroutine.yield('tevent') print("i am back") end end end, 1 )
---kernel.newProcess( function() for n = 1, 10 do print('i am 2  '..n) coroutine.yield() if n == 7 then print"n is 7 sending signal to 1"  kernel.queEventNow('tevent') end end end, 1 )
-
-
+n = term.native()
 kernel.startProcesses(pid)
+	
+	term.native()
+	--term.redirect(n)
+	term.setBackgroundColor(4)
+	term.clear()
+	term.write('bye')
