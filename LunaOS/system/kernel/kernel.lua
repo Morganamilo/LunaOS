@@ -14,7 +14,6 @@ local fs = fs
 local windowHandler
 local programPath = lunaOS.getProp("programPath")
 
-
 --overide the default loadfile so we can give it acess to the default file system
 local loadfile = function( _sFile )
     local file = fs.open( _sFile, "r" )
@@ -27,12 +26,13 @@ local loadfile = function( _sFile )
 end
 
 function cirticalError(msg)
+	term.redirect(term.native())
 	term.clear()
 	term.setCursorPos(1,1)
 	term.write("Critical Error")
 	term.setCursorPos(1,2)
 	term.write(msg)
-	term.setCursorPos(1,2)
+	term.setCursorPos(1,3)
 	term.write("Press any key to shutdown")
 	coroutine.yield("key")
 	os.shutdown()
@@ -68,9 +68,10 @@ end
 --name 	is the processes name for the user
 --desc		is a description of the processes for the user
 local function newProcessInternal(func, parent, name, desc, SU, dir)
-	errorUtils.assert(type(func)  == "function", "Error: function expected got " .. type(func), 3)
-	errorUtils.assert(type(name) == "string" or "nil", "Error: string expected got "       .. type(name), 3)
-	errorUtils.assert(type(desc)  == "string" or "nil", "Error: string expected got "       .. type(desc), 3)
+	errorUtils.expect(func, 'function', true, 3)
+	errorUtils.expect(parent, 'number', false, 3)
+	errorUtils.expect(name, 'string', false, 3)
+	errorUtils.expect(desc, 'string', false, 3)
 	
 	local PID = tableUtils.getEmptyIndex(_processes)
 	local name = name or ''
@@ -78,7 +79,7 @@ local function newProcessInternal(func, parent, name, desc, SU, dir)
 	
 	if parent then
 		--tells the parent it has children
-		errorUtils.assert(_processes[parent], "Error: PID " .. parent .. " is invalid or does not exist", 2)
+		errorUtils.assert(_processes[parent], "Error: PID " .. parent .. " is invalid or does not exist", 3)
 		_processes[parent].children[tableUtils.getEmptyIndex(_processes[parent].children)] = PID
 	end
 	
@@ -118,6 +119,8 @@ function newRootFile(path, parent, name, desc)
 end
 
 local function runProgramInternal(program, su, ...)
+	errorUtils.expect(program, 'string', true, 3)
+	
 	local root = fs.combine(programPath, program)
 	local name
 	local args = unpack(arg)
@@ -179,6 +182,7 @@ function getProcesses()
 end
 
 function getProcess(n)
+	errorUtils.expect(n, 'number', true, 2)
 	if not _processes[n] then return end
 
 	local proc = tableUtils.copy(_processes[n])
@@ -214,7 +218,8 @@ end
 
 --pauses the current process and starts/resumes the specifid process
 function gotoPID(PID, ...)
-	errorUtils.assert(_processes[PID], "Error: PID " .. tostring(PID) .. " is invalid or does not exist", 2)
+	errorUtils.expect(PID, 'number', true, 2)
+	errorUtils.assert(_processes[PID], "Error: PID " .. PID .. " is invalid or does not exist", 2)
 	log.i("Going to PID " .. PID)
 	
 	--if the PID is already in the history move it to the top
@@ -235,6 +240,9 @@ end
 
 
 function getAllChildren(PID)
+	errorUtils.expect(PID, 'number', true, 2)
+	errorUtils.assert(_processes[PID], "Error: PID " .. PID .. " is invalid or does not exist", 2)
+	
 	local allChildren = {PID}
 	local parentPID = _processes[PID].parent
 	local i = 1
@@ -251,6 +259,9 @@ function getAllChildren(PID)
 end
 
 function killProcess(PID)
+	errorUtils.expect(PID, 'number', true, 2)
+	errorUtils.assert(_processes[PID], "Error: PID " .. PID .. " is invalid or does not exist", 2)
+	
 	local thisPoc = _processes[PID]
 	local children = getAllChildren(PID)
 	local parent = _processes[thisPoc.parent ]
@@ -345,7 +356,8 @@ end
 
 --starts the specified pocess
 function startProcesses(PID)
-	errorUtils.assert(_processes[PID], "Error: PID " .. tostring(PID) .. " is invalid or does not exist", 2)
+	errorUtils.expect(PID, 'number', true, 2)
+	errorUtils.assert(_processes[PID], "Error: PID " .. PID .. " is invalid or does not exist", 2)
 	errorUtils.assert(not _runningPID, "Error: kernel already running", 2)
 	gotoPID(PID)
 	
@@ -358,8 +370,6 @@ function startProcesses(PID)
 		data = next(data)
 		data = getYield(data)
 	end
-	
-	os.shutdown()
 end
 
 
