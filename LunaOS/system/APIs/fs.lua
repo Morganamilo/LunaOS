@@ -54,7 +54,8 @@ end
 
 function setPerm(path, perm)
 	errorUtils.expect(path, "string", true, 2)
-	--errorUtils.assert(kernel.isSU(), "Error: permission denied", 2)
+	errorUtils.expect(perm, "number", true, 2)
+	errorUtils.assert(kernel.isSU(), "Error: permission denied", 2)
 	errorUtils.assert(oldFs.exists(path), "Error: File does not exist", 2)
 	errorUtils.assert(perm >= 0 and perm <= 3, "Error: Invalid permission", 2)
 	
@@ -64,7 +65,8 @@ end
 
 function setPermTree(path, perm)
 	errorUtils.expect(path, "string", true, 2)
-	--errorUtils.assert(kernel.isSU(), "Error: permission denied", 2)
+	errorUtils.expect(perm, "number", true, 2)
+	errorUtils.assert(kernel.isSU(), "Error: permission denied", 2)
 	errorUtils.assert(oldFs.isDir(path), "Error: Not a directory", 2)
 	errorUtils.assert(perm >= 0 and perm <= 3, "Error: Invalid permission", 2)
 	
