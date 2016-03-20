@@ -122,7 +122,7 @@ function runRootFile(path, parent, name, desc, ...)
 	errorUtils.assert(file, err, 2)
 	setfenv(file, getfenv(1)) 
 	
-	return newRootProcess(function() file(arg) end, parent, name, desc)
+	return newRootProcess(function() file(unpack(arg)) end, parent, name, desc)
 end
 
 local function runProgramInternal(program, su, args)
