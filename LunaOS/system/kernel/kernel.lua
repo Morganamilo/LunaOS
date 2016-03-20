@@ -419,16 +419,18 @@ end
 local i = 0
 local xSize, ySize = term.getSize()
 local banner
+local workingArea
 local extended = false
 local native = term.native()
 
 function newWindow(PID) -- called when a new process is made
-	local window = window.create(native, 1, 4, xSize, ySize - 3, false)
+	local window = window.create(workingArea, 1, 1, xSize, ySize - 3, false)
 	return window
 end
 
 function init() --called when the main process loop starts
 	banner = window.create(native,1,1,xSize,3,true)
+	workingArea = window.create(native, 1,4, xSize, ySize - 3, true)
 	updateBanner({})
 end
 
@@ -491,8 +493,8 @@ function updateBanner(event)
 	
 	term.setBackgroundColor(128)
 	
-	term.setCursorPos(xSize - 1, 3)
-	term.write(extended and "^" or "V")
+	term.setCursorPos(xSize - 2, 3)
+	term.write(extended and "O^" or "OV")
 	
 	--term.setCursorPos(xSize, 3)
 	term.write("X")
@@ -500,6 +502,16 @@ function updateBanner(event)
 	
 	
 	restore()
+end
+
+function a()
+return workingArea
+end
+
+function reposAll(newX, newY, newW, newH)
+	for k, v in pairs(_processes) do 
+	v.window.reposition(newX, newY, newW, newH)
+	end
 end
 
 function handleEvent(event) --called every time an event happens
@@ -511,9 +523,16 @@ function handleEvent(event) --called every time an event happens
 		elseif event[3] == xSize - 1 then
 			--extended
 			extended = not extended
-			if extended then banner.reposition(1,1,xSize,10) 
-			else banner.reposition(1,1,xSize,3) end 
-			
+			if extended then
+				reposAll(1,5)
+				banner.reposition(1,1,xSize,3+ 4)
+			else
+				reposAll(1,1)
+				banner.reposition(1,1,xSize,3)
+			end 
+		elseif event[3] == xSize - 3 then
+			workingArea.redraw()
+		
 		elseif kernel.getProcess(event[3]) then
 			--goto the prcess clicked
 			kernel.gotoPID(event[3])
