@@ -120,7 +120,7 @@ function runFile(path, parent, name, desc, ...)
 	errorUtils.assert(file, err, 2)
 	setfenv(file, getfenv(1)) 
 	
-	return newProcess(function() file(unpack(arg)) end, parent, name or fs.getname(path), desc)
+	return newProcess(function() file(unpack(arg)) end, parent, name or fs.getName(path), desc)
 end
 
 function runRootFile(path, parent, name, desc, ...)
@@ -128,7 +128,7 @@ function runRootFile(path, parent, name, desc, ...)
 	errorUtils.assert(file, err, 2)
 	setfenv(file, getfenv(1)) 
 	
-	return newRootProcess(function() file(unpack(arg)) end, parent, fs.getname(path), desc)
+	return newRootProcess(function() file(unpack(arg)) end, parent, fs.getName(path), desc)
 end
 
 local function runProgramInternal(program, su, args)
@@ -294,6 +294,7 @@ local function killProcessInternal(PID)
 	
 	for _, v in pairs(getAllChildren(PID)) do
 		log.i("killing " .. v)
+		handleDeath()
 		_processes[v] = nil
 		_waitingFor[v] = nil
 		_env[v] = nil
@@ -409,7 +410,9 @@ function startProcesses(PID)
 	term.setCursorPos(1,1)
 end
 
-----------------------------------------------------------------------------------------------------------------
+ 
+ 
+ ----------------------------------------------------------------------------------------------------------------
 --Window Handler
 ----------------------------------------------------------------------------------------------------------------
 
@@ -542,6 +545,9 @@ function handleEvent(event) --called every time an event happens
 	updateBanner(event)
 end
 
+function handleDeath(PID)
+
+end
 
 
 
