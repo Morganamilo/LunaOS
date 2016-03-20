@@ -1,5 +1,6 @@
 local sizeX, sizeY = term.getSize()
 local str = "Press Shift To Enter Recovery"
+local booting = "Booting..."
 term.setBackgroundColor(128)
 term.clear()
 term.setTextColor(2048)
@@ -30,7 +31,9 @@ while true do
 		dofile("bootloader/recovery")
 		break
 	elseif event == 'timer' and key == timer then
-		term.clear()
+		term.clearLine()
+		term.setCursorPos(sizeX - #booting + 1, sizeY)
+		term.write(booting)
 		dofile("LunaOS/system/boot/boot.lua")
 		break
 	end
