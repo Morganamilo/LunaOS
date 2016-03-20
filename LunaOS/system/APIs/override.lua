@@ -109,3 +109,21 @@ function os.setComputerLabel(label)
 	
 	oldSetComputerLabel(label)
 end
+
+local oldShutdown = os.shutdown
+function os.shutdown()
+	if kernel.isSU() then oldShutdown()
+	else kernel.killProcess(kernel.getRunning()) end
+end
+
+local oldReboot = os.reboot
+function os.reboot()
+	if kernel.isSU() then oldReboot()
+	else kernel.killProcess(kernel.getRunning()) end
+end
+
+
+
+
+
+
