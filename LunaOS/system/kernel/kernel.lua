@@ -85,7 +85,6 @@ local function newProcessInternal(func, parent, name, desc, SU, dir)
 	
 	local env = getEnv(SU)
 	_env[PID] = env -- sandboxes each process
-	
 	setfenv(func, env)
 	--setfenv(function() 
 		--dofile("/LunaOS/system/apis/override.lua")
@@ -94,7 +93,7 @@ local function newProcessInternal(func, parent, name, desc, SU, dir)
 	
 	local co = coroutine.create(func)
 	local window = windowHandler.newWindow(PID)
-	env.term.native = function() return window end
+	
 	
 	_processes[PID] = {co = co, parent = parent, children = {}, name = name, desc = desc, PID = PID, SU = SU, dir = dir, window = window}
 	log.i("Created new " .. (SU and "Root" or "User") .. " process with PID " .. PID)
@@ -176,6 +175,10 @@ function runRootProgram(program, ...)
 end
 
 --ruturns a copy of all processes excluding the thread
+function getProcessCount()
+	return #_processes
+end
+
 function getProcesses()
 	local procs = {}
 	
@@ -369,12 +372,16 @@ function startProcesses(PID)
 	
 	current = term.current()
 	
+	
 	gotoPID(PID)
 	
 	local success, res = pcall(windowHandler.init)
 	if not success then cirticalError(res) end
 	
 	local data = {} --the events we are listening for
+	
+	term.native = term.current
+	
 	
 	while _runningPID do
 		data = next(data)

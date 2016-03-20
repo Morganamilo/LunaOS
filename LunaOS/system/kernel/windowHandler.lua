@@ -4,18 +4,18 @@
 local i = 0
 local xSize, ySize = term.getSize()
 local banner
-local windows = setmetatable({}, {__mode = "v"})
 local extended = false
+local native = term.native()
 
 local dead = coroutine.create(function() while true do print(3) end end)
 
 function newWindow(PID) -- called when a new process is made
-	windows[PID] = window.create(term.native(), 1, 4, xSize, ySize - 3, false)
-	return windows[PID]
+	local window = window.create(native, 1, 4, xSize, ySize - 3, false)
+	return window
 end
 
 function init() --called when the main process loop starts
-	banner = window.create(term.native(),1,1,xSize,3,true)
+	banner = window.create(native,1,1,xSize,3,true)
 	updateBanner({})
 end
 
@@ -23,7 +23,7 @@ function gotoWindow(oldWin, newWin)
 		if oldWin then oldWin.setVisible(false) end
 		newWin.setVisible(true)
 		term.redirect(newWin)
-		--newWin.restoreCursor()
+		--newWin.restoreCursor() kernel.runFile("/rom/programs/edit",nil,nil,nil,'a')
 end
 
 function handleError(proc, data)
