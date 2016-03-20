@@ -11,12 +11,14 @@ log.i("------- Finished loading utils -------")
 
 os.loadAPI("/LunaOS/system/APIs/lunaOS.lua")
 os.loadAPI("/LunaOS/system/APIs/time.lua")
+os.loadAPI("/LunaOS/system/APIs/multishell.lua")
 os.loadAPI("LunaOS/system/object/object.lua")
 os.loadAPI("/LunaOS/system/kernel/kernel.lua")
 
 
 os.loadAPI("/LunaOS/system/APIs/fs.lua")
 os.initAPIs()
+
 
 log.i("------- Finished loading APIs -------")
 
@@ -31,9 +33,11 @@ function f2()
 end
 
 
-pid = kernel.newRootProcess( f1, nil, "proc 1" )
-kernel.newProcess( f2, nil, "proc 2" )
+pid = kernel.runFile("rom/programs/lua")
+kernel.runFile("rom/programs/lua")
+kernel.runFile("rom/programs/shell")
 
 
 --kernel.gotoPID(1)
+term.clear()
 kernel.startProcesses(pid)
