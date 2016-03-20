@@ -9,7 +9,7 @@ local _env = {} --contains the enviroment of each process
 local _runningPID = nil --pid of the currently running process 
 local _waitingFor = {}
 
-local programDataPath = "/lunaos/data/data"
+local programDataPath = lunaOS.getProp("dataPath")
 local fs = fs
 local windowHandler
 local programPath = lunaOS.getProp("programPath")
