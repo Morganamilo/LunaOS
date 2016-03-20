@@ -9,10 +9,17 @@ local _env = {} --contains the enviroment of each process
 local _runningPID = nil --pid of the currently running process 
 local _waitingFor = {}
 
+local i = 0
+local xSize, ySize = term.getSize()
+local banner
+local extended = false
+local native = term.native()
+
 local programDataPath = lunaOS.getProp("dataPath")
 local fs = fs
-local windowHandler
+--local windowHandler
 local programPath = lunaOS.getProp("programPath")
+local windowHandler
 
 --overide the default loadfile so we can give it acess to the default file system
 local loadfile = function( _sFile )
@@ -31,8 +38,7 @@ function cirticalError(msg)
 	term.setCursorPos(1,1)
 	term.write("Critical Error")
 	term.setCursorPos(1,2)
-	term.write(msg)
-	term.setCursorPos(1,3)
+	print(msg)
 	term.write("Press any key to shutdown")
 	coroutine.yield("key")
 	os.shutdown()
@@ -43,7 +49,7 @@ function getProgramDataPath()
 end
 
 function setWindowHandler(tbl)
-	windowHandler = tbl
+	--windowHandler = tbl
 end
 
 --returns the stock enviroment for each process 
@@ -92,7 +98,7 @@ local function newProcessInternal(func, parent, name, desc, SU, dir)
 	--end, env)()
 	
 	local co = coroutine.create(func)
-	local window = windowHandler.newWindow(PID)
+	local window = newWindow(PID)
 	
 	
 	_processes[PID] = {co = co, parent = parent, children = {}, name = name, desc = desc, PID = PID, SU = SU, dir = dir, window = window}
@@ -241,7 +247,7 @@ function gotoPID(PID, ...)
 	_runningHistory[#_runningHistory + 1] = PID
 	
 	local old = _runningPID and _processes[_runningPID].window or nil
-	windowHandler.gotoWindow(old, _processes[PID].window)
+	gotoWindow(old, _processes[PID].window)
 	_runningPID = PID
 	
 	os.queueEvent('goto', unpack(arg))
@@ -268,7 +274,7 @@ function getAllChildren(PID)
 	return allChildren
 end
 
-function killProcess(PID)
+local function killProcessInternal(PID)
 	errorUtils.expect(PID, 'number', true, 2)
 	errorUtils.assert(_processes[PID], "Error: PID " .. PID .. " is invalid or does not exist", 2)
 	
@@ -315,6 +321,14 @@ function killProcess(PID)
 	end
 end
 
+function killProcess(PID)
+	errorUtils.expect(PID, 'number', true, 2)
+	errorUtils.assertLog(isSU(), "Error: process with PID " .. (_runningPID or "") .. " tried to start a new program as root: Access denied", 2, nil, "Warning")
+	errorUtils.assert(_processes[PID], "Error: PID " .. PID .. " is invalid or does not exist", 2)
+	
+	killProcessInternal(PID)
+end
+
 local function resume(co, data)	
 	data = { coroutine.resume(co, unpack(data)) }
 	local success = table.remove(data, 1)
@@ -331,7 +345,7 @@ local function next(data)
 	success, data = resume(currentProc.co, data)
 	
 	if not success then --handle error
-		currentProc.co = coroutine.create(function() windowHandler.handleError(currentProc, data[1]) end)
+		currentProc.co = coroutine.create(function() handleError(currentProc, data[1]) end)
 		data = {}
 	end
 	
@@ -357,7 +371,7 @@ local function getYield(data)
 			_waitingFor[proc] = nil
 		end
 		
-		local success, res = pcall(windowHandler.handleEvent, event)
+		local success, res = pcall(handleEvent, event)
 		if not success then cirticalError(res) end
 	until tableUtils.isIn(data, event[1]) or #data == 0
 	
@@ -375,7 +389,7 @@ function startProcesses(PID)
 	
 	gotoPID(PID)
 	
-	local success, res = pcall(windowHandler.init)
+	local success, res = pcall(init)
 	if not success then cirticalError(res) end
 	
 	local data = {} --the events we are listening for
@@ -395,8 +409,119 @@ function startProcesses(PID)
 	term.setCursorPos(1,1)
 end
 
+----------------------------------------------------------------------------------------------------------------
+--Window Handler
+----------------------------------------------------------------------------------------------------------------
 
+--all the functions that the kernel calls are subject to change
+--this is just thrown together as a proof of concept and is very badly written
 
+local i = 0
+local xSize, ySize = term.getSize()
+local banner
+local extended = false
+local native = term.native()
+
+function newWindow(PID) -- called when a new process is made
+	local window = window.create(native, 1, 4, xSize, ySize - 3, false)
+	return window
+end
+
+function init() --called when the main process loop starts
+	banner = window.create(native,1,1,xSize,3,true)
+	updateBanner({})
+end
+
+function gotoWindow(oldWin, newWin)
+		if oldWin then oldWin.setVisible(false) end
+		newWin.setVisible(true)
+		term.redirect(newWin)
+		--newWin.restoreCursor() kernel.runFile("/rom/programs/edit",nil,nil,nil,'a')
+end
+
+function handleError(proc, data)
+	--log.e("Process " .. proc.name .. " (" ..  proc.PID .. ") has crashed: " .. data)
+	term.setTextColor(colors.red)
+	term.setBackgroundColor(4)
+	term.clear()
+	term.setCursorPos(1,1)
+
+	print("Error: process Has crashed")
+	print("\tPID: ".. proc.PID)
+	print("\tName: ".. proc.name)
+	print("\tReason: ".. (data or ''))
+	print("Returning to processes\n") --coroutine.yield("terminate")
+	print("Press any key to continue") --kernel.runProgram("lunashell")
+	print(math.random(1000))
+	
+	term.setTextColor(colors.white)
+	--kernel.killProcess(proc.PID)
+	--proc.co = cor
+	coroutine.yield("key")--]] --kernel.gotoPID(kernel.newProcess(function() f() end))
+end
+
+function updateBanner(event)
+	local restore = term.current().restoreCursor
+	local term = banner
+	local x, y = term.getCursorPos()
+	
+	term.setBackgroundColor(128)
+	term.clear()
+	term.setCursorPos(1,1)
+	term.setTextColor(2048)
+	term.write("lunaOS Version " .. lunaOS.getProp("version"))
+	
+	term.setCursorPos(xSize - #tostring(i) + 1,1)
+	term.write(i)
+	i = i + 1
+	
+	term.setCursorPos(1,2)
+	
+	for _, v in pairs(event) do
+		term.write(v .. ' ')
+	end
+	
+	term.setCursorPos(1, 3)
+	
+	for k,v in pairs(kernel.getProcesses()) do
+		local colour = k == kernel.getRunning() and colors.green or 128
+		term.setBackgroundColor(colour)
+		term.write(k)
+	end
+	
+	term.setBackgroundColor(128)
+	
+	term.setCursorPos(xSize - 1, 3)
+	term.write(extended and "^" or "V")
+	
+	--term.setCursorPos(xSize, 3)
+	term.write("X")
+	
+	
+	
+	restore()
+end
+
+function handleEvent(event) --called every time an event happens
+	--event[1] i the event type, the rest of the table is extra data passed along
+	if event[1] == "mouse_click" and event[2] == 1 and event[4] == 3 then
+		if event[3] == xSize then
+			--if we hit the X kill the program
+			killProcessInternal(PID)
+		elseif event[3] == xSize - 1 then
+			--extended
+			extended = not extended
+			if extended then banner.reposition(1,1,xSize,10) 
+			else banner.reposition(1,1,xSize,3) end 
+			
+		elseif kernel.getProcess(event[3]) then
+			--goto the prcess clicked
+			kernel.gotoPID(event[3])
+		end
+	end
+	
+	updateBanner(event)
+end
 
 
 
