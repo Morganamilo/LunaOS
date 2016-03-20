@@ -5,16 +5,17 @@ local i = 0
 local xSize, ySize = term.getSize()
 local banner
 local extended = false
+local native = term.native()
 
 local dead = coroutine.create(function() while true do print(3) end end)
 
 function newWindow(PID) -- called when a new process is made
-	local window = window.create(term.native(), 1, 4, xSize, ySize - 3, false)
+	local window = window.create(native, 1, 4, xSize, ySize - 3, false)
 	return window
 end
 
 function init() --called when the main process loop starts
-	banner = window.create(term.native(),1,1,xSize,3,true)
+	banner = window.create(native,1,1,xSize,3,true)
 	updateBanner({})
 end
 
