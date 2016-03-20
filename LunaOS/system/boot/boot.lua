@@ -36,11 +36,4 @@ kernel.newProcess( f2, nil, "proc 2" )
 
 
 --kernel.gotoPID(1)
-n = term.native()
 kernel.startProcesses(pid)
-	
-	term.native()
-	--term.redirect(n)
-	term.setBackgroundColor(4)
-	term.clear()
-	term.write('bye')

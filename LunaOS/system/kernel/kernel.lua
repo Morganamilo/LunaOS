@@ -366,6 +366,9 @@ function startProcesses(PID)
 	errorUtils.expect(PID, 'number', true, 2)
 	errorUtils.assert(_processes[PID], "Error: PID " .. PID .. " is invalid or does not exist", 2)
 	errorUtils.assert(not _runningPID, "Error: kernel already running", 2)
+	
+	current = term.current()
+	
 	gotoPID(PID)
 	
 	local success, res = pcall(windowHandler.init)
@@ -377,9 +380,13 @@ function startProcesses(PID)
 		data = next(data)
 		data = getYield(data)
 	end
+	
+	term.redirect(current)
+	term.setBackgroundColor(colors.black)
+	term.setTextColor(1)
+	term.clear()
+	term.setCursorPos(1,1)
 end
-
-
 
 
 
