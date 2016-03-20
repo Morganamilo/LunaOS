@@ -1,27 +1,32 @@
-function getCurrent()
+function multishell.getCurrent()
 	return kernel.getRunning()
 end
 
-function getCount()
+function multishell.getCount()
 	return kernel.getProcessCount()
 end
 
-function launch(env, path, ...)
-	kernel.runFile(path, nil, nil, nil, unpack(arg))
+function multishell.launch(env, path, ...)
+	return kernel.runFile(path, nil, nil, nil, unpack(arg))
 end
 
-function setFocus(PID)
-	kernel.gotoPID(PID)
+function multishell.setFocus(PID)
+	if kernel.getProcess(PID) then
+		kernel.gotoPID(PID)
+		return true
+	else
+		return false
+	end
 end
 
-function setTitle(PID)
+function multishell.setTitle(PID)
 
 end
 
-function getTitle(PID)
+function multishell.getTitle(PID)
 	return kernel.getProcess(PID).title
 end
 
-function getFocus()
+function multishell.getFocus()
 	kernel.getRunning()
 end
