@@ -39,6 +39,8 @@ kernel.runRootFile("rom/programs/lua")
 kernel.runFile("rom/programs/lua")
 kernel.runFile("rom/programs/shell")
 kernel.runProgram("EventPrinter")
+kernel.runProgram("LunaShell", 2)
+kernel.runProgram("LunaShell", 2)
 
 
 

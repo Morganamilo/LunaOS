@@ -124,7 +124,7 @@ function runRootFile(path, parent, name, desc, ...)
 	return newRootProcess(function() file(unpack(arg)) end, parent, fs.getName(path), desc)
 end
 
-local function runProgramInternal(program, su, args)
+local function runProgramInternal(program, parent, su, args)
 	errorUtils.expect(program, 'string', true, 3)
 	
 	local root = fs.combine(programPath, program)
@@ -156,7 +156,7 @@ local function runProgramInternal(program, su, args)
 	
 	local PID = newProcessInternal(
 		function() file(unpack(args)) end,
-		nil,
+		parent,
 		program,
 		desc,
 		su,
@@ -164,13 +164,13 @@ local function runProgramInternal(program, su, args)
 	)
 end
 
-function runProgram(program, ...)
-	return runProgramInternal(program, false, arg)
+function runProgram(program, parent, ...)
+	return runProgramInternal(program, parent, false, arg)
 end
 
-function runRootProgram(program, ...)
+function runRootProgram(program, parent, ...)
 	errorUtils.assertLog(isSU(), "Error: process with PID " .. (_runningPID or "") .. " tried to start a new program as root: Access denied", 2, nil, "Warning")
-	runProgramInternal(program, true, arg)
+	runProgramInternal(program, parent, true, arg)
 end
 
 --ruturns a copy of all processes excluding the thread
@@ -420,18 +420,32 @@ end
 local xSize, ySize = term.getSize()
 local native = term.native()
 local windowOrder = {}
+local extended = false
 
 local banner = window.create(native, 1, 1, xSize, 1, false)
 local workingArea = window.create(native, 1,2, xSize, ySize - 1, false)
 
-local function getLabelAt(pos)
+local function reposAll(newH)
+	banner.reposition(1, 1, xSize, newH)
+	
+	for k, v in pairs(_processes) do
+		v.window.reposition(1, newH)
+	end
+end
+
+local function getLabelAt(Xpos, Ypos)
 	local length = 0
 	
 	for k,v in ipairs(windowOrder) do
+		local parent = _processes[v].parent
+	
+		
+		if (not parent and Ypos == 1) or (parent and Ypos == 2) then
 		local start = length
 		length = length + #_processes[v].name + 2
-		if _runningPID == v then length = length + 1 end
-		if pos > start and pos <= length  then return v, pos - start end
+		if _runningPID == x then length = length + 2 end
+		if Xpos > start and Xpos <= length  then return v, Xpos - start - 1 end
+		end
 	end
 end
 
@@ -439,20 +453,21 @@ local function writeProcess(PID)
 	if PID == _runningPID then
 		banner.setBackgroundColor(colors.gray)
 		banner.setTextColor(colors. red)
-		banner.write(string.char(215)) --X
+		banner.write(' ' .. string.char(215)) --X
 		
 		if table.getn(_processes[PID].children) > 0 then
-			banner.write(string.char(31)) --down arrow
+			banner.write(string.char(extended and 30 or 31)) --down arrow
 		else
 			banner.write(' ')
 		end
+		
+		banner.setTextColor(colors. blue)
 	else
 		banner.setBackgroundColor(colors.cyan)
 		banner.write(' ')
+		banner.setTextColor(colors. yellow)
 	end
-	
-	
-	banner.setTextColor(colors. orange)
+
 	banner.write( _processes[PID].name .. ' ' )
 	banner.setBackgroundColor(colors.cyan)
 end
@@ -478,20 +493,46 @@ end
 local function updateBanner()
 	writeProcesses()
 	
+	if extended then
+		banner.setCursorPos(1, 2)
+		
+		for k,v in pairs(windowOrder) do	
+				if _processes[v].parent == _runningPID or (_processes[_runningPID].parent and _processes[v].parent == _processes[_runningPID].parent) then
+					writeProcess(k)
+				end
+		end
+	end
+	
 	term.current().restoreCursor()
 end
 
 local function handleBannerEvent(event)
-	local proc, pos = getLabelAt(event[3])
+	local proc, pos = getLabelAt(event[3], event[4])
 	if proc and event[1] == 'mouse_click' then
 		if proc == _runningPID then
-			if pos == 1 then killProcessInternal(_runningPID)
-			elseif pso == 2 then end
+			if pos == 1 then
+				killProcessInternal(_runningPID)
+			elseif pos == 2 then
+				extended = not extended
+				reposAll(extended and 2 or 1)
+			end
 		else
-				if event[2] == 1 then kernel.gotoPID(proc)
-				else killProcessInternal(proc) end
+				if event[2] == 1 then
+					if (not _processes[_runningPID].parent and not _processes[proc].parent) or ( _processes[proc].parent ~= _runningPID and _processes[_runningPID].parent ~= proc and _processes[proc].parent ~= _processes[_runningPID].parent) then
+						extended = false
+						reposAll(1)
+					end
+					
+					kernel.gotoPID(proc)
+					
+				else
+					killProcessInternal(proc)
+				end
 		end
 	end
+	
+	
+	updateBanner()
 end
 
 function windowHandler.init()
@@ -531,6 +572,7 @@ function windowHandler.handleEvent(event)
 			return event
 		else
 			handleBannerEvent(event)
+			updateBanner()
 			return {}
 		end
 	end
