@@ -5,7 +5,7 @@ local isLoading = {}
 local toInit = {}
 local oldfs = fs
 
-os.pullEvent = coroutine.yield
+--os.pullEvent = coroutine.yield
 
 function os.loadAPI(path, locally)
 	if type(path) ~= "string" then error("Error: string expected got " .. type(path), 2) end

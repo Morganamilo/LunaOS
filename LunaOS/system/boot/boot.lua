@@ -33,9 +33,15 @@ function f2()
 end
 
 
-pid = kernel.runRootFile("rom/programs/lua")
+pid = kernel.runRootFile("rom/programs/shell")
+
+kernel.runRootFile("rom/programs/lua")
 kernel.runFile("rom/programs/lua")
 kernel.runFile("rom/programs/shell")
+kernel.runProgram("EventPrinter")
+kernel.runProgram("LunaShell", 2)
+kernel.runProgram("LunaShell", 2)
+
 
 
 --kernel.gotoPID(1)

@@ -7,7 +7,7 @@ function multishell.getCount()
 end
 
 function multishell.launch(env, path, ...)
-	return kernel.runFile(path, nil, nil, nil, unpack(arg))
+	return kernel.runFile(path, kernel.getRunning(), nil, nil, unpack(arg))
 end
 
 function multishell.setFocus(PID)
