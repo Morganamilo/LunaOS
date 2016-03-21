@@ -440,10 +440,10 @@ local function getLabelAt(Xpos, Ypos)
 		local parent = _processes[v].parent
 	
 		
-		if (not parent and Ypos == 1) or (parent and Ypos == 2) then
+		if (not parent and Ypos == 1) or ((parent == _runningPID or parent == _processes[_runningPID].parent and parent) and Ypos == 2)  then
 		local start = length
 		length = length + #_processes[v].name + 2
-		if _runningPID == x then length = length + 2 end
+		if _runningPID == v then length = length + 2 end
 		if Xpos > start and Xpos <= length  then return v, Xpos - start - 1 end
 		end
 	end
@@ -554,6 +554,11 @@ function windowHandler.gotoWindow(oldWin, newWin)
 	if oldWin then oldWin.setVisible(false) end
 		newWin.setVisible(true)
 		term.redirect(newWin)
+		if _processes[_runningPID].parent then
+			extended = true
+			reposAll(2)
+		end
+		
 		updateBanner()
 		newWin.redraw()
 end
