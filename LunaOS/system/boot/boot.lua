@@ -33,9 +33,13 @@ function f2()
 end
 
 
-pid = kernel.runRootFile("rom/programs/lua")
+pid = kernel.runRootFile("rom/programs/shell")
+
+kernel.runRootFile("rom/programs/lua")
 kernel.runFile("rom/programs/lua")
 kernel.runFile("rom/programs/shell")
+kernel.runFile("rom/programs/lua")
+
 
 
 --kernel.gotoPID(1)
