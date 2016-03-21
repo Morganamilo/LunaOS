@@ -245,7 +245,7 @@ function gotoPID(PID, ...)
 	windowHandler.gotoWindow(old, _processes[PID].window)
 	
 	os.queueEvent('goto', unpack(arg))
-	--return coroutine.yield("goto")
+	return coroutine.yield("goto")
 end
 
 
