@@ -129,3 +129,9 @@ function combine(tbl1, tbl2)
 	return tempTbl
 end
 
+function removeValue(tbl, value)
+	for i = 1, table.getn(tbl) do
+		if value == tbl[i] then table.remove(tbl, i) end
+	end
+end
+
