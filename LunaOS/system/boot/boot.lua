@@ -38,7 +38,7 @@ pid = kernel.runRootFile("rom/programs/shell")
 kernel.runRootFile("rom/programs/lua")
 kernel.runFile("rom/programs/lua")
 kernel.runFile("rom/programs/shell")
-kernel.runFile("rom/programs/lua")
+kernel.runProgram("EventPrinter")
 
 
 

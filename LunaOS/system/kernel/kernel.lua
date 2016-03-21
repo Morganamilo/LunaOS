@@ -245,7 +245,7 @@ function gotoPID(PID, ...)
 	windowHandler.gotoWindow(old, _processes[PID].window)
 	
 	os.queueEvent('goto', unpack(arg))
-	return coroutine.yield("goto")
+	--return coroutine.yield("goto")
 end
 
 
@@ -342,7 +342,6 @@ local function next(data)
 	if not success then --handle error
 		local success, res = pcall(windowHandler.handleError, currentProc, data[1])
 		if not success then cirticalError(res) end
-		read()
 		data = {}
 	end
 	
@@ -365,14 +364,14 @@ local function getYield(data)
 		
 		if proc ~= _runningPID then --if the process has changed since we starded the loop
 			if _processes[proc] then _waitingFor[proc] = data end
-			return data 
+			return data
 		else
 			_waitingFor[proc] = nil
 		end
 		
 		success, event = pcall(windowHandler.handleEvent, event)
 		if not success then cirticalError(event) end
-	until tableUtils.isIn(data, event[1]) or #data == 0 and #event ~= 0
+	until tableUtils.isIn(data, event[1]) or #data == 0 and #event ~= 0 or event[1] == 'terminate'
 	
 	return event
 end
@@ -440,22 +439,22 @@ local function writeProcess(PID)
 	if PID == _runningPID then
 		banner.setBackgroundColor(colors.gray)
 		banner.setTextColor(colors. red)
-		banner.write(string.char(215))
+		banner.write(string.char(215)) --X
 		
 		if table.getn(_processes[PID].children) > 0 then
-			banner.write(string.char(31))
+			banner.write(string.char(31)) --down arrow
 		else
 			banner.write(' ')
 		end
 	else
 		banner.setBackgroundColor(colors.cyan)
+		banner.write(' ')
 	end
 	
 	
 	banner.setTextColor(colors. orange)
 	banner.write( _processes[PID].name .. ' ' )
 	banner.setBackgroundColor(colors.cyan)
-	banner.write(' ')
 end
 
 local function writeProcesses()
@@ -515,6 +514,7 @@ function windowHandler.gotoWindow(oldWin, newWin)
 		newWin.setVisible(true)
 		term.redirect(newWin)
 		updateBanner()
+		newWin.redraw()
 end
 
 function windowHandler.handleEvent(event)
@@ -538,8 +538,11 @@ function windowHandler.handleEvent(event)
 	return event
 end
 
-function windowHandler.handleError(currentProc, data)
+function windowHandler.handleError(proc, data)
 	--log.e("Process " .. proc.name .. " (" ..  proc.PID .. ") has crashed: " .. data)
+	
+	if data == 'Terminated' then return end
+	
 	term.setTextColor(colors.red)
 	term.setBackgroundColor(4)
 	term.clear()
