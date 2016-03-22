@@ -360,7 +360,7 @@ local function getYield(data)
 	
 	repeat
 		local success
-		event = {coroutine.yield()} --the event we get + extra data
+
 		
 		if proc ~= _runningPID then --if the process has changed since we starded the loop
 			if _processes[proc] then _waitingFor[proc] = data end
@@ -368,6 +368,10 @@ local function getYield(data)
 		else
 			_waitingFor[proc] = nil
 		end
+		
+		event = {coroutine.yield()} --the event we get + extra data
+		
+		
 		
 		success, event = pcall(windowHandler.handleEvent, event)
 		if not success then cirticalError(event) end
