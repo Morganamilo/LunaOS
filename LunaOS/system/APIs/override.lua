@@ -49,7 +49,7 @@ function os.loadAPI(path, locally)
 	end
 	
 	isLoading[path] = nil
-	toInit[#toInit + 1] = name
+	if not locally then toInit[#toInit + 1] = name end
 	log.i("Succsess: loaded " .. path .. " as " .. name)
 	return locally and APITable or true
 end
@@ -97,7 +97,11 @@ end
 
 function os.initAPIs()
 	for _,v in pairs(toInit) do
-		if _G[v].init then _G[v].init() end
+		if _G[v].init then 
+			local succsess, res =	pcall(_G[v].init)
+			errorUtils.assert(succsess, res, 0)
+		end
+		
 		_G[v].init = nil
 	end
 end
