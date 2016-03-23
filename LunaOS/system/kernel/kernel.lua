@@ -5,7 +5,7 @@
 
 local _processes = {} --table of all processes
 local _runningHistory = {} --keeps the order of which process was open last and was open before that etcetera
-local _env = {} --contains the enviroment of each process
+--local _env = {} --contains the enviroment of each process
 local _runningPID = nil --pid of the currently running process 
 local _waitingFor = {}
 
@@ -46,13 +46,13 @@ function setWindowHandler(tbl)
 end
 
 --returns the stock enviroment for each process 
-local function getEnv(SU)
+ local function getEnv(SU)
 	local env = tableUtils.deepCopy(_ENV)
 	
 	env._G = env
 	env._ENV = env
 	
-	setfenv(1, env)
+	--setfenv(1, env)
 	--dofile("/LunaOS/system/apis/override.lua")
 	
 	if not SU then
@@ -62,7 +62,7 @@ local function getEnv(SU)
 	return env
 end
 
-
+function a(b) return _G[b] end
 --func		is the fuction that becomes the processes thread
 --name 	is the processes name for the user
 --desc		is a description of the processes for the user
@@ -82,15 +82,20 @@ local function newProcessInternal(func, parent, name, desc, SU, dir)
 		_processes[parent].children[tableUtils.getEmptyIndex(_processes[parent].children)] = PID
 	end
 	
-	local env = getEnv(SU)
-	_env[PID] = env -- sandboxes each process
-	setfenv(func, env)
+	--c = string.dump(func)
+	--func = load(c)
+	
+	--local env = getEnv(SU)
+	--_env[PID] = env -- sandboxes each process
+	--setfenv(func, env)
+	
+	local wrappedFunc = function() func() local success, res = pcall(windowHandler.handleFinish, PID) if not success then cirticalError(res) end end
 	--setfenv(function() 
 		--dofile("/LunaOS/system/apis/override.lua")
 		--if not SU then dofile("/LunaOS/system/apis/userOverride.lua") end
 	--end, env)()
 	
-	local co = coroutine.create(function() func() local success, res = pcall(windowHandler.handleFinish, PID) if not success then cirticalError(res) end end)
+	local co = coroutine.create(wrappedFunc)
 	local window = windowHandler.newWindow(PID)
 	
 	
@@ -100,10 +105,23 @@ local function newProcessInternal(func, parent, name, desc, SU, dir)
 end
 
 function newProcess(func, parent, name, desc)
+	func = load(string.dump(func))
+	
+	local env = getEnv(SU)
+	--_env[PID] = env -- sandboxes each process
+	setfenv(func, env)
+	
 	return newProcessInternal(func, parent, name, desc, false)
 end
 
 function newRootProcess(func, parent, name, desc)
+	func = load(string.dump(func))
+	
+	func = load(string.dump(func))
+	local env = getEnv(SU)
+	--_env[PID] = env -- sandboxes each process
+	setfenv(func, env)
+	
 	errorUtils.assertLog(isSU(), "Error: process with PID " .. (_runningPID or "") .. " tried to start a new process as root: Access denied", 2, nil, "Warning")
 	return newProcessInternal(func, parent, name, desc, true)
 end
@@ -111,17 +129,17 @@ end
 function runFile(path, parent, name, desc, ...)
 	local file, err = loadfile(path)
 	errorUtils.assert(file, err, 2)
-	setfenv(file, getfenv(1)) 
+	setfenv(file, getEnv()) --sandBox
 	
-	return newProcess(function() file(unpack(arg)) end, parent, name or fs.getName(path), desc)
+	return newProcessInternal(function() file(unpack(arg)) end, parent, name or fs.getName(path), desc, false)
 end
 
 function runRootFile(path, parent, name, desc, ...)
 	local file, err = loadfile(path)
 	errorUtils.assert(file, err, 2)
-	setfenv(file, getfenv(1)) 
+	setfenv(file, getEnv()) --sandBox
 	
-	return newRootProcess(function() file(unpack(arg)) end, parent, fs.getName(path), desc)
+	return newProcessInternal(function() file(unpack(arg)) end, parent, fs.getName(path), desc, true)
 end
 
 local function runProgramInternal(program, parent, su, args)
@@ -290,7 +308,7 @@ local function killProcessInternal(PID)
 		log.i("killing " .. v)
 		_processes[v] = nil
 		_waitingFor[v] = nil
-		_env[v] = nil 
+		--_env[v] = nil 
 		windowHandler.handleDeath(v)
 		
 		--removes the process from the _runningHistory

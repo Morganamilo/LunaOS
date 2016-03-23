@@ -25,11 +25,17 @@ log.i("------- Finished loading APIs -------")
 kernel.setWindowHandler(os.loadAPI("/LunaOS/system/kernel/windowHandler.lua", true))
 
 function f1() 
-	dofile("rom/programs/lua")
+_G.a=math.random(55)
+	while true do 
+	
+	print(os.pullEvent())
+	print(_G.a) end
 end
 
 function f2()
-	dofile("rom/programs/lua")
+	while true do 
+	print(os.pullEvent())
+	print(a) end
 end
 
 
@@ -39,6 +45,8 @@ kernel.runRootFile("rom/programs/lua")
 kernel.runFile("rom/programs/lua")
 kernel.runFile("rom/programs/shell")
 kernel.runProgram("EventPrinter")
+kernel.newProcess(f1, nil, "a")
+kernel.newProcess(f1, nil, "b")
 kernel.runProgram("LunaShell", 2)
 kernel.runProgram("LunaShell", 2)
 
