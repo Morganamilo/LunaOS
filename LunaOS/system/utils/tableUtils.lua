@@ -135,3 +135,8 @@ function removeValue(tbl, value)
 	end
 end
 
+function printTable(tbl)
+	for k,v in pairs(tbl) do
+		print(k, v )
+	end
+end
