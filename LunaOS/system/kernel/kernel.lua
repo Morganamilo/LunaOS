@@ -290,9 +290,8 @@ local function killProcessInternal(PID)
 		log.i("killing " .. v)
 		_processes[v] = nil
 		_waitingFor[v] = nil
-		_env[v] = nil
+		_env[v] = nil 
 		windowHandler.handleDeath(v)
-		print('killed ' .. v)
 		
 		--removes the process from the _runningHistory
 		local index = tableUtils.isIn(_runningHistory, v)
@@ -365,7 +364,7 @@ local function getYield(data)
 		if proc ~= _runningPID then --if the process has changed since we starded the loop
 			if _processes[proc] then _waitingFor[proc] = data end
 			return data
-		else
+		elseif _runningPID then
 			_waitingFor[proc] = nil
 		end
 		
@@ -386,7 +385,7 @@ function startProcesses(PID)
 	errorUtils.assert(_processes[PID], "Error: PID " .. PID .. " is invalid or does not exist", 2)
 	errorUtils.assert(not _runningPID, "Error: kernel already running", 2)
 	
-	current = term.current()
+	local current = term.current()
 	
 	gotoPID(PID)
 	
@@ -410,6 +409,7 @@ function startProcesses(PID)
 	term.setCursorPos(1,1)
 	
 	print("Craft OS")
+	--os.shutdown()
 end
 
  
@@ -516,7 +516,7 @@ local function handleBannerEvent(event)
 		if proc == _runningPID then
 			if pos == 1 then
 				killProcessInternal(_runningPID)
-			elseif pos == 2 then
+			elseif pos == 2 and table.getn(_processes[_runningPID].children) > 0 then
 				extended = not extended
 				reposAll(extended and 2 or 1)
 			end

@@ -33,7 +33,7 @@ function f2()
 end
 
 
-pid = kernel.runRootFile("rom/programs/shell")
+local pid = kernel.runRootFile("rom/programs/shell")
 
 kernel.runRootFile("rom/programs/lua")
 kernel.runFile("rom/programs/lua")
@@ -46,4 +46,4 @@ kernel.runProgram("LunaShell", 2)
 
 --kernel.gotoPID(1)
 term.clear()
-kernel.startProcesses(pid)
+a,b =pcall(kernel.startProcesses,pid)
