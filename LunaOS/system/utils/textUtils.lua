@@ -14,6 +14,10 @@ function trimTrailingSpaces(str)
 	return ''
 end
 
+function toKey(str)
+	return str:gmatch("[^%.]*")():gsub(" ","_")
+end
+
 function toWords(str)
     str = str..'"'
     local words = {}
