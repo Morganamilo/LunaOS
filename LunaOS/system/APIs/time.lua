@@ -3,24 +3,12 @@ local monthNames = {"January", "February", "March", "April", "May", "June", "Jul
 local realTime = false --give the program a chance to check if the time is real before ending up with 01/01/1970
 
 local function initTime()
-	local timer = os.startTimer(1)
-	local timeRequest = http.request("http://lunadb.ddns.net/time.php")
-	local event, url, data
-	repeat 
-		event, url, data = coroutine.yield()
-	until (event == "timer" and url == timer) or event == "http_success" or event == "http_failure"
+	local request, err = http.timedRequest("http://lunadb.ddns.net/time.php", 2)
 	
-	os.cancelTimer(timer)
-	
-	if event == "http_failure" then
+	if not request then
 		log.i("No connection to server, using local time")
 		return 0 --if we cant get the real time just use 0
 	end
-	
-	if event == "timer" then
-		log.i("request timed out, using local time")
-		return 0 --if we cant get the real time just use 0
-	end 
 	
 	local returnedTime = data.readLine()
 	returnedTime = tonumber(returnedTime)
@@ -32,7 +20,7 @@ local function initTime()
 	
 	isRealTime = true
 	
-	return returnedTime - math.floor(os.clock()) --for this to properly return the teme at boot we must take away the system up time
+	return returnedTime - math.floor(os.clock()) --for this to properly return the time at boot we must take away the system up time
 end
 
 local timeAtBoot = initTime() --cache the time at boot so we dont nee to access the webserver everytime we need to check the time
