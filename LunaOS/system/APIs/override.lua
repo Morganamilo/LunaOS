@@ -131,11 +131,18 @@ function http.timedRequest(url, timeout, post, headers)
 	local timer = os.startTimer(timeout)
 	local event, url, data
 		
-	repeat 
-		event, url, data = coroutine.yield()
-	until (event == "timer" and url == timer) or event == "http_success" or event == "http_failure"
+	while true do
+		local event, url, data = coroutine.yield()
 	
-	return data
+		if event == "http_success" then
+			return data
+		elseif event == "timer" and url == timer then
+			return nil, "Timed out"
+		elseif event == "http_failure" then
+			return nil, data
+		end
+	end
+	
 end
 
 
