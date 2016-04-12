@@ -126,6 +126,17 @@ function os.reboot()
 	else kernel.killProcess(kernel.getRunning()) end
 end
 
+function http.timedRequest(url, timeout, post, headers)
+	local timeRequest = http.request(url, post, headers)
+	local timer = os.startTimer(timeout)
+	local event, url, data
+		
+	repeat 
+		event, url, data = coroutine.yield()
+	until (event == "timer" and url == timer) or event == "http_success" or event == "http_failure"
+	
+	return data
+end
 
 
 
