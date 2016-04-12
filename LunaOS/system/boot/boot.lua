@@ -12,11 +12,12 @@ log.i("------- Finished loading utils -------")
 
 os.loadAPI("/LunaOS/system/APIs/lunaOS.lua")
 os.loadAPI("/LunaOS/system/APIs/time.lua")
-os.loadAPI("LunaOS/system/object/object.lua")
+os.loadAPI("/LunaOS/system/object/object.lua")
 os.loadAPI("/LunaOS/system/kernel/kernel.lua")
 
 
 os.loadAPI("/LunaOS/system/APIs/fs.lua")
+os.loadAPI("/LunaOS/system/GUI/GUI.lua")
 os.initAPIs()
 
 

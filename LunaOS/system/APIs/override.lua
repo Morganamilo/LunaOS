@@ -49,7 +49,7 @@ function os.loadAPI(path, locally)
 	end
 	
 	isLoading[path] = nil
-	toInit[#toInit + 1] = name
+	if not locally then toInit[#toInit + 1] = name end
 	log.i("Succsess: loaded " .. path .. " as " .. name)
 	return locally and APITable or true
 end
@@ -97,7 +97,11 @@ end
 
 function os.initAPIs()
 	for _,v in pairs(toInit) do
-		if _G[v].init then _G[v].init() end
+		if _G[v].init then 
+			local succsess, res =	pcall(_G[v].init)
+			errorUtils.assert(succsess, res, 0)
+		end
+		
 		_G[v].init = nil
 	end
 end
@@ -122,6 +126,24 @@ function os.reboot()
 	else kernel.killProcess(kernel.getRunning()) end
 end
 
+function http.timedRequest(url, timeout, post, headers)
+	local timeRequest = http.request(url, post, headers)
+	local timer = os.startTimer(timeout)
+	local event, url, data
+		
+	while true do
+		local event, url, data = coroutine.yield()
+	
+		if event == "http_success" then
+			return data
+		elseif event == "timer" and url == timer then
+			return nil, "Timed out"
+		elseif event == "http_failure" then
+			return nil, data
+		end
+	end
+	
+end
 
 
 

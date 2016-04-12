@@ -51,7 +51,7 @@ log = {
 	
 		local file = fs.open(logPath, "a")
 		if file then
-			if time and time.isRealTime then
+			if time and time.isRealTime() then
 				file.write(time.timef("[%Y-%m-%d %H:%M:%S, ") .. flag .. "] ".. message .. "\n")
 			else
 				file.write("[" .. os.clock() .. ", " .. flag .. "] ".. message .. "\n")
@@ -82,7 +82,7 @@ function log.init()
 	enabled = config.enabled
 	useServer = config.useServer
 	
-	serverIsReachable = http.get(serverPath) ~= nil
+	serverIsReachable = http.timedRequest(serverPath, 2) ~= nil
 	
 	if serverIsReachable then writeToDB() end
 	if clearAtBoot then initFile() end
