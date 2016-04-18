@@ -99,6 +99,7 @@ local function new(class, ...)
 		mt[v] = class.events[v]
 	end
 	
+	setmetatable(instance, {__index = class.nonStatic})
 	construct(instance, unpack(arg))
 	setmetatable(instance,  mt)
 	
