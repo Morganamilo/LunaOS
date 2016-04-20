@@ -364,7 +364,7 @@ local function next(data)
 	
 	
 	if coroutine.status(currentProc.co) == 'dead' then --handle death
-		killProcess(currentProc.PID)
+		killProcessInternal(currentProc.PID)
 		data = {}
 	end
 	

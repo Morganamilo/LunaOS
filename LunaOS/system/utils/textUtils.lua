@@ -1,17 +1,25 @@
-function nextChar(str, start, finish, c, back, no)
-	local inc = back and -1 or 1
+function split(str, sep)
+	local matches = {}
 	
-	for n = start, finish, inc do
-		if (str:sub(n,n) == c) ~= (no) then return n end 
+	for match in str:gmatch("[^%" .. sep .. "]+") do
+		matches[#matches + 1] = match
 	end
+	
+	return matches
+end
+
+function trimLeadingSpaces(str)
+	local _, e = str:find("^%s+")
+	
+	if not e then return str end
+	return str:sub(e + 1)
 end
 
 function trimTrailingSpaces(str)
-	for i = #str, 1, -1 do
-		if str:sub(i,i) ~= ' ' then return str:sub(1,i) end
-	end
+	local e = str:find("%s+$")
 	
-	return ''
+	if not e then return str end
+	return str:sub(1, e - 1)
 end
 
 function toKey(str)
@@ -37,28 +45,51 @@ function toWords(str)
     return words
 end
 
-function toContainer(str, width, height)
-	local lines = {}
-	local start = 1
-	
-	str = str:gsub("\t", "  ")
-	
-	while true do
-	    local lineBreak = str:sub(start, start + width):find("\n")
-	    if lineBreak then
-	        lines[#lines + 1] = trimTrailingSpaces(str:sub(start, lineBreak + start - 2))
-	        start = lineBreak + start
-	    else
-			local nextLine = nextChar(str, start + width, start, " ", true, false) or start + width
-			
-			lines[#lines + 1] = trimTrailingSpaces(str:sub(start, nextLine - 1))
-			start = (nextChar(str, nextLine, #str, " ", false, true) or #str)
-			
-			if start + width >= #str then lines[#lines + 1] = trimTrailingSpaces(str:sub(start, #str)) break end
-		end
-		
-		if #lines >= height then break end
-	end
-	
+local function trim(str, len)
+  local e 
+  local trimed
+  local next
+  
+  trimed = str:sub(1, len + 1) --trim to one more than the length
+  e = trimed:find("[%w]+$") -- find the start of the last word
+  
+  if e == 1 or e == nil then -- if e is nill then is must end in a space   if e = 1 then there are no spaces
+    trimed = trimed:sub(1, len)
+    next = str:sub(len + 1):match("%w.+")
+  else 
+    trimed = trimed:sub(1, e - 1) -- return from the beggining upto but not including the start of the last word
+    next = str:sub(e):match("%w.+")
+  end
+  
+  return trimTrailingSpaces(trimed), next
+  
+end
+
+function wrapInternal(str, width, height, lines)
+  
+  if #str <= width then
+    lines[#lines + 1] = str
+    return lines
+  end
+  
+	local next = str
+  local trimed
+  
+  repeat
+    trimed, next = trim(next, width)
+    lines[#lines + 1] = trimed
+  until not next or #next == 0 or #lines >= height
+  
 	return lines
+end
+
+function wrap(str, width, height)
+  local lines = split(str, "\n")
+  local wrapped = {}
+  
+  for _, line in pairs(lines) do
+    wrapped = wrapInternal(line, width, height, wrapped)
+  end
+  
+  return wrapped
 end
