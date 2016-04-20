@@ -2,6 +2,8 @@ dofile("/LunaOS/system/APIs/override.lua")
 dofile("/LunaOS/system/APIs/log.lua")
 dofile("/LunaOS/system/APIs/multishell.lua")
 
+os.loadAPI("/LunaOS/system/object/object.lua")
+
 os.loadAPIDir("LunaOS/system/utils/")
 
 log.init()
@@ -12,7 +14,6 @@ log.i("------- Finished loading utils -------")
 
 os.loadAPI("/LunaOS/system/APIs/lunaOS.lua")
 os.loadAPI("/LunaOS/system/APIs/time.lua")
-os.loadAPI("/LunaOS/system/object/object.lua")
 os.loadAPI("/LunaOS/system/kernel/kernel.lua")
 
 
