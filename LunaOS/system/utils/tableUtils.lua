@@ -73,30 +73,27 @@ end
   -- return res
 -- end
 
-function deepCopyInternal(obj, seen)
-	--Handle non-tables and previously-seen tables.
-	if type(obj) ~= 'table' then return obj end
-	if seen[obj] then return seen[obj] end
-	
-	local mt = getmetatable(obj)
-	local mtRes = deepCopyInternal(mt, seen)
-	local res = setmetatable({}, mtRes)
-	
-	if mt then seen[mt] = mtRes end
-	seen[obj] = res
 
-	for k, v in pairs(obj) do 
-		res[deepCopyInternal(k, seen)] = deepCopyInternal(v, seen)
-	end
-	
-	return res
+
+ function deepCopy(o, seen)
+  seen = seen or {}
+  if o == nil then return nil end
+  if seen[o] then return seen[o] end
+
+  local no
+  if type(o) == 'table' then
+    no = {}
+    seen[o] = no
+
+    for k, v in next, o, nil do
+      no[deepCopy(k, seen)] = deepCopy(v, seen)
+    end
+    setmetatable(no, deepCopy(getmetatable(o), seen))
+  else -- number, string, boolean, etc
+    no = o
+  end
+  return no
 end
-
-function deepCopy(tbl)
-	return deepCopyInternal(tbl, {})
-end
-
-
 
 function lowestIndex(tbl)
 	errorUtils.expect(tbl, "table", true)
