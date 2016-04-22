@@ -53,7 +53,7 @@ local function trim(str, len)
   trimed = str:sub(1, len + 1) --trim to one more than the length
   e = trimed:find("[%w]+$") -- find the start of the last word
   
-  if e == 1 or e == nil then -- if e is nill then is must end in a space   if e = 1 then there are no spaces
+  if e == 1 or e == nil or #str <= len then -- if e is nill then is must end in a space   if e = 1 then there are no spaces
     trimed = trimed:sub(1, len)
     next = str:sub(len + 1):match("%w.+")
   else 
@@ -61,11 +61,11 @@ local function trim(str, len)
     next = str:sub(e):match("%w.+")
   end
   
-  return trimTrailingSpaces(trimed), next
+  return (trimed), next
   
 end
 
-function wrapInternal(str, width, height, lines)
+local function wrapInternal(str, width, height, lines)
   
   if #str <= width then
     lines[#lines + 1] = str
