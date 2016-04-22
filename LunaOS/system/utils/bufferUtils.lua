@@ -3,7 +3,22 @@ local blit = {[1] = "0", [2] = "1", [4] = "2", [8] = "3", [16] = "4", [32] ="5",
 
 Buffer = object.class()
 
-
+function Buffer:init(term, xPos, yPos, xSize, ySize, colour)
+	self.term = term
+	self.pixelBuffer = {}
+	self.textBuffer = {}
+	self.textColourBuffer = {}
+	self.changed = {}
+	
+	self.xSize = xSize
+	self.ySize = ySize
+	self.xPos = xPos
+	self.yPos = yPos
+	self.size = xSize * ySize
+	
+	
+	self:clear(colour)
+end
 
 function Buffer:indexToXY(index)
 	local y = mathUtils.div(index, self.xSize)
@@ -14,6 +29,7 @@ function Buffer:indexToXY(index)
 end
 
 function Buffer:XYToIndex(xPos, yPos)
+	if xPos > self.xSize or xPos < 1 or yPos > self.ySize or yPos < 1 then return end
 	return (yPos -1) * self.xSize + xPos
 end
 
@@ -25,6 +41,21 @@ function Buffer.static.blitToColour(b)
 	return tableUtils.isIn(blit, b)
 end
 
+function Buffer:restrictPos(xPos, yPos)
+	if xPos > self.xSize then xPos = self.xSize end
+	if yPos > self.ySize then yPos = self.ySize end
+	if xPos < 1 then xPos = 1 end
+	if yPos < 1 then yPos = 1 end
+	
+	return xPos, yPos
+end
+
+function Buffer:changeAll()
+	for n = 1, self.ySize do
+		self.changed[n] = true
+	end
+end
+
 function Buffer:clear(colour)
 	if type(colour) == "number" then colour = Buffer.colourToBlit(colour) end
 	
@@ -34,26 +65,30 @@ function Buffer:clear(colour)
 		self.textColourBuffer[n] = colour
 	end
 	
-	for n = 1, self.ySize do
-		self.changed[n] = true
-	end
+	self:changeAll()
 end
 
 function Buffer:drawPixelRaw(pos, colour)
+	if pos < 1 or pos > self.size then return end
 	if type(colour) == "number" then colour = Buffer.colourToBlit(colour) end
 	self.pixelBuffer[pos] = colour
 	self.textBuffer[pos] = " "
 end
 
 function Buffer:drawPixel(xPos, yPos, colour)
-	self:drawPixelRaw(self:XYToIndex(xPos, yPos), colour)
+	local pos = self:XYToIndex(xPos, yPos)
+	if not pos then return end
+	
+	self:drawPixelRaw(pos, colour)
 	self.changed[yPos] = true
 end
 
-function Buffer:drawLine(xPos, yPos, width, colour) -- x,y = term.getSize() a = bufferUtils.Buffer(x,y,"2")          print(mathUtils.time(function() for n = 1,100 do a:draw() end end) )
+function Buffer:drawLine(xPos, yPos, width, colour) -- x,y = term.getSize() a = bufferUtils.Buffer(term,1,1,x,y,"2")         print(mathUtils.time(function() for n = 1,100 do a:draw() end end) )
+	if yPos < 1 or yPos > self.ySize or xPos > self.xSize then return end --    a:drawBox(3,3,20,10,"9") a:writeTextBox(3,3,20,10,"this is a test it needs a lot of text to actually work properly and show the wraping", "6",nil)
+	if xPos < 1 then width = width + (xPos - 1) xPos = 1 end
 
 	local start = self:XYToIndex(xPos, yPos)
-	
+
 	for n = start, math.min(width -1, self.xSize - xPos) + start do -- time = os.clock() for n = 1, 100 do a:draw() end print(os.clock() - time)
 		self:drawPixelRaw(n, colour)
 	end
@@ -62,11 +97,13 @@ function Buffer:drawLine(xPos, yPos, width, colour) -- x,y = term.getSize() a = 
 end
 
 function Buffer:drawVLine(xPos, yPos, width, colour)
+	if xPos < 1 or xPos > self.xSize or yPos > self.ySize then return end
+	if yPos < 1 then width = width + (yPos - 1) yPos = 1 end
+	
 	local start = self:XYToIndex(xPos, yPos)
 	
-	for n = 0, math.min(width -1, self.ySize - yPos) do
-		self:drawPixelRaw(start + n * self.xSize, colour)
-		self.changed[yPos + n] = true
+	for y = 0, width - 1 do
+		self:drawPixelRaw(start + y * self.xSize, colour)
 	end
 end
 
@@ -81,7 +118,13 @@ function Buffer:drawOutline(xPos, yPos, width, height, colour)
 	self:drawLine(xPos, yPos + height - 1, width, colour)
 	
 	self:drawVLine(xPos, yPos + 1 , height - 2, colour)
-	self:drawVLine(xPos + width - 1, yPos + 1 , height - 2, colour) -- x,y = term.getSize() a = bufferUtils.Buffer(term, x,y,"2")  a:drawEllipse(1,1,11,11,"a")                 a:drawShape(2,2,{5,6,"1",nil,"1",nil,"1",nil,"1",nil,"1",nil,"1",nil,"1",nil,"1",nil,"1",nil,"1",nil,"1",nil,"1",nil,"1",nil,"1",nil,"1",nil})
+	self:drawVLine(xPos + width - 1, yPos + 1 , height - 2, colour) -- x,y = term.getSize() a = bufferUtils.Buffer(term, 4,2,10,5,"2")  a:drawEllipse(1,1,11,11,"a")                 a:drawShape(2,2,{5,6,"1",nil,"1",nil,"1",nil,"1",nil,"1",nil,"1",nil,"1",nil,"1",nil,"1",nil,"1",nil,"1",nil,"1",nil,"1",nil,"1",nil,"1",nil})
+end
+
+function Buffer:drawThickOutline(xPos, yPos, width, height, thickness, colour)
+	for n = 0, thickness - 1 do
+		self:drawOutline(xPos + n, yPos + n, width - n*2, height - n*2, colour)
+	end
 end
 
 
@@ -157,20 +200,27 @@ function Buffer:drawShape(xPos, yPos, shape)
 end
 
 function Buffer:writeCharRaw(pos, c, textColour, textBackgroundColour)
+	if pos < 1 or pos > self.size then return end
 	if type(textColour) == "number" then  textColour = Buffer.colourToBlit(textColour) end
-	if type(textBackgroundColour) == "number" then  textBackgroundColour = Buffer.colourToBlit(textColour) end
+	if type(textBackgroundColour) == "number" then  textBackgroundColour = Buffer.colourToBlit(textColour) end 
 	
 	self.textBuffer[pos] = c
-	self.textColourBuffer[pos] = textColour
+	self.textColourBuffer[pos] = textColour or self.textColourBuffer[pos] or self.pixelBuffer[pos] 
 	self.pixelBuffer[pos] = textBackgroundColour or self.pixelBuffer[pos]
 end
 
 function Buffer:writeChar(xPos, yPos, c, textColour, textBackgroundColour)
-	self:writeCharRaw(self:XYToIndex(xPos, yPos), c, textColour, textBackgroundColour)
-	changed[yPos] = true
+	local pos = self:XYToIndex(xPos, yPos)
+	if not pos then return end
+	
+	self:writeCharRaw(pos, c, textColour, textBackgroundColour)
+	self.changed[yPos] = true
 end
 
-function Buffer:writeLineStr(xPos, yPos, str, textColour, textBackgroundColour)
+function Buffer:writeStr(xPos, yPos, str, textColour, textBackgroundColour)
+	if yPos < 1 or yPos > self.ySize or xPos > self.xSize then return end
+	if xPos < 1 then str = str:sub(-xPos + 2) xPos = 1 end
+	
 	local start = self:XYToIndex(xPos, yPos)
 	
 	for n = start, math.min(#str -1, self.xSize - xPos) + start do 
@@ -181,11 +231,30 @@ function Buffer:writeLineStr(xPos, yPos, str, textColour, textBackgroundColour)
 end
 
 
-function Buffer:writeTextBox(xPos, yPos, width, height, str, textColour)
+function Buffer:writeTextBox(xPos, yPos, width, height, str, textColour, backgroundColour, xAlignment, yAlignment)
 	local lines = textUtils.wrap(str, width, height)
+	
+	if yAlignment == "down" then
+		local offset = height - #lines
+		yPos = yPos + offset
+		height = height - offset
+	elseif yAlignment == "center" then
+		local offset = math.floor((height - #lines)/2)
+		yPos = yPos + offset
+		height = height - offset
+	end
 		
-	for y = yPos, yPos + height - 1 do	
-			self:writeLineStr(xPos, y, lines[y - yPos + 1], textColour)
+	for y = yPos, math.min(height, #lines) + yPos - 1 do
+		local currentLine =  lines[y - yPos + 1]
+		local offset = 0
+	
+		if xAlignment == "right" then
+			offset = width - #currentLine
+		elseif xAlignment == "center" then
+			offset = math.floor((width - #currentLine)/2)
+		end
+	
+		self:writeStr(xPos + offset, y, currentLine, textColour, backgroundColour)
 	end
 	
 end
@@ -209,7 +278,7 @@ function Buffer:draw(ignoreChanged)
 			local textColours =  table.concat({unpack(textColourBuffer, start, finish)})
 			local text = table.concat({unpack(textBuffer, start, finish)})
 		
-			term.setCursorPos(1, y) --0.6
+			term.setCursorPos(self.xPos, y + self.yPos - 1) --0.6
 			term.blit(text, textColours, pixelColours) --0.9
 		end
 		
@@ -218,17 +287,48 @@ function Buffer:draw(ignoreChanged)
 	self.changed = {}
 end
 
-function Buffer:init(term, xSize, ySize, colour)
-	self.term = term
-	self.pixelBuffer = {}
-	self.textBuffer = {}
-	self.textColourBuffer = {}
+function Buffer:setPos(xPos, yPos)
+	self.xPos = xPos
+	self.yPos = yPos
+	self:changeAll()
+end
+
+function Buffer:translate(xPos, yPos)
+	self.xPos = self.xPos + xPos
+	self.yPos = self.yPos + yPos
+	self:changeAll()
+end
+
+function Buffer:resize(width, height, colour)
+	if type(colour) == "number" then colour = Buffer.colourToBlit(colour) end
+	
+	local newPixelBuffer = {}
+	local newTextColourBuffer = {}
+	local newTextBuffer = {}
+	
+	local index = 1
+	
+	for y = 1, height do
+		for x = 1, width do
+			local pos = self:XYToIndex(x, y)
+			
+				newPixelBuffer[index] = self.pixelBuffer[pos] or colour
+				newTextColourBuffer[index] = self.textColourBuffer[pos] or colour
+				newTextBuffer[index] = self.textBuffer[pos] or " "
+			
+		
+			index = index + 1
+		end
+	end
+	
+	self.pixelBuffer = newPixelBuffer
+	self.textColourBuffer = newTextColourBuffer
+	self.textBuffer = newTextBuffer
+	
+	self.xSize = width
+	self.ySize = height
+	self.size = width * height
+	
 	self.changed = {}
-	
-	self.xSize = xSize
-	self.ySize = ySize
-	self.size = xSize * ySize
-	
-	
-	self:clear(colour)
+	self:changeAll()
 end
