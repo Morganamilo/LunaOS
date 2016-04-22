@@ -56,4 +56,4 @@ kernel.runProgram("LunaShell", 2)
 
 --kernel.gotoPID(1)
 term.clear()
-a,b =pcall(kernel.startProcesses,pid)
+a,b =pcall(kernel.startProcesses,pid + 1)
