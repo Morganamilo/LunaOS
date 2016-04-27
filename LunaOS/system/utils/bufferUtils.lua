@@ -249,9 +249,10 @@ function Buffer:writeTextBox(xPos, yPos, width, height, str, textColour, backgro
 		local offset = 0
 	
 		if xAlignment == "right" then
+			currentLine = textUtils.trimTrailingSpaces(currentLine)
 			offset = width - #currentLine
 		elseif xAlignment == "center" then
-			offset = math.floor((width - #currentLine)/2)
+			offset = math.floor((width - #textUtils.trimTrailingSpaces(currentLine))/2)
 		end
 	
 		self:writeStr(xPos + offset, y, currentLine, textColour, backgroundColour)
