@@ -57,6 +57,7 @@ end
 --calls the constructor (instance.init)
 --makes sure all calls to super constructors goes to instance.super
 local function construct(instance, ...)
+	local mt = {__index = index, __newindex = changeObjectValue}
 	instance.super = setmetatable({}, {__index = instance.class.super.nonStatic})
 	
 	local superInstance = instance
@@ -71,6 +72,7 @@ local function construct(instance, ...)
 		
 	end
 	
+	setmetatable(instance,  mt)
 	instance.class.nonStatic.init(instance, unpack(arg)) -- call the constructor
 	
 	instance.super.super = nil --get rid of all exess
@@ -99,9 +101,9 @@ local function new(class, ...)
 		mt[v] = class.events[v]
 	end
 	
-	setmetatable(instance, {__index = class.nonStatic})
+	--setmetatable(instance, {__index = class.nonStatic})
 	construct(instance, unpack(arg))
-	setmetatable(instance,  mt)
+	--setmetatable(instance,  mt)
 	
 	return instance
 end
