@@ -4,13 +4,24 @@
 local isLoading = {}
 local toInit = {}
 local oldfs = fs
+local oldGetfenv = getfenv
+
+--[[function getfenv(level)
+	local env = oldGetfenv(level)
+	if env == _G then
+		error("invalid level")
+	end
+	
+	return 
+end]]
 
 --os.pullEvent = coroutine.yield
 
-function os.loadAPI(path, locally)
-	if type(path) ~= "string" then error("Error: string expected got " .. type(path), 2) end
+
+local function loadAPIInternal(path, locally, req)
+	if type(path) ~= "string" then error("Error: string expected got " .. type(path), 3) end
 	
-	local name = fs.getName(path):gmatch("([^.]+)")():gsub(" ", "_")
+	local name = fs.getName(path):gmatch("([^.]+)")():gsub(" ", "_") --replace spaces with underscores and truncate after the first .
         
 	if isLoading[path] then
 			return false
@@ -19,9 +30,7 @@ function os.loadAPI(path, locally)
 	isLoading[path] = true
 	log.i("Loading API " .. path)
 	
-	local env = {}
-		
-	setmetatable(env, {__index = getfenv(), __metatable = ""})
+	local env = setmetatable({}, {__index = getfenv(), __metatable = ""})
 	local APIFunc, err = loadfile(path)
 	
 	if APIFunc then
@@ -45,13 +54,37 @@ function os.loadAPI(path, locally)
 	end
 	
 	if not locally then
-		_G[name] = APITable
+		if req then
+			for k, v in pairs(APITable) do
+				_G[k] = v
+			end
+		else
+			_G[name] = APITable
+		end
 	end
 	
 	isLoading[path] = nil
 	if not locally then toInit[#toInit + 1] = name end
 	log.i("Succsess: loaded " .. path .. " as " .. name)
+	
 	return locally and APITable or true
+end
+
+function os.loadAPI(path)
+	return loadAPIInternal(path, false, false)
+end
+
+function os.loadAPILocal(path)
+	return loadAPIInternal(path, true, false)
+end
+
+function os.require(path)
+	return loadAPIInternal(path, false, true)
+end
+
+function os.loadClass(path)
+	local name = fs.getName(path):gmatch("([^.]+)%.-[^.]-$")():gsub(" ", "_")
+	return loadAPIInternal(path, true, false)[name]
 end
 
 function os.unloadAPI(name)
