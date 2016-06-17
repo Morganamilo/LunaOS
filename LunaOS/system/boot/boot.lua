@@ -24,7 +24,7 @@ os.initAPIs()
 
 log.i("------- Finished loading APIs -------")
 
-kernel.setWindowHandler(os.loadAPI("/LunaOS/system/kernel/windowHandler.lua", true))
+kernel.setWindowHandler(os.loadAPILocal("/LunaOS/system/kernel/windowHandler.lua"))
 
 function f1() 
 _G.a=math.random(55)
@@ -56,4 +56,4 @@ kernel.runProgram("LunaShell", 2)
 
 --kernel.gotoPID(1)
 term.clear()
-a,b =pcall(kernel.startProcesses,pid + 1)
+a,b =pcall(kernel.startProcesses,pid +1 )--]]
