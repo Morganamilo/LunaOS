@@ -1,12 +1,15 @@
 Component = object.class()
 
-Component.nonStatic.listeners = {}
+Component.listeners = {} --a table of events that the Component is listening for
+Component.active = true
+Component.visible = true
+
 
 function Component:handleEvent(data)
-	local event = table.remove(data, 1)
-	local listenerFunc = self.listeners[event]
+	--if not self.active then return end
 	
-	if listenerFunc then listenerFunc(unpack(data)) end
+	local listenerFunc = self.listeners[data[1]] --set listenerFunc to the function who key is the event name
+	if listenerFunc then listenerFunc(unpack(data)) end --of we did get a function from that event name call it
 end
 
 function Component:addEventListener(event, func)
@@ -17,7 +20,13 @@ function Component:removeEventListener(event)
 	self.listeners[event] = nil
 end
 
-function Component:onDraw()
+function Component:onDraw(buffer)
+	if self.visible then
+		self:draw(buffer)
+	end
+end
+
+function Component:draw()
 
 end
 
