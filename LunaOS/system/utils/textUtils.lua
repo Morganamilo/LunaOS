@@ -1,4 +1,7 @@
 function split(str, sep)
+	errorUtils.expect(str, "string", true)
+	errorUtils.expect(sep, "string", true)
+	
 	local matches = {}
 	
 	for match in str:gmatch("[^%" .. sep .. "]+") do
