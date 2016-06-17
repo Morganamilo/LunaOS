@@ -47,11 +47,15 @@ end
 --first look in object.self
 --otherwise look in object.nonStatic (only return the value is a function)
 --finally look in object.super
-local function index(obj, k, v)
+local function index(obj, k)
 	local nonStatic = obj.class.nonStatic[k]
-	nonStatic = type(nonStatic) == "function" and nonStatic or nil
+	local self = obj.self[k] 
+	local super = obj.super[k] 
 	
-	return obj.self[k] or nonStatic or obj.super[k] 
+	if self ~= nil then return self end
+	if type(nonStatic) == "function" then return nonStatic end
+	if super ~= nil then return super end
+	
 end
 
 --calls the constructor (instance.init)
@@ -92,6 +96,7 @@ local function new(class, ...)
 	--each object gets a copy of all varibles in class.nonStatic (except functions, they are shared to consurve memory)
 	local deepCopy = tableUtils.deepCopy
 	local self = instance.self
+	
 	for k, v in pairs(class.nonStatic) do
 		if type(v) ~= "function" then self[k] = deepCopy(v) end
 	end
