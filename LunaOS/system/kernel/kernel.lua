@@ -13,6 +13,8 @@ local programDataPath = lunaOS.getProp("dataPath")
 local fs = fs
 local windowHandler = {}
 local programPath = lunaOS.getProp("programPath")
+local keyHandlerPath = "/LunaOS/system/kernel/keyHandler.lua"
+keyHandler = os.loadAPILocal(keyHandlerPath)
 
 --overide the default loadfile so we can give it acess to the default file system
 local loadfile = function( _sFile )
@@ -359,6 +361,7 @@ local function next(data)
 	if not success then --handle error
 		local success, res = pcall(windowHandler.handleError, currentProc, data[1])
 		if not success then cirticalError(res) end
+		
 		data = {}
 	end
 	
@@ -377,7 +380,6 @@ local function getYield(data)
 	
 	repeat
 		local success
-
 		
 		if proc ~= _runningPID then --if the process has changed since we starded the loop
 			if _processes[proc] then _waitingFor[proc] = data end
@@ -388,6 +390,8 @@ local function getYield(data)
 		
 		event = {coroutine.yield()} --the event we get + extra data
 		
+		success = pcall(keyHandler.handleKeyEvent, event)
+		if not success then cirticalError(event) end
 		
 		
 		success, event = pcall(windowHandler.handleEvent, event)
