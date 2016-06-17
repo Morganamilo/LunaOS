@@ -5,7 +5,7 @@ function View:init(backgroundColour)
 	
 	self.open = true
 	self.backgroundColour = backgroundColour
-	self.buffer = bufferUtils.Buffer(term, 1,1, x, y, backgroundColour)
+	self.buffer = GUI.Buffer(term, 1,1, x, y, backgroundColour)
 	self.components = {}
 end
 
