@@ -9,13 +9,15 @@ local Object = {}
 
 Object.static = {}
 Object.nonStatic = {} --empty constructor so that init can still be called without error
+Object.interfaces = {}
 
 Object.init = function()  end
---default mothod instanceOf: return true if 
+
+--default method instanceOf: return true if 
 --the object's class or superclasses are equal to the class parameter
-function Object.nonStatic.instanceOf(self, class)
-	local objectClass = self.class
-	
+local function instanceOfClass(object, class)
+	local objectClass = object.class
+		
 	while objectClass ~= class do
 		if not objectClass.super then return false end
 		objectClass = objectClass.super
@@ -24,6 +26,34 @@ function Object.nonStatic.instanceOf(self, class)
 	return true
 end
 
+--return true if the object is an instance of the given interface or any of its super interfaces
+local function instanceOfInterface(object, interface)
+	for _, classInterface in pairs(object.class.interfaces) do
+		if tableUtils.isIn(interface:getTypes(), classInterface) then
+			return true
+		end
+	end
+	
+	return false
+end
+
+--return true if the object is an instance of the given class or any of its super classes
+function Object.nonStatic.instanceOf(self, class)	
+	if class.implement then
+		return instanceOfClass(self, class)
+	else
+		return instanceOfInterface(self, class)
+	end
+end
+
+
+--allows classes to implement interface
+--an interface has a list of fields that the class must define before it is can be instantiated
+function Object.static.implement(self, ...)
+	for _, interface in ipairs(arg) do
+		self.interfaces[#self.interfaces + 1] = interface
+	end
+end
 
 --creates all the default functions for setting metamethods 
 for _, v in ipairs(events) do
@@ -33,7 +63,7 @@ end
 ----------------------------------------------------------------------------------------------
 
 --if an object tries to change a value
---if the value already exists it super set the value there
+--if the value already exists in super set the value there
 --otherwise set the value in object.self
 local function changeObjectValue(tbl, k, v)
 	if tbl.super[k] then
@@ -79,13 +109,36 @@ local function construct(instance, ...)
 	setmetatable(instance,  mt)
 	instance.class.nonStatic.init(instance, unpack(arg)) -- call the constructor
 	
-	instance.super.super = nil --get rid of all exess
-	
+	instance.super.super = nil --get rid of all exess nested supers
+end
 
+
+--makes sure that the given class has all of its fields defined in its intefaces defined
+local function checkInterfaces(class)
+	for _, interface in pairs(class.interfaces) do
+		local fields = interface:getFields()
+		local staticFields = interface:getStaticFields()
+		
+		for _, field in pairs(fields) do
+			if class.nonStatic[field] == nil then
+				return false
+			end
+		end
+		
+		for _, field in pairs(staticFields) do
+			if class.static[field] == nil then
+				return false
+			end
+		end
+	end
+	
+	return true
 end
 
 --create a new instance of class, further arguments are passed to the constructor (init)
 local function new(class, ...)
+	errorUtils.assert(checkInterfaces(class), "Error: Class does not implement all fields", 0)
+	
 	local mt = {__index = index, __newindex = changeObjectValue}
 	
 	local instance = {
@@ -93,7 +146,7 @@ local function new(class, ...)
 		class = class
 	}
 	
-	--each object gets a copy of all varibles in class.nonStatic (except functions, they are shared to consurve memory)
+	--each object gets a copy of all varibles in class.nonStatic
 	local deepCopy = tableUtils.deepCopy
 	local self = instance.self
 	
@@ -125,10 +178,84 @@ function class(parent)
 	local subclass = {
 		events = setmetatable({}, {__index = parent.events}),
 		static = setmetatable({}, {__index = parent.static}), --static methods and varibles
+		interfaces = setmetatable({}, {__index = parent.interfaces}),
 		--create an empty constructor so that when init is called an no constructor in specifried super.init doen not get called instead
 		nonStatic = setmetatable({init = function() end}, {__index = parent.nonStatic}), --non static methods and varibles
 		super = parent
 	}
 	
 	return setmetatable(subclass, {__index = subclass.static, __call = new, __newindex = subclass.nonStatic})
+end
+
+
+
+
+-----------------------------------------------------------------------------------------------------------------------------------
+
+local Interface = {}
+
+
+--adds non static fields to the interface 
+function Interface:addFields(...)
+	for _, field in ipairs(arg) do
+			self.nonStatic[#self.nonStatic + 1] = field
+	end
+end
+
+--adds static fields to the interface 
+function Interface:addStaticFields(...)
+	for _, field in ipairs(arg) do
+			self.static[#self.static + 1] = field
+	end
+end
+
+--returns a table of itself and all its super intefaces
+function Interface:getTypes()
+	local types = {self}
+	
+	for _, parent in pairs(self.super) do
+			types = tableUtils.combine(types, parent:getTypes())
+	end
+	
+	return types
+end
+
+--returns all the noncstatic fields of itself and all its super intefaces
+function Interface:getFields()
+	local interfaces = self:getTypes()
+	local fields = {}
+	
+	for _, interface in pairs(interfaces) do
+		fields = tableUtils.combine(fields, interface.nonStatic)
+	end
+	
+	return fields
+end
+
+--returns all the static fields of itself and all its super intefaces
+function Interface:getStaticFields()
+	local interfaces = self:getTypes()
+	local fields = {}
+	
+	for _, interface in pairs(interfaces) do
+		fields = tableUtils.combine(fields, interface.static)
+	end
+	
+	return fields
+end
+
+--cretes a new interface, many intefaces can be passed as super interfaces
+function interface(...)
+	arg.n = nil
+	--if #arg ==  0 then arg = nil end
+	
+	local instance = {}
+	
+	instance.static = {}
+	instance.nonStatic = {}
+	instance.super = arg
+	instance.addFields = addFields
+	instance.addStaticFields = addStaticFields
+
+	return setmetatable(instance, {__index = Interface})
 end
