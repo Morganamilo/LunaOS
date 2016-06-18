@@ -1,7 +1,8 @@
-local GUIPath = '/LunaOS/system/GUI/objects'
+local objectPath = '/LunaOS/system/GUI/objects'
+local interfacePath = '/LunaOS/system/GUI/interfaces'
 local toLoad = {}
 
-local function loadObject(file)
+local function loadObject(file, dir)
 	local parts = textUtils.split(file, ".")
 	local child, parent, extension
 	
@@ -17,20 +18,25 @@ local function loadObject(file)
 	if GUI[child] then return true end
 	
 	if (GUI[parent] or not parent) then 
-		GUI[child] = os.loadClass(fs.combine(GUIPath, file))
+		GUI[child] = os.loadClass(fs.combine(dir, file))
 		return true
 	end
 	
 	return false
 end
 
-function init()
+local function loadDir(dir)
 	repeat
 		local allLoaded = true
 		
-		for _, file in pairs(fs.listFiles(GUIPath)) do
-			local l = loadObject(file) 
+		for _, file in pairs(fs.listFiles(dir)) do
+			local l = loadObject(file, dir) 
 			allLoaded = l and allLoaded
 		end
 	until allLoaded
+end
+
+function init()
+	loadDir(interfacePath)
+	loadDir(objectPath)
 end
