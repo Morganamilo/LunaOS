@@ -3,12 +3,12 @@ Label = object.class(GUI.Component)
 function Label:init(xPos, yPos, width, height, text, backgroundColour, textColour)
 	self.xPos = xPos
 	self.yPos = yPos
-	self.width = width
-	self.height = height
+	self.width = width or 8
+	self.height = height or 1
 	
-	self.backgroundColour = backgroundColour
-	self.textColour = textColour
-	self.text = text
+	self.backgroundColour = backgroundColour or "1"
+	self.textColour = textColour or "2"
+	self.text = text or ""
 	
 	self.upMargin = 0
 	self.downMargin = 0
