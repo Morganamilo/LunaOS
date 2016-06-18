@@ -5,6 +5,7 @@ function Label:init(xPos, yPos, width, height, text, backgroundColour, textColou
 	self.yPos = yPos
 	self.width = width
 	self.height = height
+	
 	self.backgroundColour = backgroundColour
 	self.textColour = textColour
 	self.text = text
@@ -18,12 +19,22 @@ function Label:init(xPos, yPos, width, height, text, backgroundColour, textColou
 	self.yAlignment = "center"
 end
 
+function Label:getTextPos()
+	return 
+	self.xPos + self.leftMargin, 
+	self.yPos + self.upMargin, 
+	self.width - self.leftMargin - self.rightMargin, 
+	self.height - self.downMargin - self.upMargin
+end
+
 function Label:draw(buffer)
 	if self.backgroundColour then
-		buffer:drawBox(self.xPos, self.yPos, self.width, self.height, self.backgroundColour) --  v = GUI.View(1) l = GUI.Button(3,3,20,5,"this is a test for text alignment i hope it works very well", "9", "8") v:addComponent(l)
+		buffer:drawBox(self.xPos, self.yPos, self.width, self.height, self.backgroundColour) 
 	end
 	
-	buffer:writeTextBox(self.xPos + self.leftMargin, self.yPos + self.upMargin, self.width - self.leftMargin - self.rightMargin, self.height - self.downMargin - self.upMargin, "self.text", self.textColour, nil, self.xAlignment, self.yAlignment)
+	local x,y, width, height = self:getTextPos()
+	
+	buffer:writeTextBox(x, y, width, height, "self.text", self.textColour, nil, self.xAlignment, self.yAlignment)
 end
 
 function Label:setMargin(up, down, left, right)

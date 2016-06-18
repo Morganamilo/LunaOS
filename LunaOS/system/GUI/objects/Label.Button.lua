@@ -16,11 +16,9 @@ function Button:init(xPos, yPos, width, height, str, backgroundColour, textColou
 		end
 	end
 	
-	self:addEventListener("mouse_click", self.eventHandler)
-	self:addEventListener("mouse_up", self.eventHandler)
-	self:addEventListener("mouse_drag", self.eventHandler)
-	
 	self:addEventListener("mouse_click", eventHandler)
+	self:addEventListener("mouse_up",  eventHandler)
+	self:addEventListener("mouse_drag", eventHandler)
 	
 	self.heldBackgroundColour = self.backgroundColour
 	self.heldTextColour = self.textColour
@@ -61,9 +59,11 @@ function Button:draw(buffer)
 	local backColour = self.held and self.heldBackgroundColour or self.backgroundColour
 	local textColour = self.held and self.heldTextColour or self.textColour
 	
+	local x, y, width, height = self:getTextPos()
+	
 	if self.backgroundColour then
-		buffer:drawBox(self.xPos, self.yPos, self.width, self.height, backColour) --  v = GUI.View(1) l = GUI.Label(3,3,20,5,"this is a test for text alignment i hope it works very well", "9", "8") v:addComponent(l) l:addEventListener("char", function(a) l.str = "a"  if a == "z" then v:close() end end)
+		buffer:drawBox(self.xPos, self.yPos, self.width, self.height, backColour) 
 	end
 	
-	buffer:writeTextBox(self.xPos + self.leftMargin, self.yPos + self.upMargin, self.width - self.leftMargin - self.rightMargin, self.height - self.downMargin - self.upMargin, "4345", textColour, nil, self.xAlignment, self.yAlignment)
+	buffer:writeTextBox(x, y, width, height, self.text, textColour, nil, self.xAlignment, self.yAlignment)
 end
