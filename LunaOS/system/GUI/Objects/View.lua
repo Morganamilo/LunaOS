@@ -10,6 +10,8 @@ function View:init(backgroundColour)
 end
 
 function View:addComponent(component)
+	errorUtils.assert(component:instanceOf(GUI.Drawable), "Error: Component must implement the Viewable interface")
+	errorUtils.assert(component:instanceOf(GUI.EventHandler), "Error: Component must implement the EventHandler interface")
 	table.insert(self.components, component)
 	
 	component.setFocus = function(component) self.focus = component end
@@ -37,10 +39,14 @@ end
 
 function View:mainLoop()
 	while self.open do
+		
+		self:draw()
+		local event = {coroutine.yield()}	
+		
 		for _, component in pairs(self.components) do
-			self:draw()
-			local event = {coroutine.yield()}	
 			component:handleEvent(event)
 		end
+		
+		self:draw()
 	end
 end
