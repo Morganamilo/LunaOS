@@ -26,19 +26,63 @@ local function instanceOfClass(object, class)
 	return true
 end
 
---return true if the object is an instance of the given interface or any of its super interfaces
-local function instanceOfInterface(object, interface)
-	for _, classInterface in pairs(object.class.interfaces) do
-		if tableUtils.isIn(interface:getTypes(), classInterface) then
-			return true
+--makes sure that the given class has all of its fields defined in its intefaces defined
+local function checkInterfaces(class)
+	for _, interface in pairs(class.interfaces) do
+		local fields = interface:getFields()
+		local staticFields = interface:getStaticFields()
+		
+		for _, field in pairs(fields) do
+			if class.nonStatic[field] == nil then
+				return false
+			end
+		end
+		
+		for _, field in pairs(staticFields) do
+			if class.static[field] == nil then
+				return false
+			end
 		end
 	end
 	
-	return false
+	return true
+end
+
+--return true if the object is an instance of the given interface or any of its super interfaces
+local function instanceOfInterface(object, interface)
+	--for _, classInterface in pairs(object.class.interfaces) do
+		--if tableUtils.isIn(interface:getTypes(), classInterface) then
+			--return true
+		--end
+	--end
+	
+	--return false
+	
+	
+	--this is the best i can do currently
+	--the above code does not work because some wierdness with the function envioments
+	--so this just checks it has all the functions that fields that the interface wants and if so counts it as an instance
+	
+	local fields = interface:getFields()
+	local staticFields = interface:getStaticFields()
+	
+	for _, field in pairs(fields) do
+		if object.class.nonStatic[field] == nil then
+			return false
+		end
+	end
+	
+		for _, field in pairs(staticFields) do
+		if object.static[field] == nil then
+			return false
+		end
+	end
+	
+	return true
 end
 
 --return true if the object is an instance of the given class or any of its super classes
-function Object.nonStatic.instanceOf(self, class)	
+function Object.nonStatic.instanceOf(self, class)
 	if class.implement then
 		return instanceOfClass(self, class)
 	else
@@ -78,12 +122,12 @@ end
 --otherwise look in object.nonStatic (only return the value is a function)
 --finally look in object.super
 local function index(obj, k)
-	local nonStatic = obj.class.nonStatic[k]
+	--local nonStatic = obj.class.nonStatic[k]
 	local self = obj.self[k] 
 	local super = obj.super[k] 
 	
 	if self ~= nil then return self end
-	if type(nonStatic) == "function" then return nonStatic end
+	--if type(nonStatic) == "function" then return nonStatic end
 	if super ~= nil then return super end
 	
 end
@@ -92,7 +136,8 @@ end
 --makes sure all calls to super constructors goes to instance.super
 local function construct(instance, ...)
 	local mt = {__index = index, __newindex = changeObjectValue}
-	instance.super = setmetatable({}, {__index = instance.class.super.nonStatic})
+	--instance.super = setmetatable({}, {__index = instance.class.super.nonStatic}) -------- this is it i think
+	instance.super = tableUtils.deepCopy(instance.class.super.nonStatic)
 	
 	local superInstance = instance
 	local superClass = instance.class
@@ -110,29 +155,7 @@ local function construct(instance, ...)
 	instance.class.nonStatic.init(instance, unpack(arg)) -- call the constructor
 	
 	instance.super.super = nil --get rid of all exess nested supers
-end
-
-
---makes sure that the given class has all of its fields defined in its intefaces defined
-local function checkInterfaces(class)
-	for _, interface in pairs(class.interfaces) do
-		local fields = interface:getFields()
-		local staticFields = interface:getStaticFields()
-		
-		for _, field in pairs(fields) do
-			if class.nonStatic[field] == nil then
-				return false
-			end
-		end
-		
-		for _, field in pairs(staticFields) do
-			if class.static[field] == nil then
-				return false
-			end
-		end
-	end
-	
-	return true
+	--setmetatable(instance.super, {})
 end
 
 --create a new instance of class, further arguments are passed to the constructor (init)
@@ -151,7 +174,7 @@ local function new(class, ...)
 	local self = instance.self
 	
 	for k, v in pairs(class.nonStatic) do
-		if type(v) ~= "function" then self[k] = deepCopy(v) end
+		self[k] = deepCopy(v)
 	end
 	
 	--copy the class' metamethods to the objects metatable
@@ -178,7 +201,8 @@ function class(parent)
 	local subclass = {
 		events = setmetatable({}, {__index = parent.events}),
 		static = setmetatable({}, {__index = parent.static}), --static methods and varibles
-		interfaces = setmetatable({}, {__index = parent.interfaces}),
+		--interfaces = setmetatable({}, {__index = parent.interfaces}),
+		interfaces = tableUtils.copy(parent.interfaces),
 		--create an empty constructor so that when init is called an no constructor in specifried super.init doen not get called instead
 		nonStatic = setmetatable({init = function() end}, {__index = parent.nonStatic}), --non static methods and varibles
 		super = parent
