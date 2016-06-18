@@ -1,9 +1,9 @@
 Component = object.class()
+Component:implement(GUI.Drawable, GUI.EventHandler)
 
 Component.listeners = {} --a table of events that the Component is listening for
 Component.active = true
 Component.visible = true
-
 
 function Component:handleEvent(data)
 	--if not self.active then return end
