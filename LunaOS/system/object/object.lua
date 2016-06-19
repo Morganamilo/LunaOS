@@ -129,7 +129,6 @@ local function index(obj, k)
 	if self ~= nil then return self end
 	--if type(nonStatic) == "function" then return nonStatic end
 	if super ~= nil then return super end
-	
 end
 
 --calls the constructor (instance.init)
@@ -142,19 +141,19 @@ local function construct(instance, ...)
 	local superInstance = instance
 	local superClass = instance.class
 	
-	while true do
+	while superClass do
 		superInstance = superInstance.super
 		superClass = superClass.super
 		
 		if not superClass then break end
-		rawset(superInstance, 'super' ,setmetatable({}, {__index = superClass.nonStatic, __newindex = instance.super}))
+		rawset(superInstance, 'super' ,setmetatable({}, {__index = tableUtils.deepCopy(superClass.nonStatic), __newindex = instance.super}))
 		
 	end
 	
 	setmetatable(instance,  mt)
 	instance.class.nonStatic.init(instance, unpack(arg)) -- call the constructor
 	
-	instance.super.super = nil --get rid of all exess nested supers
+	--instance.super.super = nil --get rid of all exess nested supers
 	--setmetatable(instance.super, {})
 end
 
