@@ -3,15 +3,10 @@ Button = object.class(GUI.Label)
 Button.activateOnRelease = true --should the button react as soon as it is clicked or when it is released
 Button.held = false
 
-function Button:init(xPos, yPos, width, height, text)
-	self.super:init(xPos, yPos, width, height, text)
+function Button:init(xPos, yPos, width, height, str, backgroundColour, textColour)
+	self.super:init(xPos, yPos, width, height, str, backgroundColour, textColour)
 	
-	self:addEventListener("mouse_click", self. eventHandler)
-	self:addEventListener("mouse_up",  self.eventHandler)
-	self:addEventListener("mouse_drag", self.eventHandler)
-end
-
-function Button:eventHandler(event, mouseButton, xPos, yPos)
+	local function eventHandler(event, mouseButton, xPos, yPos)
 		if event == "mouse_click" then
 			self:handleDown(xPos, yPos, mouseButton)
 		elseif event == "mouse_up" then
@@ -20,14 +15,22 @@ function Button:eventHandler(event, mouseButton, xPos, yPos)
 			self:handleDrag(xPos, yPos, mouseButton)
 		end
 	end
+	
+	self:addEventListener("mouse_click", eventHandler)
+	self:addEventListener("mouse_up",  eventHandler)
+	self:addEventListener("mouse_drag", eventHandler)
+	
+	self.heldBackgroundColour = self.backgroundColour
+	self.heldTextColour = self.textColour
+end
 
-function Button:isInBounds(xPos, yPos)
+function Button:isInComponent(xPos, yPos)
 	return xPos >= self.xPos and xPos <= self.xPos + self.width - 1 and
 	yPos >= self.yPos and yPos <= self.yPos + self.height - 1
 end
 
 function Button:handleDown(xPos, yPos, mouse)
-	if self:isInBounds(xPos, yPos) then
+	if self:isInComponent(xPos, yPos) then
 		self.held = true
 		
 		if not self.activateOnRelease then
@@ -37,7 +40,7 @@ function Button:handleDown(xPos, yPos, mouse)
 end
 
 function Button:handleUp(xPos, yPos, mouse)
-	if self:isInBounds(xPos, yPos) and self.held and self.activateOnRelease then
+	if self:isInComponent(xPos, yPos) and self.held and self.activateOnRelease then
 		self:onClick()
 	end
 	
@@ -63,11 +66,4 @@ function Button:draw(buffer)
 	end
 	
 	buffer:writeTextBox(x, y, width, height, self.text, textColour, nil, self.xAlignment, self.yAlignment)
-end
-
-function Button:applyTheme(theme)
-	self.super:applytheme(theme)
-	
-	self.heldBackgroundColour = theme.heldBackgroundColour
-	self.heldTextColour = theme.heldTextColour	
 end
