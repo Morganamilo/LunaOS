@@ -1,6 +1,6 @@
 RadioButton = object.class(GUI.ToggleButton)
 
---RadioButton.activateOnRelease = false 
+RadioButton.activateOnRelease = false 
 
 function RadioButton:init(xPos, yPos, width, height)
 	self.super:init(xPos, yPos, width or 1, height or 1)

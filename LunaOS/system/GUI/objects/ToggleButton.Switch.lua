@@ -1,5 +1,7 @@
 Switch = object.class(GUI.ToggleButton)
 
+Switch.activateOnRelease = false 
+
 function Switch:init(xPos, yPos)
 	self.super:init(xPos, yPos, 2, 1)
 	
