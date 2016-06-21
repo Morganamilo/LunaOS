@@ -12,6 +12,10 @@ function Label:setText(text)
 	self.text = text
 end
 
+function Label:clear()
+	self:setText("")
+end
+
 function Label:setAlignment(horizontal, vertical)
 	self.xAlignment = horizontal
 	self.yAlignment = vertical
