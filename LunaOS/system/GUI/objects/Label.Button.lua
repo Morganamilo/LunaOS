@@ -12,14 +12,14 @@ function Button:init(xPos, yPos, width, height, text)
 end
 
 function Button:eventHandler(event, mouseButton, xPos, yPos)
-		if event == "mouse_click" then
-			self:handleDown(xPos, yPos, mouseButton)
-		elseif event == "mouse_up" then
-			self:handleUp(xPos, yPos, mouseButton)
-		elseif event == "mouse_drag" then
-			self:handleDrag(xPos, yPos, mouseButton)
-		end
+	if event == "mouse_click" then
+		self:handleDown(xPos, yPos, mouseButton)
+	elseif event == "mouse_up" then
+		self:handleUp(xPos, yPos, mouseButton)
+	elseif event == "mouse_drag" then
+		self:handleDrag(xPos, yPos, mouseButton)
 	end
+end
 
 function Button:isInBounds(xPos, yPos)
 	return xPos >= self.xPos and xPos <= self.xPos + self.width - 1 and
