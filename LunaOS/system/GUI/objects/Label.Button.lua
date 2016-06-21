@@ -66,7 +66,7 @@ function Button:draw(buffer)
 end
 
 function Button:applyTheme(theme)
-	self.super:applytheme(theme)
+	self.super:applyTheme(theme)
 	
 	self.heldBackgroundColour = theme.heldBackgroundColour
 	self.heldTextColour = theme.heldTextColour	

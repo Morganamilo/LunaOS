@@ -46,7 +46,7 @@ function Label:setMargin(up, down, left, right)
 	self.rightMargin = right
 end
 
-function Label:applytheme(theme)
+function Label:applyTheme(theme)
 	self.backgroundColour = theme.backgroundColour
 	self.textColour = theme.textColour
 end
