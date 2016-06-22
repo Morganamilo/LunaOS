@@ -38,14 +38,18 @@ function View:close()
 end
 
 function View:mainLoop()
-	while self.open do
-		
-		self:draw()
+	local x, y = term.getCursorPos()
+	self:draw()
+	
+	while self.open do	
+		term.setCursorPos(x, y)
 		local event = {coroutine.yield()}	
 		
 		for _, component in pairs(self.components) do
 			component:handleEvent(event)
 		end
+		
+		 x, y = term.getCursorPos()
 		
 		self:draw()
 	end
