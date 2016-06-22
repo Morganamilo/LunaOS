@@ -48,32 +48,35 @@ function toWords(str)
     return words
 end
 
-local function trim(str, len)
-  local e 
-  local trimed
-  local next
+--takes a string, trims it down to to the as many whole words it can fit inside the length
+--returns the trimmed string and the rest of the discarded string as seperate returns values
+function trim(str, length)
+  local trimed = str:sub(1, length + 1) --create a substring from the start of the string to length + q characters long
+  local lastWord = trimed:find("[%w]+$") -- find the start of the last word
   
-  trimed = str:sub(1, len + 1) --trim to one more than the length
-  e = trimed:find("[%w]+$") -- find the start of the last word
+  local nextStr
+  local nextWord
   
-  if e == 1 or e == nil or #str <= len then -- if e is nill then is must end in a space   if e = 1 then there are no spaces
-    trimed = trimed:sub(1, len)
-    next = str:sub(len + 1):match("%w.+")
+   -- if lastWord is nill then trimed must end in a space. if lastWord is 1 then there are no spaces.
+  if lastWord == 1 or lastWord == nil or #str <= length then
+    trimed = trimed:sub(1, length)
+    nextStr = str:sub(length + 1)
   else 
-    trimed = trimed:sub(1, e - 1) -- return from the beggining upto but not including the start of the last word
-    next = str:sub(e):match("%w.+")
+  -- create a substring from the begining upto the length only including a word if the whole word will fit
+    trimed = trimed:sub(1, lastWord - 1) 
+    nextStr = str:sub(lastWord)
   end
   
-  return (trimed), next
+  --remove leading spaces so that the next line does not begin with a space
+  nextWord = nextStr:find("%w")  or  1
+  nextStr = nextStr:sub(nextWord)
   
+  return (trimed), nextStr
 end
 
 local function wrapInternal(str, width, height, lines)
   
-  if #str <= width then
-    lines[#lines + 1] = str
-    return lines
-  end
+
   
 	local next = str
   local trimed
@@ -87,12 +90,17 @@ local function wrapInternal(str, width, height, lines)
 end
 
 function wrap(str, width, height)
-  local lines = split(str, "\n")
+  local lines = split(str, "\n") -- split the string by \n to get each line of the string
   local wrapped = {}
   
+  --wrapes each line of text within the given size limit
   for _, line in pairs(lines) do
     wrapped = wrapInternal(line, width, height, wrapped)
   end
   
   return wrapped
+end
+
+function pop(str, n)
+	return str:sub(1, #str - n or 1)
 end
