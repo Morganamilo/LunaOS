@@ -50,7 +50,8 @@ function t(a)
 	sw4 = GUI.Switch(3,14,2,2)
 
 	
-	l = GUI.Label(10, 8, 10 , 4)
+	l1 = GUI.Label(10, 8, 10 , 4)
+	l2 = GUI.Label(30, 13, 10 , 4)
 	tb = GUI.ToggleButton(3,5,5,2)
 	
 	sw1:applyTheme(default)
@@ -59,7 +60,8 @@ function t(a)
 	sw4:applyTheme(default)
 	
 	tb:applyTheme(default)
-	l:applyTheme(default)
+	l1:applyTheme(default)
+	l2:applyTheme(default)
 	--cb = GUI.ComboBox(20,4,14,6, "8", "9")
 	--sb = GUI.Scrollbar(cb)
 	
@@ -70,7 +72,7 @@ function t(a)
 	function b:onClick() self.text = "i have been pressed " .. counter   .. " times" counter = counter + 1 end
 	b:applyTheme(default)
 	
-	tf = GUI.TextField(28,2,10)
+	tf = GUI.TextField(28,2,20)
 	tf:applyTheme(default)
 	
 	v:addComponent(sw1)
@@ -80,7 +82,8 @@ function t(a)
 	v:addComponent(b)
 	v:addComponent(tb)
 	v:addComponent(tf)
-	v:addComponent(l)
+	v:addComponent(l1)
+	v:addComponent(l2)
 	
 	--v:addComponent(tb1) 
 	--v:addComponent(tb2) 
@@ -113,7 +116,7 @@ function t(a)
 			s = "nothing"
 		end
 			
-		l:setText(s .. " is selected")
+		l1:setText(s .. " is selected")
 	end
 	
 	if a then v:mainLoop() else dofile("rom/programs/lua") end
