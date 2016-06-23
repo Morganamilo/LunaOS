@@ -22,3 +22,6 @@ Theme.radioButtonSelectedColour = "5"
 Theme.switchDefaultColour = "7"
 Theme.switchOnColour = "5"
 Theme.switchOffColour = "e"
+
+Theme.highlightedTextColour = "0"
+Theme.highlightedBackgroundColour = "b"
