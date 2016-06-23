@@ -38,7 +38,7 @@ function Group: getSelected()
 	
 	for k, v in pairs(self.components) do
 		if v.selected then 
-			selected[#selected + 1] = k
+			selected[#selected + 1] = v
 		end
 	end
 	
@@ -50,7 +50,7 @@ function Group: getUnSelected()
 	
 	for k, v in pairs(self.components) do
 		if not k.selected then 
-			unSelected[#unSelected + 1] = k
+			unSelected[#unSelected + 1] = v
 			end
 	end
 	
@@ -62,10 +62,18 @@ function Group:handleSelect(component)
 		self:unSelectAll()
 		component.selected = true
 	end
+	
+	self:onChange()
 end
 
 function Group:handleUnSelect(component)
 	if self.oneMustBeSelected and #self:getSelected() == 0 then
 		component.selected = true
 	end
+	
+	self:onChange()
+end
+
+function Group:onChange()
+	--empty function called whenever a button in the group changes
 end

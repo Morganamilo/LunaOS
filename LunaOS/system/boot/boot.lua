@@ -70,7 +70,7 @@ function t(a)
 	function b:onClick() self.text = "i have been pressed " .. counter   .. " times" counter = counter + 1 end
 	b:applyTheme(default)
 	
-	tf = GUI.TextField(28,2,10,4)
+	tf = GUI.TextField(28,2,10)
 	tf:applyTheme(default)
 	
 	v:addComponent(sw1)
