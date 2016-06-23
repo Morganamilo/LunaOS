@@ -2,6 +2,7 @@ View = object.class()
 
 function View:init(backgroundColour)
 	local x, y = term.getSize()
+	self.xCursor, self.yCursor = term.getCursorPos()
 	
 	self.open = true
 	self.backgroundColour = backgroundColour
@@ -30,7 +31,9 @@ function View:draw(ignoreChanged)
 		component:onDraw(self.buffer)
 	end
 	
+	self.xCursor, self.yCursor = term.getCursorPos()
 	self.buffer:draw(ignoreChanged)
+	term.setCursorPos(self.xCursor, self.yCursor)
 end
 
 function View:close()
@@ -38,18 +41,14 @@ function View:close()
 end
 
 function View:mainLoop()
-	local x, y = term.getCursorPos()
 	self:draw()
 	
 	while self.open do	
-		term.setCursorPos(x, y)
 		local event = {coroutine.yield()}	
 		
 		for _, component in pairs(self.components) do
 			component:handleEvent(event)
 		end
-		
-		 x, y = term.getCursorPos()
 		
 		self:draw()
 	end
