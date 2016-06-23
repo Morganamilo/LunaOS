@@ -7,6 +7,7 @@ TextField.scrollPos = 1
 TextField.startDrag = nil
 TextField.endDrag = nil
 
+TextField.mask = ''
 
 function TextField:init(xPos, yPos, width, text)
 	self.super:init(xPos, yPos, width, 1, text)
@@ -272,8 +273,14 @@ function TextField:draw(buffer)
 	local backColour = self.held and self.heldBackgroundColour or self.backgroundColour
 	local textColour = self.held and self.heldTextColour or self.textColour
 	
-	local trimedText = self.text:sub(self.scrollPos, self.scrollPos + self.width - 1)
+	local trimedText
 	local x, y, width, height = self:getTextPos()
+	
+	if self.mask == '' then
+		trimedText = self.text:sub(self.scrollPos, self.scrollPos + self.width - 1)
+	else
+		trimedText = self.mask:rep(#self.text):sub(1, #self.text):sub(self.scrollPos, self.scrollPos + self.width - 1)
+	end
 	
 	if self.focused then 
 		term.setCursorPos(self.xPos + self.cursorPos - 1, self.yPos)
