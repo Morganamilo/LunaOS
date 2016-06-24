@@ -152,6 +152,8 @@ function TextField:handleDrag(event, mouse, xPos, yPpos)
 	if self.focused then
 		self.cursorPos = self:xPosToCursorPos(xPos)
 		self.endDrag = self:xPosToCursorPos(xPos)
+	else
+		self:unHighlightAll()
 	end
 end
 
