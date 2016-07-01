@@ -22,10 +22,11 @@ end
 function TextField:handleDown(xPos, yPos, mouse)
 	if self:isInBounds(xPos, yPos) then
 		self:focus(xPos, yPos)
-		self.endDrag = nil
 	else
 		self:unFocus()
 	end
+	
+	self.endDrag = nil
 end
 
 function TextField:handleKey(event, key)
