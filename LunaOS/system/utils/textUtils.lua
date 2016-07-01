@@ -75,13 +75,13 @@ function trim(str, length)
 end
 
 local function wrapInternal(str, width, height, lines)
-  local next = str
+  local nextStr= str
   local trimed
   
   repeat
-    trimed, next = trim(next, width)
+    trimed, nextStr = trim(nextStr, width)
     lines[#lines + 1] = trimed
-  until #next == 0 or #lines >= height
+  until #nextStr == 0 or #lines >= height
   
 	return lines
 end
