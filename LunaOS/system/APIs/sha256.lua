@@ -1,4 +1,7 @@
- 
+--
+-- Taken from http://pastebin.com/gsFrNjbt
+--
+
 --  
 --  Adaptation of the Secure Hashing Algorithm (SHA-244/256)
 --  Found Here: http://lua-users.org/wiki/SecureHashAlgorithm
