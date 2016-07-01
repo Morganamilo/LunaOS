@@ -252,7 +252,7 @@ function gotoPID(PID, ...)
 	log.i("Going to PID " .. PID)
 	
 	--if the PID is already in the history move it to the top
-	local index = tableUtils.isIn(_runningHistory, PID)
+	local index = tableUtils.indexOf(_runningHistory, PID)
 	if index then
 		table.remove(_runningHistory, index)
 	end
@@ -314,7 +314,7 @@ local function killProcessInternal(PID)
 		windowHandler.handleDeath(v)
 		
 		--removes the process from the _runningHistory
-		local index = tableUtils.isIn(_runningHistory, v)
+		local index = tableUtils.indexOf(_runningHistory, v)
 		if index then
 			table.remove(_runningHistory, index)
 		end
@@ -396,7 +396,7 @@ local function getYield(data)
 		
 		success, event = pcall(windowHandler.handleEvent, event)
 		if not success then cirticalError(event) end
-	until tableUtils.isIn(data, event[1]) or #data == 0 and #event ~= 0 or event[1] == 'terminate'
+	until tableUtils.indexOf(data, event[1]) or #data == 0 and #event ~= 0 or event[1] == 'terminate'
 	
 	return event
 end

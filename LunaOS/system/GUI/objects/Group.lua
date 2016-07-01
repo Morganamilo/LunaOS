@@ -17,7 +17,7 @@ function Group:addComponent(component)
 end
 
 function Group:removeComponent(component)
-	table.remove(self.components, tableUtils.isIn(self.components, component))
+	table.remove(self.components, tableUtils.indexOf(self.components, component))
 	component.onSelect = function() end
 end
 

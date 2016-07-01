@@ -51,7 +51,7 @@ end
 --return true if the object is an instance of the given interface or any of its super interfaces
 local function instanceOfInterface(object, interface)
 	--for _, classInterface in pairs(object.class.interfaces) do
-		--if tableUtils.isIn(interface:getTypes(), classInterface) then
+		--if tableUtils.indexOf(interface:getTypes(), classInterface) then
 			--return true
 		--end
 	--end

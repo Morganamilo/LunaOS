@@ -93,7 +93,7 @@ end
 -------------------------------------------------------------
 
 function localFuncs.nextValue(str, start)
-	local isIn = tableUtils.isIn
+	local isIn = tableUtils.indexOf
 	
 	for pos = start, #str do
 		local c = str:sub(pos, pos)
@@ -206,7 +206,7 @@ end
 
 function localFuncs.parseNonString(str, start)
 	local endPos
-	local isIn = tableUtils.isIn
+	local isIn = tableUtils.indexOf
 	local prevC
 	
 	if str:sub(start, start) == "{" then

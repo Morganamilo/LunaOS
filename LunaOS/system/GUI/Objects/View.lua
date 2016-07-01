@@ -20,7 +20,7 @@ function View:addComponent(component)
 end
 
 function View:removeComponent(component)
-	table.remove(self.components, tableUtils.isIn(self.components, component))
+	table.remove(self.components, tableUtils.indexOf(self.components, component))
 end
 
 function View:draw(ignoreChanged)

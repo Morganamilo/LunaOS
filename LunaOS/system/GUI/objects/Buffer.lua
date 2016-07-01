@@ -38,7 +38,7 @@ function Buffer.static.colourToBlit(colour)
 end
 
 function Buffer.static.blitToColour(b)
-	return tableUtils.isIn(blit, b)
+	return tableUtils.indexOf(blit, b)
 end
 
 function Buffer:restrictPos(xPos, yPos)
