@@ -1,4 +1,4 @@
-function isIn(tbl, value)
+function indexOf(tbl, value)
 	errorUtils.expect(tbl, "table", true)
 	
 	for k, v in pairs(tbl) do
@@ -6,6 +6,25 @@ function isIn(tbl, value)
 	end
 	
 	return false
+end
+
+function binarySearch(tbl,searchFor)
+	return binarySearchInternal(tbl, searchFor, 1, #tbl)
+end
+
+function binarySearchInternal(tbl, searchFor, low, high) 
+	local mid = math.floor(high + low / 2)
+	local value = tbl[mid]
+	
+	if  low > high then
+		return false
+	elseif value < searchFor then
+		return binarySearchInternal(tbl, searchFor, mid + 1, high)
+	elseif value > searchFor then
+		return binarySearchInternal(tbl, searchFor, low, mid - 1)
+	else
+		return mid
+	end
 end
 
 function range(tbl, start, finish)
