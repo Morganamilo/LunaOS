@@ -45,8 +45,7 @@ function TextField:handleKey(event, key)
 		end
 		
 		if key == 28 then --enter
-			--self:addChar("\n", self.cursorPos + self.scrollPos )
-			--self:moveCursorRight()
+			self:action()
 		end
 		
 		if key == 203 then --left
@@ -260,6 +259,10 @@ function TextField:deleteHighlightedChars()
 	self:unHighlightAll()
 	
 	return true
+end
+
+function TextField:action()
+	--emtpy funtion that can be set for when enter is pressed
 end
 
 function TextField:drawHilightedText(buffer, x, y, text)
