@@ -14,6 +14,7 @@ log.i("------- Finished loading utils -------")
 
 os.loadAPI("/LunaOS/system/APIs/lunaOS.lua")
 os.loadAPI("/LunaOS/system/APIs/time.lua")
+os.loadAPI("/LunaOS/system/APIs/sha256.lua")
 os.loadAPI("/LunaOS/system/kernel/kernel.lua")
 
 
@@ -48,10 +49,12 @@ function t(a)
 	sw2 = GUI.Switch(3,8,2,2)
 	sw3 = GUI.Switch(3,11,2,2)
 	sw4 = GUI.Switch(3,14,2,2)
+	pb= GUI.ProgressBar(3,17,40,1,"this is progress")
+	pb.maxProgress = 20
 
 	
 	l1 = GUI.Label(10, 8, 10 , 4)
-	l2 = GUI.Label(30, 13, 10 , 4)
+	l2 = GUI.Label(30, 10, 10 , 4)
 	tb = GUI.ToggleButton(3,5,5,2)
 	
 	sw1:applyTheme(default)
@@ -62,18 +65,22 @@ function t(a)
 	tb:applyTheme(default)
 	l1:applyTheme(default)
 	l2:applyTheme(default)
+	pb:applyTheme(default)
 	--cb = GUI.ComboBox(20,4,14,6, "8", "9")
 	--sb = GUI.Scrollbar(cb)
 	
 	--sb:applyTheme(default)
-	counter = 1
+	counter = 0
 	
 	b = GUI.Button(10,2,10,4,"this is a test")
-	function b:onClick() self.text = "i have been pressed " .. counter   .. " times" counter = counter + 1 end
+	function b:onClick() counter = counter + 1  self.text = "i have been pressed " .. counter   .. " times"  pb.progress = counter end
 	b:applyTheme(default)
 	
-	tf = GUI.TextField(28,2,20)
-	tf:applyTheme(default)
+	tf1 = GUI.TextField(28,2,20)
+	tf2 = GUI.TextField(28,4,20)
+	tf1:applyTheme(default)
+	tf2:applyTheme(default)
+	tf1.mask = "brandon is a fag"
 	
 	v:addComponent(sw1)
 	v:addComponent(sw2)
@@ -81,9 +88,11 @@ function t(a)
 	v:addComponent(sw4)
 	v:addComponent(b)
 	v:addComponent(tb)
-	v:addComponent(tf)
+	v:addComponent(tf1)
+	v:addComponent(tf2)
 	v:addComponent(l1)
 	v:addComponent(l2)
+	v:addComponent(pb)
 	
 	--v:addComponent(tb1) 
 	--v:addComponent(tb2) 
