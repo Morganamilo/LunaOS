@@ -1,6 +1,3 @@
-local blit = {[1] = "0", [2] = "1", [4] = "2", [8] = "3", [16] = "4", [32] ="5", [64] = "6", [128] = "7", [256] = "8", [512]= "9", [1024]= "a", [2048] = "b", [4096] = "c", [8192] = "d", [16384] = "e", [32768] = "f"}
-
-
 Buffer = object.class()
 
 function Buffer:init(term, xPos, yPos, xSize, ySize, colour)
@@ -32,15 +29,6 @@ function Buffer:XYToIndex(xPos, yPos)
 	if xPos > self.xSize or xPos < 1 or yPos > self.ySize or yPos < 1 then return end
 	return (yPos -1) * self.xSize + xPos
 end
-
-function Buffer.static.colourToBlit(colour)
-	return blit[colour]
-end
-
-function Buffer.static.blitToColour(b)
-	return tableUtils.indexOf(blit, b)
-end
-
 function Buffer:restrictPos(xPos, yPos)
 	if xPos > self.xSize then xPos = self.xSize end
 	if yPos > self.ySize then yPos = self.ySize end
@@ -57,7 +45,7 @@ function Buffer:changeAll()
 end
 
 function Buffer:clear(colour)
-	if type(colour) == "number" then colour = Buffer.colourToBlit(colour) end
+	if type(colour) == "number" then colour = colourUtils.colourToBlit(colour) end
 	
 	for n = 1, self.size do
 		self.pixelBuffer[n] = colour
@@ -70,7 +58,7 @@ end
 
 function Buffer:drawPixelRaw(pos, colour)
 	if pos < 1 or pos > self.size then return end
-	if type(colour) == "number" then colour = Buffer.colourToBlit(colour) end
+	if type(colour) == "number" then colour = colourUtils.colourToBlit(colour) end
 	self.pixelBuffer[pos] = colour
 	self.textBuffer[pos] = " "
 end
@@ -201,8 +189,8 @@ end
 
 function Buffer:writeCharRaw(pos, c, textColour, textBackgroundColour)
 	if pos < 1 or pos > self.size then return end
-	if type(textColour) == "number" then  textColour = Buffer.colourToBlit(textColour) end
-	if type(textBackgroundColour) == "number" then  textBackgroundColour = Buffer.colourToBlit(textColour) end 
+	if type(textColour) == "number" then  textColour = colourUtils.colourToBlit(textColour) end
+	if type(textBackgroundColour) == "number" then  textBackgroundColour = colourUtils.colourToBlit(textColour) end 
 	
 	self.textBuffer[pos] = c
 	self.textColourBuffer[pos] = textColour or self.textColourBuffer[pos] or self.pixelBuffer[pos] 
@@ -301,7 +289,7 @@ function Buffer:translate(xPos, yPos)
 end
 
 function Buffer:resize(width, height, colour)
-	if type(colour) == "number" then colour = Buffer.colourToBlit(colour) end
+	if type(colour) == "number" then colour = colourUtils.colourToBlit(colour) end
 	
 	local newPixelBuffer = {}
 	local newTextColourBuffer = {}
