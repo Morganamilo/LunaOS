@@ -29,5 +29,5 @@ end
 function ProgressBar:applyTheme(theme)
 	self.super:applyTheme(theme)
 	self.highlightedBackgroundColour = theme.highlightedBackgroundColour
-	self.textColour = theme.scrollBarColour
+	self.textColour = theme.textColour
 end

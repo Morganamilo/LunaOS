@@ -1,27 +1,29 @@
 Theme = object.class()
 
-Theme.textColour = "9"
-Theme.backgroundColour = "7"
+Theme.viewBackgroundColour = colourUtils.blits.grey
 
-Theme.selectedTextColour = "9" 
-Theme.selectedBackgroundColour =  "b"
+Theme.textColour = colourUtils.blits.white
+Theme.backgroundColour = colourUtils.blits.cyan
 
-Theme.heldTextColour = "9"
-Theme.heldBackgroundColour = "8"
+Theme.selectedTextColour = colourUtils.blits.white
+Theme.selectedBackgroundColour =  colourUtils.darker(colourUtils.blits.cyan)
+
+Theme.heldTextColour = colourUtils.blits.white
+Theme.heldBackgroundColour = colourUtils.darker(colourUtils.blits.cyan)
 
 Theme.scrollBarBackgroundColour = "7"
 Theme.scrollBarColour = "8"
 Theme.scrollBarButtonBackgroundColour = "7"
-Theme.scrollBarButtonTextColour = "8"
+Theme.scrollBarButtonTextColour = colourUtils.blits.white
 Theme.scrollBarButtonHeldBackgroundColour = "8" 
 Theme.scrollBarButtonHeldTextColour = "7"
 
-Theme.radioButtonDefaultColour = "7"
-Theme.radioButtonSelectedColour = "5"
+Theme.radioButtonDefaultColour = colourUtils.blits.cyan
+Theme.radioButtonSelectedColour = colourUtils.blits.green
 
-Theme.switchDefaultColour = "7"
-Theme.switchOnColour = "5"
-Theme.switchOffColour = "e"
+Theme.switchDefaultColour = colourUtils.blits.cyan
+Theme.switchOnColour = colourUtils.blits.green
+Theme.switchOffColour = colourUtils.blits.red
 
-Theme.highlightedTextColour = "0"
-Theme.highlightedBackgroundColour = "b"
+Theme.highlightedTextColour = colourUtils.blits.lightGrey
+Theme.highlightedBackgroundColour = colourUtils.blits.blue
