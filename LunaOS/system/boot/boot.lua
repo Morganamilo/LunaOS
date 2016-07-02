@@ -42,19 +42,22 @@ function f2()
 end
 
 function t(a)
-	v = GUI.View(1)
+	f = GUI.Frame(term.current())
+	v = GUI.View()
+	--v:setSize(5,5)
+	v.backgroundColour = colourUtils.blits.grey
 	default = GUI.Theme()
 
 	sw1 = GUI.Switch(3,2,2,2)
 	sw2 = GUI.Switch(3,8,2,2)
 	sw3 = GUI.Switch(3,11,2,2)
-	sw4 = GUI.Switch(3,14,2,2)
+	sw4 = GUI.RadioButton(3,14)
 	pb= GUI.ProgressBar(3,17,40,1,"this is progress")
 	pb.maxProgress = 20
 
 	
 	l1 = GUI.Label(10, 8, 10 , 4)
-	l2 = GUI.Label(30, 10, 10 , 4)
+	l2 = GUI.Button(30, 10, 10 , 4)
 	tb = GUI.ToggleButton(3,5,5,2)
 	
 	sw1:applyTheme(default)
@@ -69,11 +72,20 @@ function t(a)
 	--cb = GUI.ComboBox(20,4,14,6, "8", "9")
 	--sb = GUI.Scrollbar(cb)
 	
+	l2.backgroundColour = "6"
+	function l2:onClick() self.backgroundColour = colourUtils.highlight(self.backgroundColour) end
+	
+	
+	
 	--sb:applyTheme(default)
 	counter = 0
 	
 	b = GUI.Button(10,2,10,4,"this is a test")
+	
+	
 	function b:onClick() counter = counter + 1  self.text = "i have been pressed " .. counter   .. " times"  pb.progress = counter end
+	function b:onClick() v:setPos(5,5) end
+	
 	b:applyTheme(default)
 	
 	tf1 = GUI.TextField(28,2,20)
@@ -128,7 +140,10 @@ function t(a)
 		l1:setText(s .. " is selected")
 	end
 	
-	if a then v:mainLoop() else dofile("rom/programs/lua") end
+	f:addView(v,"1")
+	f:gotoView("1")
+	
+	if a then f:mainLoop() else dofile("rom/programs/lua") end
 		
 end
 
