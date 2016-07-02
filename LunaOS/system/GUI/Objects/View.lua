@@ -1,12 +1,19 @@
-View = object.class()
+View = object.class(GUI.Component)
 
-function View:init(backgroundColour)
+function View:init(xPos, yPos, xSize, ySize, backgroundColour)
 	local x, y = term.getSize()
-	self.xCursor, self.yCursor = term.getCursorPos()
+	local xCursor, yCursor = term.getCursorPos()
+	self.xPos = xPos or 1
+	self.yPos = yPos or 1
+	self.xSize = xSize or x
+ 	self.ySize = ySize or y
+	self.backgroundColour = backgroundColour or "0"
 	
-	self.open = true
-	self.backgroundColour = backgroundColour
-	self.buffer = GUI.Buffer(term, 1,1, x, y, backgroundColour)
+	
+	self.window = window.create(term.native(), self.xPos, self.yPos, self.xSize, self.ySize, true)
+	term.setCursorPos(xCursor, yCursor)
+	
+	self.buffer = GUI.Buffer(self.window, 1, 1, self.xSize, self.ySize, self.backgroundColour)
 	self.components = {}
 end
 
@@ -23,8 +30,7 @@ function View:removeComponent(component)
 	table.remove(self.components, tableUtils.indexOf(self.components, component))
 end
 
-function View:draw(ignoreChanged)
-
+function View:draw(window)
 	self.buffer:clear(self.backgroundColour)
 	
 	for _, component in pairs(self.components) do
@@ -36,20 +42,36 @@ function View:draw(ignoreChanged)
 	term.setCursorPos(self.xCursor, self.yCursor)
 end
 
-function View:close()
-	self.open = false
+function View:setPos(xPos, yPos)
+	self.xPos = xPos
+	self.yPos = yPos
+	
+	self.window.reposition(xPos, yPos)
 end
 
-function View:mainLoop()
-	self:draw()
+function View:setSize(xSize, ySize)
+	self.xSize = xSize
+	self.ySize = ySize
 	
-	while self.open do	
-		local event = {coroutine.yield()}	
-		
-		for _, component in pairs(self.components) do
-			component:handleEvent(event)
+	self.buffer:resize(xSize, ySize, "0")
+	self.window.reposition(self.xPos, self.yPos, xPos, yPos)
+end
+
+function View:handleEvent()
+	local event = {coroutine.yield()}
+	
+	--ajust the position of mouse events
+	if event[1] == "mouse_click" or event[1] == "mouse_up" or event[1] == "mouse_scroll" or event[1] == "mouse_drag" then
+	
+		if event[3] < self.xPos or event[3] > self.xPos + self.xSize - 1 or event[3] < self.yPos or event[4] > self.yPos + self.ySize - 1 then
+			return
 		end
 		
-		self:draw()
+		event[3] = event[3] - self.xPos + 1
+		event[4] = event[4] - self.yPos + 1
+	end	
+	
+	for _, component in pairs(self.components) do
+		component:handleEvent(event)
 	end
 end
