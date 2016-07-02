@@ -169,18 +169,38 @@ function Buffer:drawFunction2(xPos, yPos, width, height, f, colour)
 	end
 end
 
+
+local function f(x, y) 
+	x = x- (width + 1) /2
+	y = y- (height + 1)/2
+
+	return mathUtils.round(math.sqrt((x*x)/(width*width) + (y*y)/(height*height))) < 1
+end
+
 --draws an elipse
 function Buffer:drawEllipse(xPos, yPos, width, height, colour)
-	local function f(x, y) 
-		x=x- (width + 1) /2
-		y=y- (height + 1)/2
-
-		return mathUtils.round(math.sqrt((x*x)/(width*width) + (y*y)/(height*height))) < 1
-	end
-	
 	self:drawFunction(xPos, yPos, width, height, 0, 0, f, colour)
 end
 
+--draws another buffer to this buffer
+--the buffer passed gets drawn ontop of the self buffer
+function Buffer:drawBuffer(buffer)
+	local text = buffer.textBuffer
+	local pixel = buffer.pixelBuffer
+	local textColour = buffer.textColourBuffer
+	
+	for y = 0, math.min(buffer.ySize, self.ySize - buffer.yPos + 1) - 1 do
+		local mainBufferStart = self:XYToIndex(buffer.xPos, buffer.yPos + y)
+		local bufferStart = buffer:XYToIndex(1, 1 + y)
+		
+		for x = 0, math.min(buffer.xSize, self.xSize - buffer.xPos + 1)  - 1 do
+			local currentMainBufferPos = mainBufferStart + x
+			local currentBufferPos = bufferStart + x
+			
+			self:writeCharRaw(currentMainBufferPos, text[currentBufferPos], textColour[currentBufferPos], pixel[currentBufferPos])
+		end
+	end
+end
 
 
 function Buffer:drawShape(xPos, yPos, shape)
