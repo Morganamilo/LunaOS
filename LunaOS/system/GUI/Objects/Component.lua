@@ -10,6 +10,9 @@ function Component:handleEvent(data)
 	
 	local listenerFunc = self.listeners[data[1]] --set listenerFunc to the function who key is the event name
 	if listenerFunc then listenerFunc(self, unpack(data)) end --if we did get a function from that event name call it
+	
+	listenerFunc = self.listeners[""]  --special listener that is called for any event
+	if listenerFunc then listenerFunc(self, unpack(data)) end
 end
 
 function Component:addEventListener(event, func)
