@@ -42,8 +42,10 @@ function f2()
 end
 
 function t(a)
+	
 	f = GUI.Frame(term.current())
 	v = GUI.View()
+	v2 = GUI.View(28, 6, 20, 10, "1")
 	--v:setSize(5,5)
 	v.backgroundColour = colourUtils.blits.grey
 	default = GUI.Theme()
@@ -57,7 +59,7 @@ function t(a)
 
 	
 	l1 = GUI.Label(10, 8, 10 , 4)
-	l2 = GUI.Button(30, 10, 10 , 4)
+	--l2 = GUI.Button(30, 10, 10 , 4)
 	tb = GUI.ToggleButton(3,5,5,2)
 	
 	sw1:applyTheme(default)
@@ -67,13 +69,13 @@ function t(a)
 	
 	tb:applyTheme(default)
 	l1:applyTheme(default)
-	l2:applyTheme(default)
+	--l2:applyTheme(default)
 	pb:applyTheme(default)
 	--cb = GUI.ComboBox(20,4,14,6, "8", "9")
 	--sb = GUI.Scrollbar(cb)
 	
-	l2.backgroundColour = "6"
-	function l2:onClick() self.backgroundColour = colourUtils.highlight(self.backgroundColour) end
+	--l2.backgroundColour = "6"
+	--function l2:onClick() self.backgroundColour = colourUtils.highlight(self.backgroundColour) end
 	
 	
 	
@@ -103,8 +105,13 @@ function t(a)
 	v:addComponent(tf1)
 	v:addComponent(tf2)
 	v:addComponent(l1)
-	v:addComponent(l2)
+	--v:addComponent(l2)
 	v:addComponent(pb)
+	v:addComponent(v2)
+
+	tg2 = GUI.ToggleButton(2,2,4,3)
+	tg2:applyTheme(default)
+	v2:addComponent(tg2)
 	
 	--v:addComponent(tb1) 
 	--v:addComponent(tb2) 
