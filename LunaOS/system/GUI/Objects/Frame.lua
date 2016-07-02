@@ -37,9 +37,11 @@ function Frame:mainLoop()
 	
 	while self.running do
 		local view = self.views[self.openView]
-		term.redirect(view.window)
+		--term.redirect(view.window)
 		
-		view:handleEvent()
+		local event = {coroutine.yield()}
+		view:handleEvent(event)
 		view:draw()
+		
 	end
 end
