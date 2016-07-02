@@ -9,7 +9,7 @@ Theme.selectedTextColour = colourUtils.blits.white
 Theme.selectedBackgroundColour =  colourUtils.darker(colourUtils.blits.cyan)
 
 Theme.heldTextColour = colourUtils.blits.white
-Theme.heldBackgroundColour = colourUtils.darker(colourUtils.blits.cyan)
+Theme.heldBackgroundColour = colourUtils.blits.lightGrey
 
 Theme.scrollBarBackgroundColour = "7"
 Theme.scrollBarColour = "8"
