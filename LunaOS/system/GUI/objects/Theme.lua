@@ -11,12 +11,9 @@ Theme.selectedBackgroundColour =  colourUtils.darker(colourUtils.blits.cyan)
 Theme.heldTextColour = colourUtils.blits.white
 Theme.heldBackgroundColour = colourUtils.blits.lightGrey
 
-Theme.scrollBarBackgroundColour = "7"
-Theme.scrollBarColour = "8"
-Theme.scrollBarButtonBackgroundColour = "7"
-Theme.scrollBarButtonTextColour = colourUtils.blits.white
-Theme.scrollBarButtonHeldBackgroundColour = "8" 
-Theme.scrollBarButtonHeldTextColour = "7"
+Theme.scrollbarBackgroundColour = colourUtils.blits.lightGrey
+Theme.scrollbarColour = colourUtils.blits.lightBlue
+
 
 Theme.radioButtonDefaultColour = colourUtils.blits.cyan
 Theme.radioButtonSelectedColour = colourUtils.blits.green
