@@ -20,6 +20,7 @@ function View:init(xPos, yPos, xSize, ySize, backgroundColour)
 end
 
 function View:addComponent(component)
+	errorUtils.assert(component ~= self, "Error: View can not be added to itself")
 	errorUtils.assert(component:instanceOf(GUI.Drawable), "Error: Component must implement the Viewable interface")
 	errorUtils.assert(component:instanceOf(GUI.EventHandler), "Error: Component must implement the EventHandler interface")
 	table.insert(self.components, component)
@@ -33,13 +34,13 @@ function View:removeComponent(component)
 end
 
 function View:draw(buffer)
-	self.buffer:clear(self.backgroundColour)
-	
 	local oldSetCursorPos = term.setCursorPos
 	local oldGetCursorPos = term.getCursorPos
 	
 	local xAjust = self.xPos - 1
 	local yAjust = self.yPos - 1
+	
+	self.buffer:clear(self.backgroundColour)
 	
 	term.setCursorPos = function(xPos, yPos)
 		oldSetCursorPos(xPos + xAjust, yPos + yAjust)

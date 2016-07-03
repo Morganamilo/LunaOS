@@ -46,6 +46,7 @@ function t(a)
 	f = GUI.Frame(term.current())
 	v = GUI.View()
 	v2 = GUI.View(28, 6, 20, 10, "1")
+	
 	--v:setSize(5,5)
 	v.backgroundColour = colourUtils.blits.grey
 	default = GUI.Theme()
@@ -86,7 +87,8 @@ function t(a)
 	
 	
 	function b:onClick() counter = counter + 1  self.text = "i have been pressed " .. counter   .. " times"  pb.progress = counter end
-	function b:onClick() v:setPos(5,5) end
+	--function b:onClick() v:setPos(5,5) end
+	--function b:onClick() f:gotoView("1") end
 	
 	b:applyTheme(default)
 	
@@ -148,6 +150,7 @@ function t(a)
 	end
 	
 	f:addView(v,"1")
+	f:addView(v2,"2")
 	f:gotoView("1")
 	
 	if a then f:mainLoop() else dofile("rom/programs/lua") end
