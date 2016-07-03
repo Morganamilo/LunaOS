@@ -6,6 +6,7 @@ TextField.scrollPos = 1
 
 TextField.startDrag = nil
 TextField.endDrag = nil
+TextField.hint = nil
 
 TextField.mask = ''
 
@@ -220,6 +221,7 @@ function TextField:applyTheme(theme)
 	self.heldTextColour = theme.textColour	
 	self.highlightedTextColour = theme.highlightedTextColour
 	self.highlightedBackgroundColour = theme.highlightedBackgroundColour
+	self.hintColour = theme.hintColour
 end
 
 function TextField:getHilightedPos()
@@ -297,8 +299,17 @@ function TextField:draw(buffer)
 		buffer:drawBox(self.xPos, self.yPos, self.width, self.height, backColour) 
 	end
 	
+	
+	if self.text == '' and self.hint then
+		trimedText = self.hint
+		textColour = self.hintColour
+	end
+	
 	buffer:writeStr(x, y, trimedText, textColour)
-	self:drawHilightedText(buffer, x, y, trimedText)
+	
+	if self.text ~= '' then
+		self:drawHilightedText(buffer, x, y, trimedText)
+	end
 	
 	-- buffer:writeStr(x, y+1, tostring(self.cursorPos) .. '  ' .. tostring(self.scrollPos) .. '  ' .. tostring(#self.text) .. '  '
 	-- .. tostring(self.startDrag) .. '  ' .. tostring(self.endDrag) .. ' ' .. tostring(self.focused)

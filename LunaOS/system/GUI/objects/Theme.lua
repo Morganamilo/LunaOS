@@ -3,6 +3,7 @@ Theme = object.class()
 Theme.viewBackgroundColour = colourUtils.blits.grey
 
 Theme.textColour = colourUtils.blits.white
+Theme.hintColour = colourUtils.blits.lightBlue
 Theme.backgroundColour = colourUtils.blits.cyan
 
 Theme.selectedTextColour = colourUtils.blits.white
