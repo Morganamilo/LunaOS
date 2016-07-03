@@ -13,6 +13,7 @@ function Scrollbar:init(xPos, yPos, height, steps)
 	self:addEventListener("mouse_click", self. handleDown)
 	self:addEventListener("mouse_up",  self.handleUp)
 	self:addEventListener("mouse_drag", self.handleDrag)
+	self:addEventListener("mouse_scroll", self.handleScroll)
 	self:addEventListener("key", self.handleKey)
 end
 
@@ -41,6 +42,20 @@ function Scrollbar:handleKey(event, key)
 		if key == 207 then --end
 			self.scrollLevel = self.steps
 		end
+	end
+end
+
+function Scrollbar:handleScroll(event, direction, xPos, yPos)
+	if self:isInBounds(xPos, yPos) then
+		if direction < 0 then
+			self:scrollUp()
+		else
+			self:scrollDown()
+		end
+		
+		self.focused = true
+	else
+		self.focused = false
 	end
 end
 
