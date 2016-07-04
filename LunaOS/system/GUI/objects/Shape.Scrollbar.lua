@@ -4,17 +4,23 @@ Scrollbar.held = false
 Scrollbar.focused = false
 
 
-function Scrollbar:init(xPos, yPos, height, steps)
-	self.super:init(xPos, yPos, 1, height)
+function Scrollbar:init(xPos, yPos, width, height, steps)
+	Scrollbar.super.nonStatic.init(self, xPos, yPos, width, height) -- some bug, stupid dirty workaround
 	
 	self.steps = steps
 	self.scrollLevel = 1
+	self.length = height
 	
 	self:addEventListener("mouse_click", self. handleDown)
 	self:addEventListener("mouse_up",  self.handleUp)
 	self:addEventListener("mouse_drag", self.handleDrag)
 	self:addEventListener("mouse_scroll", self.handleScroll)
 	self:addEventListener("key", self.handleKey)
+end
+
+function Scrollbar:setSize(width, height)
+	self.super:setSize(width, height)
+	self.length = height
 end
 
 function Scrollbar:handleKey(event, key)
@@ -67,7 +73,7 @@ function Scrollbar:handleDown(event, mouseButton, xPos, yPos)
 		local barPos = self:getBarPos()
 
 		if yPos < barPos or yPos > barPos + barSize - 1 then
-			self:setBarPos(math.min((yPos - self.yPos + 1) - mathUtils.round(barSize / 2) + 1,  self.height - barSize + 1))
+			self:setBarPos(math.min((yPos - self.yPos + 1) - mathUtils.round(barSize / 2) + 1,  self.length - barSize + 1))
 		end
 
 		self.held = true
@@ -90,11 +96,6 @@ function Scrollbar:handleDrag(event, mouseButton, xPos, yPos)
 	self:setBarPos(yPos - self.yPos + 1 - self.barGrabPoint) 
 end
 
-function Scrollbar:updateButtonPos()
-	self.upButton:setPos(self.xPos, self.yPos)
-	self.downButton:setPos(self.xPos, self.yPos + self.height - 1)
-end
-
 function Scrollbar:scrollUp(amount)
 	self.scrollLevel = math.max(1, self.scrollLevel - (amount or 1))
 end
@@ -105,13 +106,13 @@ end
 
 function Scrollbar:getBarSize()
 	--calculates how big the bar is
-	return math.max(self.height - self.steps + 1, 1)
+	return math.max(self.length - self.steps + 1, 1)
 end
 
 function Scrollbar:getBarPos()
 	--calculates where the bar is 
 	local barSize = self:getBarSize()
-	local movementSpace = self.height - barSize + 1
+	local movementSpace = self.length - barSize + 1
 	local percentage = movementSpace / self.steps --how much the bar should move per step
 	local barPos = math.floor(percentage * (self.scrollLevel - 1)) + self.yPos
 	
@@ -120,28 +121,24 @@ end
 
 function Scrollbar:setBarPos(barPos)
 	local barSize = self:getBarSize()
-	local movementSpace = self.height - barSize + 1
+	local movementSpace = self.length - barSize + 1
 	local percentage = self.steps /  movementSpace
 	local pos = math.floor(percentage * (barPos - 1)) 
 	
 	self.scrollLevel =  math.max(1, math.min(pos + 1, self.steps))
 end
 
-function Scrollbar:drawBar(buffer)
+function Scrollbar:draw(buffer)
 	local barSize = self:getBarSize()
 	local barPos = self:getBarPos()
 	
-	buffer:drawVLine(self.xPos, barPos, barSize , self.barColour)
-end
-
-function Scrollbar:draw(buffer)
-	buffer:drawVLine(self.xPos, self.yPos, self.height, self.backgroundColour)
-	self:drawBar(buffer)
+	buffer:drawBox(self.xPos, self.yPos, self.width, self.length, self.backgroundColour)
+	buffer:drawBox(self.xPos, barPos, self.width, barSize , self.barColour)
 end
 
 function Scrollbar:isInBounds(xPos, yPos)
 	return xPos >= self.xPos and xPos <= self.xPos + self.width - 1 and
-	yPos >= self.yPos and yPos <= self.yPos + self.height - 1
+	yPos >= self.yPos and yPos <= self.yPos + self.length - 1
 end
 
 function Scrollbar:applyTheme(theme)
