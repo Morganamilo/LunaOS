@@ -1,7 +1,6 @@
 Scrollbar = object.class(GUI.Shape)
 
 Scrollbar.held = false
-Scrollbar.focused = false
 
 
 function Scrollbar:init(xPos, yPos, width, height, steps)
@@ -24,7 +23,7 @@ function Scrollbar:setSize(width, height)
 end
 
 function Scrollbar:handleKey(event, key)
-	if self.focused then
+	if self:isFocus() then
 		if key == 200 then --up
 			self:scrollUp()
 		end
@@ -33,11 +32,11 @@ function Scrollbar:handleKey(event, key)
 			self:scrollDown()
 		end
 		
-		if key == 201 then --up
+		if key == 201 then --pageup
 			self:scrollUp(4)
 		end
 		
-		if key == 209 then -- down
+		if key == 209 then -- pagedown
 			self:scrollDown(4)
 		end
 		
@@ -59,14 +58,14 @@ function Scrollbar:handleScroll(event, direction, xPos, yPos)
 			self:scrollDown()
 		end
 		
-		self.focused = true
+		self:requestFocus()
 	else
-		self.focused = false
+		self:unFocus()
 	end
 end
 
 function Scrollbar:handleDown(event, mouseButton, xPos, yPos)
-	self.focused = false
+	self:unFocus()
 	
 	if self:isInBounds(xPos, yPos) then
 		local barSize = self:getBarSize()
@@ -83,7 +82,7 @@ end
 
 function Scrollbar:handleUp(event, mouseButton, xPos, yPos)
 	if self:isInBounds(xPos, yPos) and self.held then
-		self.focused = true
+		self:requestFocus()
 	end
 	
 	self.held = false

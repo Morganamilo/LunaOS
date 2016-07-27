@@ -1,6 +1,6 @@
 TextField = object.class(GUI.Button)
 
-TextField.focused = false
+
 TextField.cursorPos = 1
 TextField.scrollPos = 1
 
@@ -31,7 +31,7 @@ function TextField:handleDown(xPos, yPos, mouse)
 end
 
 function TextField:handleKey(event, key)
-	if self.focused then
+	if self:isFocus() then
 		if key == 14 then --backspace
 			self:deleteChar(self.cursorPos + self.scrollPos - 1)
 			
@@ -91,7 +91,7 @@ function TextField:unHighlightAll()
 end
 
 function TextField:handleChar(event, chr)
-	if self.focused then
+	if self:isFocus() then
 		local pos = self:getHilightedPos()
 		
 		if pos then
@@ -104,7 +104,7 @@ function TextField:handleChar(event, chr)
 end
 
 function TextField:handlePaste(event, str)
-	if self.focused then
+	if self:isFocus() then
 		local pos = self:getHilightedPos()
 		
 		if pos then
@@ -150,7 +150,7 @@ end
 
 
 function TextField:handleDrag(event, mouse, xPos, yPpos)
-	if self.focused then
+	if self:isFocus() then
 		self.cursorPos = self:xPosToCursorPos(xPos)
 		self.endDrag = self:xPosToCursorPos(xPos)
 	else
@@ -206,11 +206,11 @@ end
 function TextField:focus(xPos, yPos)
 	self.cursorPos = self:xPosToCursorPos(xPos)
 	self.startDrag = self.cursorPos
-	self.focused = true
+	self:requestFocus()
 end
 
 function TextField:unFocus()
-	self.focused = false
+	self.super.unFocus(self)
 	term.setCursorBlink(false)
 end
 
@@ -290,7 +290,7 @@ function TextField:draw(buffer)
 		trimedText = self.mask:rep(#self.text):sub(1, #self.text):sub(self.scrollPos, self.scrollPos + self.width - 1)
 	end
 	
-	if self.focused then 
+	if self:isFocus() then 
 		term.setCursorPos(self.xPos + self.cursorPos - 1, self.yPos)
 		term.setCursorBlink(true)
 	end

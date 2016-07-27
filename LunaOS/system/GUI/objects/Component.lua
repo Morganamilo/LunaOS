@@ -33,6 +33,24 @@ function Component:draw()
 
 end
 
+function Component:getFrame()
+	return self:getParentPane():getFrame()
+end
+
+function Component:getParentPane()
+	return self.parentPane
+end
+
 function Component:requestFocus()
-	os.queueEvent("focus", self)
+	self:getFrame():setFocus(self)
+end
+
+function Component:unFocus()
+	if self:isFocus() then
+		self:getFrame():setFocus(nil)
+	end
+end
+
+function Component:isFocus()
+	return self:getFrame():getFocus() == self
 end

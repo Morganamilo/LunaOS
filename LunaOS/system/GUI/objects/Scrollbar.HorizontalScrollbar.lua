@@ -12,7 +12,7 @@ function HorizontalScrollbar:init(xPos, yPos, width, height, steps)
 end
 
 function HorizontalScrollbar:handleKey(event, key)
-	if self.focused then
+	if self:isFocus() then
 		if key == 203 then --left
 			self:scrollUp()
 		end
@@ -20,6 +20,36 @@ function HorizontalScrollbar:handleKey(event, key)
 		if key == 205 then --right
 			self:scrollDown()
 		end
+		
+		if key == 201 then --pageup
+			self:scrollUp(4)
+		end
+		
+		if key == 209 then -- pagedown
+			self:scrollDown(4)
+		end
+		
+		if key == 199 then --home
+			self.scrollLevel = 1
+		end
+		
+		if key == 207 then --end
+			self.scrollLevel = self.steps
+		end
+	end
+end
+
+function HorizontalScrollbar:handleScroll(event, direction, xPos, yPos)
+	if self:isInBounds(xPos, yPos) and kernel.keyHandler.isKeyDown(42)  then
+		if direction < 0 then
+			self:scrollUp()
+		else
+			self:scrollDown()
+		end
+		
+		self:requestFocus()
+	else
+		self:unFocus()
 	end
 end
 
@@ -42,7 +72,7 @@ function HorizontalScrollbar:getBarPos()
 end
 
 function HorizontalScrollbar:handleDown(event, mouseButton, xPos, yPos)
-	self.focused = false
+	self:unFocus()
 	
 	if self:isInBounds(xPos, yPos) then
 		local barSize = self:getBarSize()
