@@ -25,8 +25,7 @@ function View:addComponent(component)
 	errorUtils.assert(component:instanceOf(GUI.EventHandler), "Error: Component must implement the EventHandler interface")
 	table.insert(self.components, component)
 	
-	component.setFocus = function(component) self.focus = component end
-	component.isFocus = function(component) return self.focus == component end
+	component.parentPane = self
 end
 
 function View:removeComponent(component)

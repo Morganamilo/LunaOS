@@ -1,5 +1,7 @@
 Theme = object.class()
 
+Theme.frameBackgroundColour = colourUtils.blits.grey
+
 Theme.viewBackgroundColour = colourUtils.blits.grey
 
 Theme.textColour = colourUtils.blits.white

@@ -1,28 +1,42 @@
 Frame = object.class()
 
-Frame.views = {}
-Frame.openView = nil
 Frame.running = false
 
 function Frame:init(window)
-	self.window = window
-end
-
-function Frame:addView(view, name)
-	self.views[name] = view
-	--view:setTerm(self.window)
-end
-
-function Frame:removeView(name)
-	self.views[name] = nil
-end
-
-function Frame:gotoView(name)
-	self.openView = name
+	self.window = window or term.current()
 	
-	if self.running then
-		self.views[name]:draw()
-	end
+	local x, y = self.window.getSize()
+	
+	self.xPos = 1
+	self.yPos = 1
+	self.xSize = x
+ 	self.ySize = y
+	self.backgroundColour =  "0"
+	
+	
+	--self.window = window.create(term.native(), self.xPos, self.yPos, self.xSize, self.ySize, true)
+	--term.setCursorPos(xCursor, yCursor)
+	
+	self.buffer = GUI.Buffer(self.window, self.xPos, self.yPos, self.xSize, self.ySize, self.backgroundColour)
+	self.components = {}
+end
+
+function Frame:getFrame()
+	return self
+end
+
+function Frame:addComponent(component)
+	errorUtils.assert(component ~= self, "Error: Frame can not be added to itself")
+	errorUtils.assert(component:instanceOf(GUI.Drawable), "Error: Component must implement the Viewable interface")
+	errorUtils.assert(component:instanceOf(GUI.EventHandler), "Error: Component must implement the EventHandler interface")
+	table.insert(self.components, component)
+	
+	
+	component.parentPane = self
+end
+
+function Frame:removeComponent(component)
+	table.remove(self.components, tableUtils.indexOf(self.components, component))
 end
 
 function Frame:stop()
@@ -30,18 +44,41 @@ function Frame:stop()
 end
 
 function Frame:mainLoop()
-	errorUtils.assert(self.openView, "Error: no open view", 2)
-
 	self.running = true
-	self.views[self.openView]:draw()
 	
 	while self.running do
-		local view = self.views[self.openView]
-		--term.redirect(view.window)
-		
+		self:draw()
 		local event = {coroutine.yield()}
-		view:handleEvent(event)
-		view:draw()
-		
+		self:handleEvent(event)
 	end
+end
+
+function Frame:handleEvent(event)
+	for _, component in pairs(self.components) do
+		component:handleEvent(event)
+	end
+end
+
+function Frame:draw(buffer)
+	self.buffer:clear(self.backgroundColour)
+	
+	for _, component in pairs(self.components) do -- f = GUI.Frame()
+		component:onDraw(self.buffer)
+	end
+	
+	self.xCursor, self.yCursor = term.getCursorPos()
+	self.buffer:draw(ignoreChanged)
+	term.setCursorPos(self.xCursor, self.yCursor)
+end
+
+function Frame:applyTheme(theme)
+	self.backgroundColour = theme.frameBackgroundColour
+end
+
+function Frame:setFocus(component)
+	self.focus = component
+end
+
+function Frame:getFocus()
+	return self.focus
 end
