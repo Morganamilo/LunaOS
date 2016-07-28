@@ -184,16 +184,27 @@ end
 
 --draws another buffer to this buffer
 --the buffer passed gets drawn ontop of the self buffer
-function Buffer:drawBuffer(buffer)
+function Buffer:drawBuffer(buffer, xPos, yPos, width, height)
 	local text = buffer.textBuffer
 	local pixel = buffer.pixelBuffer
 	local textColour = buffer.textColourBuffer
 	
-	for y = 0, math.min(buffer.ySize, self.ySize - buffer.yPos + 1) - 1 do
-		local mainBufferStart = self:XYToIndex(buffer.xPos, buffer.yPos + y)
-		local bufferStart = buffer:XYToIndex(1, 1 + y)
+	yPos = yPos or 1
+	xPos = xPos or 1
+	width = math.min(width, buffer.xSize)
+	height = math.min(height, buffer.ySize)
+	
+	local yStart = 0
+	local xStart = 0
+	local yEnd = math.min(self.ySize - buffer.yPos , height -1) 
+	local xEnd = math.min(self.xSize - buffer.xPos, width -1) 
 		
-		for x = 0, math.min(buffer.xSize, self.xSize - buffer.xPos + 1)  - 1 do
+		
+	for y = yStart, yEnd  do
+		local mainBufferStart = self:XYToIndex(buffer.xPos, buffer.yPos +y)
+		local bufferStart = buffer:XYToIndex(xPos, yPos + y)
+		
+		for x = xStart, xEnd do
 			local currentMainBufferPos = mainBufferStart + x
 			local currentBufferPos = bufferStart + x
 			
