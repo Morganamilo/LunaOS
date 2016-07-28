@@ -21,11 +21,6 @@ function Button:eventHandler(event, mouseButton, xPos, yPos)
 	end
 end
 
-function Button:isInBounds(xPos, yPos)
-	return xPos >= self.xPos and xPos <= self.xPos + self.width - 1 and
-	yPos >= self.yPos and yPos <= self.yPos + self.height - 1
-end
-
 function Button:handleDown(xPos, yPos, mouse)
 	if self:isInBounds(xPos, yPos) then
 		self.held = true
