@@ -71,6 +71,11 @@ function HorizontalScrollbar:getBarPos()
 	return barPos
 end
 
+function HorizontalScrollbar:setSize(width, height)
+	self.super:setSize(width, height)
+	self.length = width
+end
+
 function HorizontalScrollbar:handleDown(event, mouseButton, xPos, yPos)
 	self:unFocus()
 	
