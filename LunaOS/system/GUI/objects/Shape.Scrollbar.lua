@@ -108,6 +108,11 @@ function Scrollbar:getBarSize()
 	return math.max(self.length - self.steps + 1, 1)
 end
 
+function Scrollbar:setSize(width, height)
+	self.super:setSize(width, height)
+	self.length = height
+end
+
 function Scrollbar:getBarPos()
 	--calculates where the bar is 
 	local barSize = self:getBarSize()
