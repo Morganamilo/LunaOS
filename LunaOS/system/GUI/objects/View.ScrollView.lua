@@ -1,10 +1,10 @@
 ScrollView = object.class(GUI.View)
 
-function ScrollView:init(xPos, yPos, xSize, ySize, virtualXSize, virtualYSize, backgroundColour)
-	self.super:init(xPos, yPos, xSize, ySize, backgroundColour)
+function ScrollView:init(xPos, yPos, width, height, virtualwidth, virtualheight)
+	self.super:init(xPos, yPos, width, height)
 	
-	self.virtualXSize = virtualXSize
-	self.virtualYSize = virtualYSize
+	self.virtualwidth = virtualwidth
+	self.virtualheight = virtualheight
 	
 	self.vBar = GUI.Scrollbar()
 	self.hBar = GUI.HorizontalScrollbar()
@@ -15,6 +15,65 @@ function ScrollView:init(xPos, yPos, xSize, ySize, virtualXSize, virtualYSize, b
 	
 	self.vBar.getFrame = function() return self:getFrame() end
 	self.hBar.getFrame = function() return self:getFrame() end
+	
+	self:addEventListener("", self. handleAny)
+	--self:addEventListener("mouse_click", self. handleDown)
+	--self:addEventListener("mouse_scroll", self.handleScroll)
+	--self:addEventListener("key", self.handleKey)
+end
+
+function ScrollView:handleScroll(event, direction, xPos, yPos)
+	local bar
+	
+	if kernel.keyHandler.isKeyDown(42) then
+		bar = self.hBar
+	else
+		bar = self.vBar
+	end
+	
+	if self:isFocus() then
+		if direction < 0 then
+			bar:scrollUp()
+		else
+			bar:scrollDown()
+		end
+	end
+end
+
+function ScrollView:handleKey(event, key)
+	if self:isFocus() then
+		if key == 203 then --left
+			self.hBar:scrollUp()
+		end
+		
+		if key == 205 then --right
+			self.hBar:scrollDown()
+		end
+		
+		if key == 200 then --up
+			self.vBar:scrollUp()
+		end
+		
+		if key == 208 then -- down
+			self.vBar:scrollDown()
+		end
+		
+		if key == 201 then --pageup
+			self.vBar:scrollUp(4)
+		end
+		
+		if key == 209 then -- pagedown
+			self.vBar:scrollDown(4)
+		end
+		
+		if key == 199 then --home
+			self.vBar.scrollLevel = 1
+		end
+		
+		if key == 207 then --end
+			self.vBar.scrollLevel = self.vBar.steps
+		end
+	end
 end
 
 function ScrollView:draw(buffer)
@@ -27,52 +86,52 @@ function ScrollView:draw(buffer)
 end
 
 function ScrollView:setSubComponentPos()
-	self.vBar:setPos(self.xSize + self.xPos - 1, self.yPos)
-	self.hBar:setPos(self.xPos, self.yPos + self.ySize - 1)
+	self.vBar:setPos(self.width + self.xPos - 1, self.yPos)
+	self.hBar:setPos(self.xPos, self.yPos + self.height - 1)
 end
 
 function ScrollView:setSubComponentSize()
-	self.vBar:setSize(1, self.ySize)
-	self.hBar:setSize(self.xSize - 1, 1)
-	self.buffer:resize(self.virtualXSize, self.virtualYSize, self.backgroundColour)
+	self.vBar:setSize(1, self.height)
+	self.hBar:setSize(self.width - 1, 1)
+	self.buffer:resize(self.virtualwidth, self.virtualheight, self.backgroundColour)
 end
 
 function ScrollView:setSubComponentSteps()
-	local showBoth = self.virtualXSize > self.xSize or self.virtualYSize > self.ySize 
+	local showBoth = self.virtualwidth > self.width or self.virtualheight > self.height 
 	
-	if self.virtualXSize >= self.xSize and showBoth  then
+	if self.virtualwidth >= self.width and showBoth  then
 		self.hBar.visible = true
-		self.bufferYLength = self.ySize -1
-		self.vBar.steps = self.virtualYSize - self.ySize + 2
+		self.bufferYLength = self.height -1
+		self.vBar.steps = self.virtualheight - self.height + 2
 	else
 		self.hBar.visible = false
-		self.bufferYLength = self.ySize
-		self.vBar.steps = self.virtualYSize - self.ySize + 1
+		self.bufferYLength = self.height
+		self.vBar.steps = self.virtualheight - self.height + 1
 	end
 	
-	if self.virtualYSize >= self.ySize and showBoth then
+	if self.virtualheight >= self.height and showBoth then
 		self.vBar.visible = true
-		self.hBar:setSize(self.xSize - 1, 1)
-		self.bufferXLength = self.xSize -1
-		self.hBar.steps = self.virtualXSize - self.xSize + 2
+		self.hBar:setSize(self.width - 1, 1)
+		self.bufferXLength = self.width -1
+		self.hBar.steps = self.virtualwidth - self.width + 2
 	else
 		self.vBar.visible = false
-		self.hBar:setSize(self.xSize, 1)
-		self.bufferXLength = self.xSize 
-		self.hBar.steps = self.virtualXSize - self.xSize + 1
+		self.hBar:setSize(self.width, 1)
+		self.bufferXLength = self.width 
+		self.hBar.steps = self.virtualwidth - self.width + 1
 	end
 end
 
 
-function ScrollView:setSize(xSize, ySize)
-	self.xSize = xSize
-	self.ySize = ySize
+function ScrollView:setSize(width, height)
+	self.width = width
+	self.height = height
 	self:setSubComponentSize()
 end
 
-function ScrollView:setVirtualSize(xSize, ySize)
-	self.virtualXSize = xSize
-	self.virtualYSize = ySize
+function ScrollView:setVirtualSize(width, height)
+	self.virtualwidth = width
+	self.virtualheight = height
 	
 	self:setSubComponentSteps()
 end
@@ -88,15 +147,19 @@ function ScrollView:applyTheme(theme)
 	self.hBar:applyTheme(theme)
 end
 
-function ScrollView:handleEvent(event, force)
+function ScrollView:handleAny(...)
+	local event = arg
+	
 	self.vBar:handleEvent(event)
 	self.hBar:handleEvent(event)
 	
 	if not force then
 		if event[1] == "mouse_click" or event[1] == "mouse_up" or event[1] == "mouse_scroll" or event[1] == "mouse_drag" then
 			--if the event is out of the range of the view then dont process any further
-			if event[3] < self.xPos or event[3] > self.xPos + self.xSize - 2 or event[3] < self.yPos or event[4] > self.yPos + self.ySize - 2 then
+			if not self:isInBounds(event[3], event[4]) then
 				return 
+			elseif event[1] ~= "mouse_up" then
+				self:requestFocus()
 			end
 		end
 	end
@@ -105,5 +168,13 @@ function ScrollView:handleEvent(event, force)
 	local yAjust = self.vBar.scrollLevel - 1
 	
 	self:ajustEvent(event, xAjust, yAjust)
-	self.super:handleEvent(event, true)
+	self.super:handleAnyForce(unpack(event))
+	
+	if event[1] == "key" then
+		self:handleKey(unpack(event))
+	end
+	
+	if event[1] == "mouse_scroll" then
+		self:handleScroll(unpack(event))
+	end
 end
