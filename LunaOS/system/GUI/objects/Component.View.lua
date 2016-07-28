@@ -30,9 +30,10 @@ end
 
 function View:removeComponent(component)
 	table.remove(self.components, tableUtils.indexOf(self.components, component))
+	component.parentPane = self
 end
 
-function View:draw(buffer)
+function View:drawInternal()
 	local oldSetCursorPos = term.setCursorPos
 	local oldGetCursorPos = term.getCursorPos
 	
@@ -59,13 +60,12 @@ function View:draw(buffer)
 	
 	self.xCursor, self.yCursor = term.getCursorPos()
 	
-	if buffer then 
-		buffer:drawBuffer(self.buffer)
-	else
-		self.buffer:draw(ignoreChanged)
-	end
-	
 	term.setCursorPos(self.xCursor, self.yCursor)
+end
+
+function View:draw(buffer)
+	self:drawInternal()
+	buffer:drawBuffer(self.buffer)
 end
 
 function View:setPos(xPos, yPos)
@@ -83,24 +83,33 @@ function View:setSize(xSize, ySize)
 	self.ySize = ySize
 	
 	self.buffer:resize(xSize, ySize, "0")
-	self.window.reposition(self.xPos, self.yPos, xPos, yPos)
 end
 
-function View:handleEvent(event)
-	--ajust the position of mouse events and cursor positions
-	local xAjust = -self.xPos + 1
-	local yAjust = -self.yPos + 1
-	
+function View:ajustEvent(event, xAjust, yAjust)
+	--ajust the position of mouse events and cursor positions	
 	if event[1] == "mouse_click" or event[1] == "mouse_up" or event[1] == "mouse_scroll" or event[1] == "mouse_drag" then
-	
-		--if the event is out of the range of the view then dont process any further
-		if event[3] < self.xPos or event[3] > self.xPos + self.xSize - 1 or event[3] < self.yPos or event[4] > self.yPos + self.ySize - 1 then
-			return
-		end
 		
 		event[3] = event[3] + xAjust
 		event[4] = event[4] + yAjust
 	end
+	
+	return event
+end
+
+function View:handleEvent(event, force)
+	local xAjust = -self.xPos + 1
+	local yAjust = -self.yPos + 1
+	
+	if not force then
+		if event[1] == "mouse_click" or event[1] == "mouse_up" or event[1] == "mouse_scroll" or event[1] == "mouse_drag" then
+			--if the event is out of the range of the view then dont process any further
+			if event[3] < self.xPos or event[3] > self.xPos + self.xSize - 1 or event[3] < self.yPos or event[4] > self.yPos + self.ySize - 1 then
+				return 
+			end
+		end
+	end
+	
+	event = self:ajustEvent(event, xAjust, yAjust)
 	
 	local oldSetCursorPos = term.setCursorPos
 	local oldGetCursorPos = term.getCursorPos
@@ -120,4 +129,8 @@ function View:handleEvent(event)
 	
 	term.setCursorPos = oldSetCursorPos
 	term.getCursorPos = oldGetCursorPos
+end
+
+function View:applyTheme(theme)
+	self.backgroundColour = theme.viewBackgroundColour
 end
