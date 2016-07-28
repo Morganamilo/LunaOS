@@ -41,6 +41,10 @@ function Component:getParentPane()
 	return self.parentPane
 end
 
+function Component:setParentPane(pane)
+	self.parentPane = pane
+end
+
 function Component:requestFocus()
 	self:getFrame():setFocus(self)
 end

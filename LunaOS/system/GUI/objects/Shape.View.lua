@@ -22,7 +22,7 @@ function View:addComponent(component)
 	errorUtils.assert(component:instanceOf(GUI.EventHandler), "Error: Component must implement the EventHandler interface")
 	table.insert(self.components, component)
 	
-	component.parentPane = self
+	component:setParentPane(self)
 end
 
 function View:removeComponent(component)

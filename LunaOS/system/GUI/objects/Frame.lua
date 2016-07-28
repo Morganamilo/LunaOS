@@ -26,13 +26,12 @@ function Frame:getFrame()
 end
 
 function Frame:addComponent(component)
-	errorUtils.assert(component ~= self, "Error: Frame can not be added to itself")
 	errorUtils.assert(component:instanceOf(GUI.Drawable), "Error: Component must implement the Viewable interface")
 	errorUtils.assert(component:instanceOf(GUI.EventHandler), "Error: Component must implement the EventHandler interface")
 	table.insert(self.components, component)
 	
 	
-	component.parentPane = self
+	component:setParentPane(self)
 end
 
 function Frame:removeComponent(component)
