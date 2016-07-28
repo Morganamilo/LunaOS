@@ -191,8 +191,11 @@ function Buffer:drawBuffer(buffer, xPos, yPos, width, height)
 	
 	yPos = yPos or 1
 	xPos = xPos or 1
-	width = math.min(width, buffer.xSize)
-	height = math.min(height, buffer.ySize)
+	width = width or buffer.xSize
+	height = height or buffer.ySize
+	
+	width = math.min(buffer.xSize, width)
+	height = math.min(buffer.ySize, height)
 	
 	local yStart = 0
 	local xStart = 0
