@@ -616,6 +616,7 @@ function windowHandler.handleError(proc, data)
 	
 	if data == 'Terminated' then return end
 	
+	term.redirect(proc.window)
 	term.setTextColor(colors.red)
 	term.setBackgroundColor(4)
 	term.clear()
