@@ -13,11 +13,15 @@ function div(x, y)
 	return math.floor(x / y)
 end
 
-function time(func)
-	errorUtils.expect(x, "function", true)
+function time(func, trials)
+	errorUtils.expect(func, "function", true)
 	
 	local time = os.clock()
-	func()
+	
+	for n = 1, trials or 1 do
+		func()
+	end
+	
 	return os.clock() - time
 end
 
