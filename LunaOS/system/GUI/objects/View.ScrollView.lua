@@ -130,6 +130,7 @@ function ScrollView:setVirtualSize(width, height)
 	self.virtualwidth = width
 	self.virtualheight = height
 	
+	self.buffer:resize(width, height, "0")
 	self:setSubComponentSteps()
 end
 
