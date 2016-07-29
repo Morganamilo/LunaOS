@@ -59,15 +59,18 @@ function Frame:handleEvent(event)
 	end
 end
 
-function Frame:draw(buffer)
+function Frame:drawInternal()
 	self.buffer:clear(self.backgroundColour)
 	
 	for _, component in pairs(self.components) do -- f = GUI.Frame()
 		component:onDraw(self.buffer)
 	end
-	
+end
+
+function Frame:draw()
+	self:drawInternal()
 	self.xCursor, self.yCursor = term.getCursorPos()
-	self.buffer:draw(ignoreChanged)
+	self.buffer:draw()
 	term.setCursorPos(self.xCursor, self.yCursor)
 end
 
