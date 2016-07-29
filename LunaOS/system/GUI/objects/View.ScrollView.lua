@@ -14,12 +14,9 @@ function ScrollView:init(xPos, yPos, width, height, virtualwidth, virtualheight)
 	self:setSubComponentSteps()
 	
 	self:addEventListener("", self. handleAny)
-end
-
-function ScrollView:setParentPane(pane)
-	self.super:setParentPane(pane)
-	self.vBar:setParentPane(pane)
-	self.hBar:setParentPane(pane)
+	
+	self.vBar:setParentPane(self)
+	self.hBar:setParentPane(self)
 end
 
 function ScrollView:handleScroll(event, direction, xPos, yPos)
