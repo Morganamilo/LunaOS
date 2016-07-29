@@ -12,7 +12,7 @@ function View:init(xPos, yPos, width, height)
 	--self.window = window.create(term.native(), self.xPos, self.yPos, self.width, self.height, true)
 	self:addEventListener("", self.handleAny)
 	
-	self.buffer = GUI.Buffer(term.current(), self.xPos, self.yPos, self.width, self.height, self.backgroundColour)
+	self.buffer = GUI.Buffer(term.current(), self.xPos, self.yPos, self.width, self.height, "0")
 	self.components = {}
 end
 
