@@ -21,5 +21,5 @@ function Shape:isInBounds(xPos, yPos)
 end
 
 function Shape:transform(xDifference, yDifference)
-	self:setPos(self.xPos + xDifference, yPos + yDifference)
+	self:setPos(self.xPos + xDifference, self.yPos + yDifference)
 end
