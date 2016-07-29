@@ -4,8 +4,6 @@ function indexOf(tbl, value)
 	for k, v in pairs(tbl) do
 		if v == value then return k end
 	end
-	
-	return false
 end
 
 function binarySearch(tbl,searchFor)
@@ -17,7 +15,7 @@ function binarySearchInternal(tbl, searchFor, low, high)
 	local value = tbl[mid]
 	
 	if  low > high then
-		return false
+		return nil
 	elseif value < searchFor then
 		return binarySearchInternal(tbl, searchFor, mid + 1, high)
 	elseif value > searchFor then
