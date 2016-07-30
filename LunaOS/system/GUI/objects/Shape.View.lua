@@ -2,7 +2,6 @@ View = object.class(GUI.Shape)
 
 function View:init(xPos, yPos, width, height)
 	local x, y = term.getSize()
-	local xCursor, yCursor = term.getCursorPos()
 	
 	self.xPos = xPos or 1
 	self.yPos = yPos or 1
