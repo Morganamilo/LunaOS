@@ -140,11 +140,6 @@ function Scrollbar:draw(buffer)
 	buffer:drawBox(self.xPos, barPos, self.width, barSize , self.barColour)
 end
 
-function Scrollbar:isInBounds(xPos, yPos)
-	return xPos >= self.xPos and xPos <= self.xPos + self.width - 1 and
-	yPos >= self.yPos and yPos <= self.yPos + self.length - 1
-end
-
 function Scrollbar:applyTheme(theme)
 	self.backgroundColour = theme.scrollbarBackgroundColour
 	self.barColour = theme.scrollbarColour
