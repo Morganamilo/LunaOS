@@ -69,6 +69,7 @@ end
 
 function Frame:draw()
 	self:drawInternal()
+	
 	self.xCursor, self.yCursor = term.getCursorPos()
 	self.buffer:draw()
 	term.setCursorPos(self.xCursor, self.yCursor)
@@ -79,7 +80,15 @@ function Frame:applyTheme(theme)
 end
 
 function Frame:setFocus(component)
+	if  self.focus and component ~= self.focus then
+		self.focus:unFocus()
+	end
+	
 	self.focus = component
+end
+
+function Frame:unFocus()
+	self.focus = nil
 end
 
 function Frame:getFocus()

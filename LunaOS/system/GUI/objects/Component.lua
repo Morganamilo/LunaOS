@@ -51,7 +51,7 @@ end
 
 function Component:unFocus()
 	if self:isFocus() then
-		self:getFrame():setFocus(nil)
+		self:getFrame():unFocus()
 	end
 end
 
