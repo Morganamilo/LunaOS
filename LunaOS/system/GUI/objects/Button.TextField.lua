@@ -291,8 +291,8 @@ function TextField:draw(buffer)
 	end
 	
 	if self:isFocus() then 
-		term.setCursorPos(self.xPos + self.cursorPos - 1, self.yPos)
 		term.setCursorBlink(true)
+		term.setCursorPos(self.xPos + self.cursorPos - 1, self.yPos)
 	end
 	
 	if self.backgroundColour then

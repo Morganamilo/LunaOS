@@ -81,39 +81,61 @@ function ScrollView:handleKey(event, key)
 	end
 end
 
+function ScrollView:getAjust()
+	return self.xPos  - self.hBar.scrollLevel, self.yPos - self.vBar.scrollLevel 
+end
+
 function ScrollView:drawInternal()
 	local oldSetCursorPos = term.setCursorPos
 	local oldGetCursorPos = term.getCursorPos
-	
-	local xAjust = self.xPos  - self.hBar.scrollLevel
-	local yAjust = self.yPos - self.vBar.scrollLevel 
+	local oldSetCursorBlink = term.setCursorBlink
 	
 	self.buffer:clearArea(self.backgroundColour, self.hBar.scrollLevel, self.vBar.scrollLevel, self.width, self.height)
 	
 	term.setCursorPos = function(xPos, yPos)
+		local xAjust, yAjust = self:getAjust()
+		
 		xPos = xPos + xAjust
 		yPos = yPos + yAjust
 		
-		if self:isInBounds(xPos, yPos) then
-			oldSetCursorPos(xPos, yPos)
+		oldSetCursorPos(xPos, yPos)
+		
+		if not self:isInBounds(xPos, yPos) then
+			term.setCursorBlink(false)
 		end
 	end
 	
 	term.getCursorPos = function()
 		local x, y = oldGetCursorPos()
+		local xAjust, yAjust = self:getAjust()
+		
 		return x - xAjust, y - yAjust
 	end
+	
+	term.setCursorBlink = function(blink)
+		if not blink then
+			oldSetCursorBlink(false)
+		else
+			local x, y = oldGetCursorPos()
+			
+			if self:isInBounds(x, y) then
+				oldSetCursorBlink(true)
+			end
+		end
+	end
+	
+	
 	
 	for _, component in pairs(self.components) do
 		component:onDraw(self.buffer)
 	end
 	
+	if cancelBlink then
+		term.setCursorBlink(false)
+	end
+	
 	term.setCursorPos = oldSetCursorPos
 	term.getCursorPos = oldGetCursorPos
-	
-	self.xCursor, self.yCursor = term.getCursorPos()
-	
-	term.setCursorPos(self.xCursor, self.yCursor)
 end
 
 function ScrollView:draw(buffer)
@@ -161,6 +183,10 @@ function ScrollView:setSubComponentSteps()
 	end
 end
 
+function ScrollView:isInBounds(xPos, yPos)
+	return xPos >= self.xPos and xPos <= self.xPos + self.bufferXLength - 1 and
+	yPos >= self.yPos and yPos <= self.yPos + self.bufferYLength - 1
+end
 
 function ScrollView:setSize(width, height)
 	self.width = width

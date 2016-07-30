@@ -56,10 +56,6 @@ function View:drawInternal()
 	
 	term.setCursorPos = oldSetCursorPos
 	term.getCursorPos = oldGetCursorPos
-	
-	self.xCursor, self.yCursor = term.getCursorPos()
-	
-	term.setCursorPos(self.xCursor, self.yCursor)
 end
 
 function View:draw(buffer)
@@ -110,7 +106,7 @@ function View:handleAnyInternal(force, ...)
 	local xAjust = -self.xPos + 1
 	local yAjust = -self.yPos + 1
 	
-	local cancelBlink = false
+	
 	
 	if not force then
 		if event[1] == "mouse_click" or event[1] == "mouse_up" or event[1] == "mouse_scroll" or event[1] == "mouse_drag" then
@@ -141,10 +137,6 @@ function View:handleAnyInternal(force, ...)
 	
 	for _, component in pairs(self.components) do
 		component:handleEvent(event)
-	end
-	
-	if cancelBlink then
-		term.setCursorBlink(false)
 	end
 	
 	term.setCursorPos = oldSetCursorPos
