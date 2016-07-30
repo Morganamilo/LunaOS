@@ -271,10 +271,14 @@ end
 function Buffer:clear(colour)
 	colour = toBlit(colour)
 	
+	local selfText = self.textBuffer
+	local selfPixel = self.pixelBuffer
+	local selfTextColour = self.textColourBuffer
+	
 	for n = 1, self.size do
-		self.pixelBuffer[n] = colour
-		self.textBuffer[n] = " "
-		self.textColourBuffer[n] = colour
+		selfPixel[n] = colour
+		selfText[n] = " "
+		selfTextColour[n] = colour
 	end
 	
 	self:changeAll()
@@ -282,6 +286,11 @@ end
 
 function Buffer:clearArea(colour, xPos, yPos, xSize, ySize)
 	if xPos > self.xSize or yPos  > self.ySize then return end
+	
+	local selfText = self.textBuffer
+	local selfPixel = self.pixelBuffer
+	local selfTextColour = self.textColourBuffer
+	local start =  self:XYToIndex(xPos, yPos)
 	
 	if xPos < 1 then
 		xSize  = xSize + xPos - 1
@@ -294,16 +303,18 @@ function Buffer:clearArea(colour, xPos, yPos, xSize, ySize)
 	end
 	
 	for y = yPos, yPos + ySize do
-		local pos = self:XYToIndex(xPos, y)
+		local pos = start
 		self.changed[y] = true
 		
 		for x = 0, xSize do
-			self.pixelBuffer[pos] = colour
-			self.textBuffer[pos] = " "
-			self.textColourBuffer[pos] = colour
+			selfPixel[pos] = colour
+			selfText[pos] = " "
+			selfTextColour[pos] = colour
 			
 			pos = pos + 1
 		end
+		
+		start = start + self.xSize
 	end
 end
 
