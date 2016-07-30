@@ -66,7 +66,6 @@ function t(a)
 	eventListner:addEventListener("terminate", function() f:stop() end)
 	ls = GUI.Label(2,1,1,12,"123456789abc")
 	
-	v2 = GUI.ScrollView(2, 2, 49, 16, 50, 20)
 	v = GUI.ScrollView(28, 6, 20, 8, 51, 18)
 	--v = GUI.View(10, 3, 40, 10, "0")
 	

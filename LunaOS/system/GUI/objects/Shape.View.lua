@@ -45,14 +45,12 @@ function View:drawInternal()
 	term.getCursorPos = self.ajustedGetCursorPos
 	term.setCursorBlink = self.ajustedSetCursorBlink
 	
-	self:clear()
+	self:clear()  --      mathUtils.time(function() f:draw() end, 60)
 		
 	for _, component in pairs(self.components) do
 		component:onDraw(self.buffer)
 	end
-	
-	self.ajustedGetCursorPos()
-	
+		
 	term.setCursorPos = self.oldSetCursorPos
 	term.getCursorPos = self.oldGetCursorPos
 	term.setCursorBlink = self.oldSetCursorBlink

@@ -62,7 +62,7 @@ end
 function Frame:drawInternal()
 	self.buffer:clear(self.backgroundColour)
 	
-	for _, component in pairs(self.components) do -- f = GUI.Frame()
+	for _, component in pairs(self.components) do
 		component:onDraw(self.buffer)
 	end
 end
