@@ -32,30 +32,34 @@ function View:removeComponent(component)
 	component.parentPane = self
 end
 
+function View:getAjust()
+	return self.xPos  - 1, self.yPos - 1
+end
+
 function View:drawInternal()
-	local oldSetCursorPos = term.setCursorPos
-	local oldGetCursorPos = term.getCursorPos
+	self.oldSetCursorPos = term.setCursorPos
+	self.oldGetCursorPos = term.getCursorPos
+	self.oldSetCursorBlink = term.setCursorBlink
 	
-	local xAjust = self.xPos - 1
-	local yAjust = self.yPos - 1
+	term.setCursorPos = self.ajustedSetCursorPos
+	term.getCursorPos = self.ajustedGetCursorPos
+	term.setCursorBlink = self.ajustedSetCursorBlink
 	
-	self.buffer:clear(self.backgroundColour)
-	
-	term.setCursorPos = function(xPos, yPos)
-		oldSetCursorPos(xPos + xAjust, yPos + yAjust)
-	end
-	
-	term.getCursorPos = function()
-		local x, y = oldGetCursorPos()
-		return x - xAjust, y - yAjust
-	end
-	
+	self:clear()
+		
 	for _, component in pairs(self.components) do
 		component:onDraw(self.buffer)
 	end
 	
-	term.setCursorPos = oldSetCursorPos
-	term.getCursorPos = oldGetCursorPos
+	self.ajustedGetCursorPos()
+	
+	term.setCursorPos = self.oldSetCursorPos
+	term.getCursorPos = self.oldGetCursorPos
+	term.setCursorBlink = self.oldSetCursorBlink
+end
+
+function View:clear()
+	self.buffer:clear(self.backgroundColour)
 end
 
 function View:draw(buffer)
@@ -145,4 +149,38 @@ end
 
 function View:applyTheme(theme)
 	self.backgroundColour = theme.viewBackgroundColour
+end
+
+function View:setAjustFunctions()
+	self.ajustedSetCursorPos = function(xPos, yPos)
+		local xAjust, yAjust = self:getAjust()
+		
+		xPos = xPos + xAjust
+		yPos = yPos + yAjust
+		
+		self.oldSetCursorPos(xPos, yPos)
+		
+		if not self:isInBounds(xPos, yPos) then
+			term.setCursorBlink(false)
+		end
+	end
+	
+	self.ajustedGetCursorPos = function()
+		local x, y = self.oldGetCursorPos()
+		local xAjust, yAjust = self:getAjust()
+		
+		return x - xAjust, y - yAjust
+	end
+	
+	self.ajustedSetCursorBlink = function(blink)
+		if not blink then
+			self.oldSetCursorBlink(false)
+		else
+			local x, y = self.oldGetCursorPos()
+			
+			if self:isInBounds(x, y) then
+				self.oldSetCursorBlink(true)
+			end
+		end
+	end
 end

@@ -21,6 +21,8 @@ function ScrollView:init(xPos, yPos, width, height, virtualwidth, virtualheight)
 	
 	self.vBar:setParentPane(self)
 	self.hBar:setParentPane(self)
+	
+	self:setAjustFunctions()
 end
 
 function ScrollView:makeBufffer()
@@ -85,57 +87,8 @@ function ScrollView:getAjust()
 	return self.xPos  - self.hBar.scrollLevel, self.yPos - self.vBar.scrollLevel 
 end
 
-function ScrollView:drawInternal()
-	local oldSetCursorPos = term.setCursorPos
-	local oldGetCursorPos = term.getCursorPos
-	local oldSetCursorBlink = term.setCursorBlink
-	
+function ScrollView:clear()
 	self.buffer:clearArea(self.backgroundColour, self.hBar.scrollLevel, self.vBar.scrollLevel, self.width, self.height)
-	
-	term.setCursorPos = function(xPos, yPos)
-		local xAjust, yAjust = self:getAjust()
-		
-		xPos = xPos + xAjust
-		yPos = yPos + yAjust
-		
-		oldSetCursorPos(xPos, yPos)
-		
-		if not self:isInBounds(xPos, yPos) then
-			term.setCursorBlink(false)
-		end
-	end
-	
-	term.getCursorPos = function()
-		local x, y = oldGetCursorPos()
-		local xAjust, yAjust = self:getAjust()
-		
-		return x - xAjust, y - yAjust
-	end
-	
-	term.setCursorBlink = function(blink)
-		if not blink then
-			oldSetCursorBlink(false)
-		else
-			local x, y = oldGetCursorPos()
-			
-			if self:isInBounds(x, y) then
-				oldSetCursorBlink(true)
-			end
-		end
-	end
-	
-	
-	
-	for _, component in pairs(self.components) do
-		component:onDraw(self.buffer)
-	end
-	
-	if cancelBlink then
-		term.setCursorBlink(false)
-	end
-	
-	term.setCursorPos = oldSetCursorPos
-	term.getCursorPos = oldGetCursorPos
 end
 
 function ScrollView:draw(buffer)
