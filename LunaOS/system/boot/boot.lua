@@ -42,16 +42,61 @@ function f2()
 end
 
 function t(a)
-	
-	f = GUI.Frame(term.current())
-	v = GUI.View()
-	v2 = GUI.View(28, 6, 20, 10, "1")
-	
-	--v:setSize(5,5)
-	v.backgroundColour = colourUtils.blits.grey
 	default = GUI.Theme()
+	
+	f = GUI.Frame()
 
+	f:applyTheme(default)
+	
+	function setText(lbl, a,b,c,d,e)
+		a = a or ""
+		b = b or ""
+		c = c or ""
+		d = d or ""
+		e = e or ""
+		f = f or ""
+		
+		lbl.text = a..' '..b..' '..c..' '..d..' '..e
+	end
+	
+	eventListner = GUI.Label(1,1,30,1,"events")
+	eventListner:applyTheme(default)
+	eventListner.backgroundColour = colourUtils.blits.green
+	eventListner:addEventListener("", setText)
+	eventListner:addEventListener("terminate", function() f:stop() end)
+	ls = GUI.Label(2,1,1,12,"123456789abc")
+	
+	v2 = GUI.ScrollView(2, 2, 49, 16, 50, 20)
+	v = GUI.ScrollView(28, 6, 20, 8, 51, 18)
+	--v = GUI.View(10, 3, 40, 10, "0")
+	
+	v2:addComponent(ls)
+	ls:applyTheme(default)
+	f:addComponent(eventListner)
+	f:addComponent(v2)
+	
+	
+	v3 = GUI.View(2,2,20,20)
+	--v2:addComponent(v3)
+	v3.backgroundColour = "-1"
+	
+	
+
+	v:applyTheme(default)
+	v2:applyTheme(default)
+	v2.backgroundColour = "4"
+	v2:addComponent(v)
+	vl = GUI.Button(2,10,5,1,"test")
+	vl:applyTheme(default)
+	--v:addComponent(vl)
+	
+		v.backgroundColour = "0"
+		
+	oldf = f
+	f = v
+	
 	sw1 = GUI.Switch(3,2,2,2)
+	sw1:transform(-1,-1)
 	sw2 = GUI.Switch(3,8,2,2)
 	sw3 = GUI.Switch(3,11,2,2)
 	sw4 = GUI.RadioButton(3,14)
@@ -60,7 +105,6 @@ function t(a)
 
 	
 	l1 = GUI.Label(10, 8, 10 , 4)
-	--l2 = GUI.Button(30, 10, 10 , 4)
 	tb = GUI.ToggleButton(3,5,5,2)
 	
 	sw1:applyTheme(default)
@@ -70,25 +114,34 @@ function t(a)
 	
 	tb:applyTheme(default)
 	l1:applyTheme(default)
-	--l2:applyTheme(default)
+	
 	pb:applyTheme(default)
-	--cb = GUI.ComboBox(20,4,14,6, "8", "9")
-	--sb = GUI.Scrollbar(cb)
 	
-	--l2.backgroundColour = "6"
-	--function l2:onClick() self.backgroundColour = colourUtils.highlight(self.backgroundColour) end
-	
+	sbh= GUI.HorizontalScrollbar(25, 14, 14, 1, 8)
+	sb2= GUI.Scrollbar(23, 2, 1, 14, 8)
+
 	
 	
-	--sb:applyTheme(default)
+	
+
+	
+	
+	
+	
+	sbh:applyTheme(default)
+	sb2:applyTheme(default)
+	
+	
+	
+	
 	counter = 0
 	
 	b = GUI.Button(10,2,10,4,"this is a test")
 	
 	
 	function b:onClick() counter = counter + 1  self.text = "i have been pressed " .. counter   .. " times"  pb.progress = counter end
-	--function b:onClick() v:setPos(5,5) end
-	--function b:onClick() f:gotoView("1") end
+	
+	
 	
 	b:applyTheme(default)
 	
@@ -97,28 +150,35 @@ function t(a)
 	tf1:applyTheme(default)
 	tf2:applyTheme(default)
 	tf1.mask = "brandon is a fag"
+	tf1.hint = "Username:"
 	
-	v:addComponent(sw1)
-	v:addComponent(sw2)
-	v:addComponent(sw3)
-	v:addComponent(sw4)
-	v:addComponent(b)
-	v:addComponent(tb)
-	v:addComponent(tf1)
-	v:addComponent(tf2)
-	v:addComponent(l1)
-	--v:addComponent(l2)
-	v:addComponent(pb)
-	v:addComponent(v2)
+	f:addComponent(sw1)
+	f:addComponent(sw2)
+	f:addComponent(sw3)
+	f:addComponent(sw4)
+	f:addComponent(b)
+	f:addComponent(tb)
+	f:addComponent(tf1)
+	f:addComponent(tf2)
+	f:addComponent(l1)
+	f:addComponent(sbh)
+	f:addComponent(sb2)
+	
+	
+	
+	
+	
+	f:addComponent(pb)
+	
 
 	tg2 = GUI.ToggleButton(2,2,4,3)
 	tg2:applyTheme(default)
-	v2:addComponent(tg2)
 	
-	--v:addComponent(tb1) 
-	--v:addComponent(tb2) 
-	--v:addComponent(tb3) 
-	--v:addComponent(tb4) GUI.Component.nonStatic.listeners
+	
+	
+	
+	
+	
 
 	group = GUI.Group(false, false)
 	
@@ -149,10 +209,7 @@ function t(a)
 		l1:setText(s .. " is selected")
 	end
 	
-	f:addView(v,"1")
-	f:addView(v2,"2")
-	f:gotoView("1")
-	
+	f = oldf
 	if a then f:mainLoop() else dofile("rom/programs/lua") end
 		
 end
