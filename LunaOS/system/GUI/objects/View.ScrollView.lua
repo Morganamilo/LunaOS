@@ -1,7 +1,11 @@
 ScrollView = object.class(GUI.View)
 
 function ScrollView:init(xPos, yPos, width, height, virtualwidth, virtualheight)
-	self.super:init(xPos, yPos, width, height)
+	--self.super:init(xPos, yPos, width, height)
+	self.super:init(xPos, yPos, virtualwidth, virtualheight)
+	
+	self.width = width
+	self.height = height
 	
 	self.virtualwidth = virtualwidth
 	self.virtualheight = virtualheight
@@ -17,6 +21,10 @@ function ScrollView:init(xPos, yPos, width, height, virtualwidth, virtualheight)
 	
 	self.vBar:setParentPane(self)
 	self.hBar:setParentPane(self)
+end
+
+function ScrollView:makeBufffer()
+	error()
 end
 
 function ScrollView:handleScroll(event, direction, xPos, yPos)
@@ -73,8 +81,43 @@ function ScrollView:handleKey(event, key)
 	end
 end
 
+function ScrollView:drawInternal()
+	local oldSetCursorPos = term.setCursorPos
+	local oldGetCursorPos = term.getCursorPos
+	
+	local xAjust = self.xPos  - self.hBar.scrollLevel
+	local yAjust = self.yPos - self.vBar.scrollLevel 
+	
+	self.buffer:clearArea(self.backgroundColour, self.hBar.scrollLevel, self.vBar.scrollLevel, self.width, self.height)
+	
+	term.setCursorPos = function(xPos, yPos)
+		xPos = xPos + xAjust
+		yPos = yPos + yAjust
+		
+		if self:isInBounds(xPos, yPos) then
+			oldSetCursorPos(xPos, yPos)
+		end
+	end
+	
+	term.getCursorPos = function()
+		local x, y = oldGetCursorPos()
+		return x - xAjust, y - yAjust
+	end
+	
+	for _, component in pairs(self.components) do
+		component:onDraw(self.buffer)
+	end
+	
+	term.setCursorPos = oldSetCursorPos
+	term.getCursorPos = oldGetCursorPos
+	
+	self.xCursor, self.yCursor = term.getCursorPos()
+	
+	term.setCursorPos(self.xCursor, self.yCursor)
+end
+
 function ScrollView:draw(buffer)
-	self.super:drawInternal()
+	self:drawInternal()
 
 	self.hBar:onDraw(buffer)
 	self.vBar:onDraw(buffer)
@@ -90,7 +133,6 @@ end
 function ScrollView:setSubComponentSize()
 	self.vBar:setSize(1, self.height)
 	self.hBar:setSize(self.width - 1, 1)
-	self.buffer:resize(self.virtualwidth, self.virtualheight, self.backgroundColour)
 end
 
 function ScrollView:setSubComponentSteps()
@@ -123,6 +165,7 @@ end
 function ScrollView:setSize(width, height)
 	self.width = width
 	self.height = height
+	self.buffer:resize(self.virtualwidth, self.virtualheight, self.backgroundColour)
 	self:setSubComponentSize()
 end
 

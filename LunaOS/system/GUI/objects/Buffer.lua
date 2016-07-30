@@ -16,13 +16,10 @@ function Buffer:init(term, xPos, yPos, xSize, ySize, colour)
 	
 	self.xPos = xPos
 	self.yPos = yPos
-	
-	self.xOffset = 0
-	self.yOffset = 0
-	
+		
 	self.size = xSize * ySize
 	
-	self:clear(colour)
+	if colour then self:clear(colour) end
 end
 
 ---------------------------------------------------------------------------------------------------
@@ -30,13 +27,14 @@ end
 ---------------------------------------------------------------------------------------------------
 
 --draws a pixel using a given table index
-function Buffer:drawPixelRaw(pos, colour)
-	--only draw if the position is in the range
+function Buffer:drawPixelIndexRaw(pos, colour)
+	self.pixelBuffer[pos] = colour
+	self.textBuffer[pos] = " "
+end
+
+function Buffer:drawPixelIndex(pos, colour)
 	if pos < 1 or pos > self.size then return end
 	colour = toBlit(colour)
-	
-	self.pixelBuffer[pos] = colour or "2"
-	self.textBuffer[pos] = " "
 end
 
 --draws a pixel given an X, Y coord
@@ -45,7 +43,7 @@ function Buffer:drawPixel(xPos, yPos, colour)
 	if not self:isInBounds(xPos, yPos) then return end
 	local pos = self:XYToIndex(xPos, yPos)
 
-	self:drawPixelRaw(pos, colour)
+	self:drawPixelIndexRaw(pos, colour)
 	self.changed[yPos] = true
 end
 
@@ -53,6 +51,7 @@ end
 function Buffer:drawLine(xPos, yPos, width, colour) 
 	--only draw if the position is in the range
 	if yPos < 1 or yPos > self.ySize or xPos > self.xSize then return end
+	colour = toBlit(colour)
 	
 	--ajust the line so that if part off the buffer then only draw the part that is on the buffer
 	if xPos < 1 then
@@ -64,7 +63,7 @@ function Buffer:drawLine(xPos, yPos, width, colour)
 	local endPos = math.min(width - 1, self.xSize - xPos) + startPos
 	
 	for n = startPos, endPos do
-		self:drawPixelRaw(n, colour)
+		self:drawPixelIndexRaw(n, colour)
 	end
 	
 	self.changed[yPos] = true
@@ -73,6 +72,7 @@ end
 function Buffer:drawVLine(xPos, yPos, width, colour)
 	--only draw if the position is in the range
 	if xPos < 1 or xPos > self.xSize or yPos > self.ySize then return end
+	colour = toBlit(colour)
 	
 	--ajust the line so that if part off the buffer then only draw the part that is on the buffer
 	if yPos < 1 then
@@ -84,7 +84,7 @@ function Buffer:drawVLine(xPos, yPos, width, colour)
 	local endPos = math.min(width - 1, self.ySize - yPos) + start
 	
 	for y = startPos, endPos, self.xSize do
-		self:drawPixelRaw(start + (y * self.xSize), colour)
+		self:drawPixelIndexRaw(start + (y * self.xSize), colour)
 	end
 end
 
@@ -280,6 +280,34 @@ function Buffer:clear(colour)
 	self:changeAll()
 end
 
+function Buffer:clearArea(colour, xPos, yPos, xSize, ySize)
+	if xPos > self.xSize or yPos  > self.ySize then return end
+	
+	if xPos < 1 then
+		xSize  = xSize + xPos - 1
+		xPos = 1
+	end
+	
+	if yPos < 1 then
+		yPos = 1
+		ySize = ySize + (yPos - 1)
+	end
+	
+	for y = yPos, yPos + ySize do
+		local pos = self:XYToIndex(xPos, y)
+		self.changed[y] = true
+		
+		for x = 0, xSize do
+			self.pixelBuffer[pos] = colour
+			self.textBuffer[pos] = " "
+			self.textColourBuffer[pos] = colour
+			
+			pos = pos + 1
+		end
+	end
+end
+
+
 ---------------------------------------------------------------------------------------------------
 --text
 ---------------------------------------------------------------------------------------------------
@@ -396,7 +424,7 @@ end
 
 --resizies the buffer and removes any data outside of the new size
 function Buffer:resize(width, height, colour)
-	if type(colour) == "number" then colour = toBlit(colour) end
+	colour = toBlit(colour)
 	
 	local newPixelBuffer = {}
 	local newTextColourBuffer = {}

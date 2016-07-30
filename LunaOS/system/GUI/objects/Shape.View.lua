@@ -7,12 +7,15 @@ function View:init(xPos, yPos, width, height)
 	self.yPos = yPos or 1
 	self.width = width or x
  	self.height = height or y
-	
-	--self.window = window.create(term.native(), self.xPos, self.yPos, self.width, self.height, true)
+
 	self:addEventListener("", self.handleAny)
 	
-	self.buffer = GUI.Buffer(term.current(), self.xPos, self.yPos, self.width, self.height, "0")
+	self.buffer = GUI.Buffer(term.current(), self.xPos, self.yPos, self.width, self.height)
 	self.components = {}
+end
+
+function View:makeBuffer()
+	return GUI.Buffer(term.current(), self.xPos, self.yPos, self.width, self.height, "0")
 end
 
 function View:addComponent(component)
@@ -70,8 +73,6 @@ function View:setPos(xPos, yPos)
 	
 	self.buffer.xPos = xPos
 	self.buffer.yPos = yPos
-	
-	--self.window.reposition(xPos, yPos)
 end
 
 function View:setSize(width, height)
@@ -109,6 +110,8 @@ function View:handleAnyInternal(force, ...)
 	local xAjust = -self.xPos + 1
 	local yAjust = -self.yPos + 1
 	
+	local cancelBlink = false
+	
 	if not force then
 		if event[1] == "mouse_click" or event[1] == "mouse_up" or event[1] == "mouse_scroll" or event[1] == "mouse_drag" then
 			--if the event is out of the range of the view then dont process any further
@@ -121,7 +124,14 @@ function View:handleAnyInternal(force, ...)
 	event = self:ajustEvent(event, xAjust, yAjust)
 	
 	term.setCursorPos = function(xPos, yPos)
-		oldSetCursorPos(xPos + xAjust, yPos + yAjust)
+		xPos = xPos + xAjust
+		yPos = yPos + yAjust
+		
+		if self:isInBounds(xPos, yPos) then
+			oldSetCursorPos(xPos, yPos)
+		else
+			cancelBlink = true
+		end
 	end
 	
 	term.getCursorPos = function()
@@ -131,6 +141,10 @@ function View:handleAnyInternal(force, ...)
 	
 	for _, component in pairs(self.components) do
 		component:handleEvent(event)
+	end
+	
+	if cancelBlink then
+		term.setCursorBlink(false)
 	end
 	
 	term.setCursorPos = oldSetCursorPos
