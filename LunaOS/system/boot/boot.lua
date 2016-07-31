@@ -2,6 +2,9 @@ dofile("/LunaOS/system/APIs/override.lua")
 dofile("/LunaOS/system/APIs/log.lua")
 dofile("/LunaOS/system/APIs/multishell.lua")
 
+ --		 mathUtils.time(function() f:draw() end, 60)
+  
+  
 os.loadAPI("/LunaOS/system/object/object.lua")
 
 os.loadAPIDir("LunaOS/system/utils/")
@@ -56,17 +59,17 @@ function t(a)
 		e = e or ""
 		f = f or ""
 		
-		lbl.text = a..' '..b..' '..c..' '..d..' '..e
+		lbl.text = a..' '..b..' '..c..' '..d..' '..e .. "\n".. (tostring(f.focus) or "")
 	end
 	
-	eventListner = GUI.Label(1,1,30,1,"events")
+	eventListner = GUI.Label(1,1,30,2,"events")
 	eventListner:applyTheme(default)
 	eventListner.backgroundColour = colourUtils.blits.green
 	eventListner:addEventListener("", setText)
 	eventListner:addEventListener("terminate", function() f:stop() end)
 	ls = GUI.Label(2,1,1,12,"123456789abc")
 	
-	v2 = GUI.ScrollView(2, 2, 49, 16, 100, 100) --1.1
+	v2 = GUI.ScrollView(2, 3, 49, 16, 100, 100) --1.1
 	v = GUI.ScrollView(28, 6, 20, 8, 51, 18)
 	--v = GUI.View(10, 3, 40, 10, "0")
 	
@@ -117,7 +120,7 @@ function t(a)
 	
 	pb:applyTheme(default)
 	
-	sbh= GUI.HorizontalScrollbar(25, 14, 14, 1, 8)
+	--sbh= GUI.HorizontalScrollbar(25, 14, 14, 1, 8)
 	sb2= GUI.Scrollbar(23, 2, 1, 14, 8)
 
 	
@@ -128,7 +131,7 @@ function t(a)
 	
 	
 	
-	sbh:applyTheme(default)
+	--sbh:applyTheme(default)
 	sb2:applyTheme(default)
 	
 	
@@ -161,7 +164,7 @@ function t(a)
 	f:addComponent(tf1)
 	f:addComponent(tf2)
 	f:addComponent(l1)
-	f:addComponent(sbh)
+	--f:addComponent(sbh)
 	f:addComponent(sb2)
 	
 	
