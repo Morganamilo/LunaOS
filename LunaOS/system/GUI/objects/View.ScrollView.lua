@@ -178,6 +178,20 @@ function ScrollView:handleAny(...)
 			--if the event is out of the range of the view then dont process any further
 			if not self:isInBounds(event[3], event[4]) then
 				return 
+			elseif event[1] == "mouse_scroll" then
+				local bar
+	
+				if kernel.keyHandler.isKeyDown(42) then
+					bar = self.hBar
+				else
+					bar = self.vBar
+				end
+				
+				if event[2] < 0 and bar.scrollLevel > 1 then
+					self:requestFocus()
+				elseif event[2] > 0 and bar.scrollLevel < bar.steps then
+					self:requestFocus()
+				end
 			elseif event[1] ~= "mouse_up" then
 				self:requestFocus()
 			end

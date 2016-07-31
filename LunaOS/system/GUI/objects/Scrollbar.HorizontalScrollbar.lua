@@ -2,7 +2,6 @@ HorizontalScrollbar = object.class(GUI.Scrollbar)
 
 function HorizontalScrollbar:init(xPos, yPos, width, height, steps)
 	self.super:init(xPos, yPos, width, height, steps)
-	self.length = width
 	
 	self:addEventListener("mouse_click", self. handleDown)
 	self:addEventListener("mouse_up",  self.handleUp)
@@ -41,54 +40,32 @@ end
 
 function HorizontalScrollbar:handleScroll(event, direction, xPos, yPos)
 	if self:isInBounds(xPos, yPos) and kernel.keyHandler.isKeyDown(42)  then
-		if direction < 0 then
+		if direction < 0 and self.scrollLevel > 1 then
 			self:scrollUp()
-		else
+			self:requestFocus()
+		elseif direction > 0 and self.scrollLevel < self.steps then
 			self:scrollDown()
+			self:requestFocus()
 		end
-		
-		self:requestFocus()
-	else
-		self:unFocus()
 	end
 end
 
-function HorizontalScrollbar:draw(buffer)
-	local barSize = self:getBarSize()
-	local barPos = self:getBarPos()
-	
-	buffer:drawBox(self.xPos, self.yPos, self.length, self.height, self.backgroundColour)
-	buffer:drawBox(barPos, self.yPos, barSize, self.height, self.barColour)
-end
-
-function HorizontalScrollbar:getBarPos()
-	--calculates where the bar is 
-	local barSize = self:getBarSize()
-	local movementSpace = self.length - barSize + 1
-	local percentage = movementSpace / self.steps --how much the bar should move per step
-	local barPos = math.floor(percentage * (self.scrollLevel - 1)) + self.xPos
-	
-	return barPos
-end
-
-function HorizontalScrollbar:setSize(width, height)
-	self.super:setSize(width, height)
-	self.length = width
+function HorizontalScrollbar:getLength()
+	return self.width
 end
 
 function HorizontalScrollbar:handleDown(event, mouseButton, xPos, yPos)
-	self:unFocus()
-	
 	if self:isInBounds(xPos, yPos) then
-		local barSize = self:getBarSize()
+		local barSize = self:getBarSize() 
 		local barPos = self:getBarPos()
 
 		if xPos < barPos or xPos > barPos + barSize - 1 then
-			self:setBarPos(math.min((xPos - self.xPos + 1) - mathUtils.round(barSize / 2) + 1,  self.length - barSize + 1))
+			self:setBarPos(math.min((xPos - self.xPos + 1) - mathUtils.round(barSize / 2) + 1,  self:getLength() - barSize + 1))
 		end
 
 		self.held = true
 		self.barGrabPoint = xPos - self:getBarPos() 
+		self:requestFocus()
 	end
 end
 
@@ -96,5 +73,13 @@ function HorizontalScrollbar:handleDrag(event, mouseButton, xPos, yPos)
 	if not self.held then return end
 	
 	local difference = self.xPos - xPos
-	self:setBarPos(xPos - self.xPos + 1 - self.barGrabPoint) 
+	self:setBarPos(xPos + 1 - self.barGrabPoint) 
+end
+
+function HorizontalScrollbar:draw(buffer)
+	local barSize = self:getBarSize()
+	local barPos = self:getBarPos() + self.xPos
+	
+	buffer:drawBox(self.xPos, self.yPos, self:getLength(), self.height, self.backgroundColour)
+	buffer:drawBox(barPos, self.yPos, barSize, self.height, self.barColour)
 end

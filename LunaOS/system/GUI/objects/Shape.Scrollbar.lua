@@ -2,13 +2,11 @@ Scrollbar = object.class(GUI.Shape)
 
 Scrollbar.held = false
 
-
 function Scrollbar:init(xPos, yPos, width, height, steps) --   mathUtils.time(function() f:draw() end, 60)
 	self.super:init(xPos, yPos, width, height) -- some bug, stupid dirty workaround
 	
 	self.steps = steps
 	self.scrollLevel = 1
-	self.length = height
 	
 	self:addEventListener("mouse_click", self. handleDown)
 	self:addEventListener("mouse_up",  self.handleUp)
@@ -17,9 +15,8 @@ function Scrollbar:init(xPos, yPos, width, height, steps) --   mathUtils.time(fu
 	self:addEventListener("key", self.handleKey)
 end
 
-function Scrollbar:setSize(width, height)
-	self.super:setSize(width, height)
-	self.length = height
+function Scrollbar:getLength()
+	return self.height
 end
 
 function Scrollbar:handleKey(event, key)
@@ -52,36 +49,33 @@ end
 
 function Scrollbar:handleScroll(event, direction, xPos, yPos)
 	if self:isInBounds(xPos, yPos) then
-		if direction < 0 then
+		if direction < 0 and self.scrollLevel > 1 then
 			self:scrollUp()
-		else
+			self:requestFocus()
+		elseif direction > 0 and self.scrollLevel < self.steps then
 			self:scrollDown()
+			self:requestFocus()
 		end
-		
-		self:requestFocus()
-	else
-		self:unFocus()
 	end
 end
 
-function Scrollbar:handleDown(event, mouseButton, xPos, yPos)
-	self:unFocus()
-	
+function Scrollbar:handleDown(event, mouseButton, xPos, yPos)	
 	if self:isInBounds(xPos, yPos) then
-		local barSize = self:getBarSize()
+		local barSize = self:getBarSize() 
 		local barPos = self:getBarPos()
 
 		if yPos < barPos or yPos > barPos + barSize - 1 then
-			self:setBarPos(math.min((yPos - self.yPos + 1) - mathUtils.round(barSize / 2) + 1,  self.length - barSize + 1))
+			self:setBarPos(math.min((yPos - self.yPos + 1) - mathUtils.round(barSize / 2) + 1,  self:getLength() - barSize + 1))
 		end
 
 		self.held = true
 		self.barGrabPoint = yPos - self:getBarPos() 
+		self:requestFocus()
 	end
 end
 
-function Scrollbar:handleUp(event, mouseButton, xPos, yPos)
-	if self:isInBounds(xPos, yPos) and self.held then
+function Scrollbar:handleUp(event, mouseButton, xPos, yPos)	
+	if self.held then 
 		self:requestFocus()
 	end
 	
@@ -92,7 +86,7 @@ function Scrollbar:handleDrag(event, mouseButton, xPos, yPos)
 	if not self.held then return end
 	
 	local difference = self.yPos - yPos
-	self:setBarPos(yPos - self.yPos + 1 - self.barGrabPoint) 
+	self:setBarPos(yPos + 1 - self.barGrabPoint) 
 end
 
 function Scrollbar:scrollUp(amount)
@@ -105,38 +99,35 @@ end
 
 function Scrollbar:getBarSize()
 	--calculates how big the bar is
-	return math.max(self.length - self.steps + 1, 1)
-end
-
-function Scrollbar:setSize(width, height)
-	self.super:setSize(width, height)
-	self.length = height
+	return math.max(self:getLength() - self.steps + 1, 1)
 end
 
 function Scrollbar:getBarPos()
 	--calculates where the bar is 
+	
+	--how big the bar is
 	local barSize = self:getBarSize()
-	local movementSpace = self.length - barSize + 1
+	local movementSpace = self:getLength() - barSize + 1
 	local percentage = movementSpace / self.steps --how much the bar should move per step
-	local barPos = math.floor(percentage * (self.scrollLevel - 1)) + self.yPos
+	local barPos = math.min(mathUtils.round(percentage * (self.scrollLevel - 1)), self:getLength() - 1)
 	
 	return barPos
 end
 
 function Scrollbar:setBarPos(barPos)
 	local barSize = self:getBarSize()
-	local movementSpace = self.length - barSize + 1
+	local movementSpace = self:getLength() - barSize + 1
 	local percentage = self.steps /  movementSpace
-	local pos = math.floor(percentage * (barPos - 1)) 
+	local pos = mathUtils.round(percentage * (barPos - 1)) 
 	
 	self.scrollLevel =  math.max(1, math.min(pos + 1, self.steps))
 end
 
 function Scrollbar:draw(buffer)
 	local barSize = self:getBarSize()
-	local barPos = self:getBarPos()
+	local barPos = self:getBarPos() + self.yPos
 	
-	buffer:drawBox(self.xPos, self.yPos, self.width, self.length, self.backgroundColour)
+	buffer:drawBox(self.xPos, self.yPos, self.width, self:getLength(), self.backgroundColour)
 	buffer:drawBox(self.xPos, barPos, self.width, barSize , self.barColour)
 end
 
