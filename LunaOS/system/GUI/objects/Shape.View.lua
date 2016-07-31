@@ -45,9 +45,9 @@ function View:drawInternal()
 	term.getCursorPos = self.ajustedGetCursorPos
 	term.setCursorBlink = self.ajustedSetCursorBlink
 	
-	self:clear()  --      mathUtils.time(function() f:draw() end, 60)
-		
-	for _, component in pairs(self.components) do
+	self:clear() 
+	
+	for _, component in pairs(self.components) do  
 		component:onDraw(self.buffer)
 	end
 		
@@ -102,14 +102,8 @@ end
 function View:handleAnyInternal(force, ...)
 	local event = arg
 	
-	local oldSetCursorPos = term.setCursorPos
-	local oldGetCursorPos = term.getCursorPos
-	
-	local xAjust = -self.xPos + 1
-	local yAjust = -self.yPos + 1
-	
-	
-	
+	local xAjust, yAjust = self:getAjust()
+		
 	if not force then
 		if event[1] == "mouse_click" or event[1] == "mouse_up" or event[1] == "mouse_scroll" or event[1] == "mouse_drag" then
 			--if the event is out of the range of the view then dont process any further
@@ -119,30 +113,12 @@ function View:handleAnyInternal(force, ...)
 		end
 	end
 	
-	event = self:ajustEvent(event, xAjust, yAjust)
+	event = self:ajustEvent(event, -xAjust, -yAjust)
 	
-	term.setCursorPos = function(xPos, yPos)
-		xPos = xPos + xAjust
-		yPos = yPos + yAjust
-		
-		if self:isInBounds(xPos, yPos) then
-			oldSetCursorPos(xPos, yPos)
-		else
-			cancelBlink = true
-		end
-	end
-	
-	term.getCursorPos = function()
-		local x, y = oldGetCursorPos()
-		return x - xAjust, y - yAjust
-	end
 	
 	for _, component in pairs(self.components) do
 		component:handleEvent(event)
 	end
-	
-	term.setCursorPos = oldSetCursorPos
-	term.getCursorPos = oldGetCursorPos
 end
 
 function View:applyTheme(theme)
