@@ -380,11 +380,14 @@ function Buffer:writeTextBox(xPos, yPos, width, height, str, textColour, backgro
 		height = height - offset
 	elseif yAlignment == "center" then
 		local offset = math.floor((height - #lines)/2)
-		yPos = yPos + offset
-		height = height - offset
+		
+		if offset > 0 then
+			yPos = yPos + offset
+			height = height - offset
+		end
 	end
 		
-	for y = yPos, math.min(height, #lines) + yPos - 1 do
+	for y = math.max(1, yPos), math.min(height, #lines) + yPos - 1 do
 		local currentLine =  lines[y - yPos + 1]
 		local offset = 0
 	
