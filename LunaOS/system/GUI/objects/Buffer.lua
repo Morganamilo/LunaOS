@@ -287,6 +287,10 @@ end
 function Buffer:clearArea(colour, xPos, yPos, xSize, ySize)
 	if xPos > self.xSize or yPos  > self.ySize then return end
 	
+	self.pixelBuffer = {}
+	self.textBuffer = {}
+	self.textColourBuffer = {}
+	
 	local selfText = self.textBuffer
 	local selfPixel = self.pixelBuffer
 	local selfTextColour = self.textColourBuffer
@@ -316,6 +320,8 @@ function Buffer:clearArea(colour, xPos, yPos, xSize, ySize)
 		
 		start = start + self.xSize
 	end
+	
+	self:changeAll()
 end
 
 
