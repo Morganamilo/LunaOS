@@ -3,8 +3,8 @@ Scrollbar = object.class(GUI.Shape)
 Scrollbar.held = false
 
 
-function Scrollbar:init(xPos, yPos, width, height, steps)
-	Scrollbar.super.nonStatic.init(self, xPos, yPos, width, height) -- some bug, stupid dirty workaround
+function Scrollbar:init(xPos, yPos, width, height, steps) --   mathUtils.time(function() f:draw() end, 60)
+	self.super:init(xPos, yPos, width, height) -- some bug, stupid dirty workaround
 	
 	self.steps = steps
 	self.scrollLevel = 1

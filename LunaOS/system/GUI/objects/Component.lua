@@ -6,7 +6,7 @@ Component.active = true
 Component.visible = true
 
 function Component:handleEvent(data)
-	if not self.active then return end
+	if not (self.active and self.visible ) then return end
 	
 	local listenerFunc = self.listeners[data[1]] --set listenerFunc to the function who key is the event name
 	if listenerFunc then listenerFunc(self, unpack(data)) end --if we did get a function from that event name call it
