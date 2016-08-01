@@ -36,7 +36,7 @@ end
 
 function Frame:removeComponent(component)
 	table.remove(self.components, tableUtils.indexOf(self.components, component))
-	component.parentPane = nil
+	component:setParentPane(nil)
 end
 
 function Frame:stop()
