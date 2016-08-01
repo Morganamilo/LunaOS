@@ -211,8 +211,9 @@ end
 
 function TextField:draw(buffer)	
 	local trimedText
+	local textColour = self.textColour
 	
-	if self.mask  and false then
+	if self.mask and #self.mask > 1  then
 		trimedText = self.mask:rep(#self.text):sub(1, #self.text):sub(self.scrollPos, self.scrollPos + self.width - 1)
 	else
 		trimedText = self.text:sub(self.scrollPos, self.scrollPos + self.width - 1)
@@ -227,11 +228,16 @@ function TextField:draw(buffer)
 			term.setCursorBlink(false)
 		end
 		
+		if  #self.text == 0 then
+			trimedText = self.hint:sub(self.scrollPos, self.scrollPos + self.width - 1)
+			textColour = self.hintColour
+		end
+		
 		self:unSelect()
 	end
 	
 	buffer:drawBox(self.xPos, self.yPos, self.width, self.height, self.backgroundColour )
-	buffer:writeStr(self.xPos, self.yPos, trimedText, self.textColour)
+	buffer:writeStr(self.xPos, self.yPos, trimedText, textColour)
 	
 	local startSelect, endSelect = self:getSelectedPos()
 			

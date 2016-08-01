@@ -152,7 +152,7 @@ function t(a)
 	tf2 = GUI.TextField(28,4,20)
 	tf1:applyTheme(default)
 	tf2:applyTheme(default)
-	tf1.mask = "brandon is a fag"
+	tf1.mask = ""
 	tf1.hint = "Username:"
 	
 	f:addComponent(sw1)
@@ -161,7 +161,7 @@ function t(a)
 	f:addComponent(sw4)
 	f:addComponent(b)
 	f:addComponent(tb)
-	--f:addComponent(tf1)
+	f:addComponent(tf1)
 	f:addComponent(tf2)
 	f:addComponent(l1)
 	--f:addComponent(sbh)
