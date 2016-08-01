@@ -4,7 +4,7 @@ TextField = object.class(GUI.Button)
 function TextField:init(xPos, yPos, width, text)
 	self.super:init(xPos, yPos, width, 1, text)
 	
-	self.text = "this is a test of tests"
+	self.text = text or ""
 	self.scrollPos = 1
 	self.cursorPos = 1
 	self.blinking = false
@@ -228,7 +228,7 @@ function TextField:draw(buffer)
 			term.setCursorBlink(false)
 		end
 		
-		if  #self.text == 0 then
+		if  #self.text == 0 and self.hint then
 			trimedText = self.hint:sub(self.scrollPos, self.scrollPos + self.width - 1)
 			textColour = self.hintColour
 		end
