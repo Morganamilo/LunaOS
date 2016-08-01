@@ -373,18 +373,17 @@ end
 --allows for text alignment
 function Buffer:writeTextBox(xPos, yPos, width, height, str, textColour, backgroundColour, xAlignment, yAlignment)
 	local lines = textUtils.wrap(str, width, height)
+	local offset = 0
 	
 	if yAlignment == "down" then
-		local offset = height - #lines
+		offset = height - #lines
+	elseif yAlignment == "center" then
+		offset = math.floor((height - #lines)/2)
+	end
+		
+	if offset > 0 then
 		yPos = yPos + offset
 		height = height - offset
-	elseif yAlignment == "center" then
-		local offset = math.floor((height - #lines)/2)
-		
-		if offset > 0 then
-			yPos = yPos + offset
-			height = height - offset
-		end
 	end
 		
 	for y = math.max(1, yPos), math.min(height, #lines) + yPos - 1 do
