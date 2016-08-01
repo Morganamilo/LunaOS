@@ -76,7 +76,7 @@ function t(a)
 	v2:addComponent(ls)
 	ls:applyTheme(default)
 	f:addComponent(eventListner)
-	f:addComponent(v2)
+	--f:addComponent(v2)
 	
 	
 	v3 = GUI.View(2,2,20,20)
@@ -88,7 +88,7 @@ function t(a)
 	v:applyTheme(default)
 	v2:applyTheme(default)
 	v2.backgroundColour = "4"
-	v2:addComponent(v)
+	--v2:addComponent(v)
 	vl = GUI.Button(2,10,5,1,"test")
 	vl:applyTheme(default)
 	--v:addComponent(vl)
@@ -96,7 +96,7 @@ function t(a)
 		v.backgroundColour = "0"
 		
 	oldf = f
-	f = v
+	--f = v
 	
 	sw1 = GUI.Switch(3,2,2,2)
 	sw1:transform(-1,-1)
@@ -161,7 +161,7 @@ function t(a)
 	f:addComponent(sw4)
 	f:addComponent(b)
 	f:addComponent(tb)
-	f:addComponent(tf1)
+	--f:addComponent(tf1)
 	f:addComponent(tf2)
 	f:addComponent(l1)
 	--f:addComponent(sbh)
