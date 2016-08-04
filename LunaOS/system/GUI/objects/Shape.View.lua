@@ -8,6 +8,7 @@ function View:init(xPos, yPos, width, height)
 	self.width = width or x
  	self.height = height or y
 
+	self:setAjustFunctions()
 	self:addEventListener("", self.handleAny)
 	
 	self.buffer = GUI.Buffer(term.current(), self.xPos, self.yPos, self.width, self.height)
