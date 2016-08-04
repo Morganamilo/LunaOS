@@ -1,6 +1,8 @@
 View = object.class(GUI.Shape)
-
+View.components = {}
 function View:init(xPos, yPos, width, height)
+	self.super:init(xPos, yPos, width, height)
+
 	local x, y = term.getSize()
 	
 	self.xPos = xPos or 1
@@ -9,10 +11,9 @@ function View:init(xPos, yPos, width, height)
  	self.height = height or y
 
 	self:setAjustFunctions()
-	self:addEventListener("", self.handleAny)
-	
 	self.buffer = GUI.Buffer(term.current(), self.xPos, self.yPos, self.width, self.height)
-	self.components = {}
+	
+	self:addEventListener("", self.handleAny)
 end
 
 function View:makeBuffer()
