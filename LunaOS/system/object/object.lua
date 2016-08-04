@@ -72,7 +72,7 @@ local function instanceOfInterface(object, interface)
 		end
 	end
 	
-		for _, field in pairs(staticFields) do
+	for _, field in pairs(staticFields) do
 		if object.static[field] == nil then
 			return false
 		end
