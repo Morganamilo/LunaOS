@@ -38,11 +38,11 @@ function ToggleButton:draw(buffer)
 	local x, y, width, height = self:getTextPos()
 	
 	if self.held and self.changeColourOnHold then
-		backColour = self.heldBackgroundColour
-		textColour = self.heldTextColour		
+		backColour = self.heldBackgroundColour or self.backgroundColour
+		textColour = self.heldTextColour or self.textColour
 	elseif self.selected then
-		backColour = self.selectedBackgroundColour
-		textColour = self.selectedTextColour
+		backColour = self.selectedBackgroundColour or self.backgroundColour
+		textColour = self.selectedTextColour or self.textColour
 	else
 		backColour = self.backgroundColour
 		textColour = self.textColour
@@ -59,7 +59,7 @@ function ToggleButton:applyTheme(theme)
 	self.super:applyTheme(theme)
 	
 	self.selectedBackgroundColour = theme.selectedBackgroundColour
-	self.selectedTextColour = theme.selectedBackgroundColour
+	self.selectedTextColour = theme.selectedTextColour
 end
 
 --Zenix was here
