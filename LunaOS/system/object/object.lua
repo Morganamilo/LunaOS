@@ -8,9 +8,10 @@ local events = {
 local Object = {}
 
 Object.static = {}
-Object.nonStatic = {} --empty constructor so that init can still be called without error
+Object.nonStatic = {}
 Object.interfaces = {}
 
+--empty constructor so that init can still be called without error
 Object.init = function()  end
 
 --default method instanceOf: return true if 
@@ -117,60 +118,33 @@ local function changeObjectValue(tbl, k, v)
 	end
 end
 
---when an object looks for one of its members
---first look in object.self
---otherwise look in object.nonStatic (only return the value is a function)
---finally look in object.super
-local function index(obj, k)
-	--local nonStatic = obj.class.nonStatic[k]
-	local self = obj.self[k] 
-	local super = obj.super[k] 
-	
-	if self ~= nil then return self end
-	--if type(nonStatic) == "function" then return nonStatic end
-	if super ~= nil then return super end
-end
-
---calls the constructor (instance.init)
---makes sure all calls to super constructors goes to instance.super
-local function construct(instance, ...)
-	local mt = {__index = index, __newindex = changeObjectValue}
-	--instance.super = setmetatable({}, {__index = instance.class.super.nonStatic}) -------- this is it i think
-	instance.super = tableUtils.deepCopy(instance.class.super.nonStatic)
-	
-	local superInstance = instance
-	local superClass = instance.class
-	
-	while superClass do
-		superInstance = superInstance.super
-		superClass = superClass.super
-		
-		if not superClass then break end
-		rawset(superInstance, 'super' ,setmetatable({}, {__index = tableUtils.deepCopy(superClass.nonStatic), __newindex = instance.super}))
-		
-	end
-	
-	setmetatable(instance,  mt)
-	instance.class.nonStatic.init(instance, unpack(arg)) -- call the constructor
-	
-	--instance.super.super = nil --get rid of all exess nested supers
-	--setmetatable(instance.super, {})
-end
-
 --create a new instance of class, further arguments are passed to the constructor (init)
 local function new(class, ...)
 	errorUtils.assert(checkInterfaces(class), "Error: Class does not implement all fields", 0)
 	
-	local mt = {__index = index, __newindex = changeObjectValue}
+	--define the actual instance
+	local instance = {self = {}, class = class}
+	local instanceMt = {__index = instance.self, __newindex = instance.self}
 	
-	local instance = {
-		self = {},
-		class = class
-	}
+	local superInstance = instance
+	local superClass = class.super
 	
-	--each object gets a copy of all varibles in class.nonStatic
 	local deepCopy = tableUtils.deepCopy
 	local self = instance.self
+	
+	--make sure any new varibles go to instance.self
+	--make sure all varibles are read from instance.self
+	--make sure function are read from the correct superclass
+	local function index(tbl, k)
+		local value = tbl.nonStatic[k]
+		local selfValue = rawget(self, k)
+	
+		if  type(value) == "function" then
+			return value
+		elseif  type(selfValue) ~= "function" then
+			return selfValue
+		end
+	end
 	
 	for k, v in pairs(class.nonStatic) do
 		self[k] = deepCopy(v)
@@ -178,12 +152,28 @@ local function new(class, ...)
 	
 	--copy the class' metamethods to the objects metatable
 	for _, v in ipairs(events) do
-		mt[v] = class.events[v]
+		instanceMt[v] = class.events[v]
 	end
 	
-	--setmetatable(instance, {__index = class.nonStatic})
-	construct(instance, unpack(arg))
-	--setmetatable(instance,  mt)
+	while superClass do
+		local mt =  setmetatable({nonStatic = superClass.nonStatic}, {__index = index, __newindex = self})
+		rawset(superInstance, "super", mt)
+		superInstance = superInstance.super
+		
+		--copy nonStatic varibles (not function) from the super classes making sure varibles in subclass have priority over thoes in super
+		for k, v in pairs(superClass.nonStatic) do
+			if type(v) ~= "function" and instance.self[k] == nil then 
+				instance.self[k] = deepCopy(v)
+			end
+		end
+		
+		superClass = superClass.super
+	end
+	
+	setmetatable(self,  {__index = instance.super})
+	setmetatable(instance, instanceMt)
+	
+	instance.class.nonStatic.init(instance, unpack(arg)) -- call the constructor
 	
 	return instance
 end
@@ -213,6 +203,8 @@ end
 
 
 
+-----------------------------------------------------------------------------------------------------------------------------------
+--interfaces
 -----------------------------------------------------------------------------------------------------------------------------------
 
 local Interface = {}

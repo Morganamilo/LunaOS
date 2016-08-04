@@ -4,10 +4,6 @@ RadioButton.activateOnRelease = false
 
 function RadioButton:init(xPos, yPos, width, height)
 	self.super:init(xPos, yPos, width or 1, height or 1)
-	
-	self:addEventListener("mouse_click", self. eventHandler)
-	self:addEventListener("mouse_up",  self.eventHandler)
-	self:addEventListener("mouse_drag", self.eventHandler)
 end
 
 function RadioButton:draw(buffer)

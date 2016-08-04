@@ -6,22 +6,12 @@ Button.held = false
 function Button:init(xPos, yPos, width, height, text)
 	self.super:init(xPos, yPos, width, height, text)
 	
-	self:addEventListener("mouse_click", self. eventHandler)
-	self:addEventListener("mouse_up",  self.eventHandler)
-	self:addEventListener("mouse_drag", self.eventHandler)
+	self:addEventListener("mouse_click", self. handleDown)
+	self:addEventListener("mouse_up",  self.handleUp)
+	self:addEventListener("mouse_drag", self.handleDrag)
 end
 
-function Button:eventHandler(event, mouseButton, xPos, yPos)
-	if event == "mouse_click" then
-		self:handleDown(xPos, yPos, mouseButton)
-	elseif event == "mouse_up" then
-		self:handleUp(xPos, yPos, mouseButton)
-	elseif event == "mouse_drag" then
-		self:handleDrag(xPos, yPos, mouseButton)
-	end
-end
-
-function Button:handleDown(xPos, yPos, mouse)
+function Button:handleDown(event, mouse, xPos, yPos)
 	if self:isInBounds(xPos, yPos) then
 		self.held = true
 		
@@ -31,7 +21,7 @@ function Button:handleDown(xPos, yPos, mouse)
 	end
 end
 
-function Button:handleUp(xPos, yPos, mouse)
+function Button:handleUp(event, mouse, xPos, yPos)
 	if self:isInBounds(xPos, yPos) and self.held and self.activateOnRelease then
 		self:onClick()
 	end
@@ -39,7 +29,7 @@ function Button:handleUp(xPos, yPos, mouse)
 	self.held = false
 end
 
-function Button:handleDrag(xPos, yPos, mouse)
+function Button:handleDrag(event, mouse, xPos, yPos)
 
 end
 

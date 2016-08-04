@@ -4,10 +4,6 @@ Switch.activateOnRelease = false
 
 function Switch:init(xPos, yPos)
 	self.super:init(xPos, yPos, 2, 1)
-	
-	self:addEventListener("mouse_click", self. eventHandler)
-	self:addEventListener("mouse_up",  self.eventHandler)
-	self:addEventListener("mouse_drag", self.eventHandler)
 end
 
 function Switch:draw(buffer)

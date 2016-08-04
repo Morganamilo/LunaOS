@@ -12,11 +12,11 @@ function TextField:init(xPos, yPos, width, text)
 	self:addEventListener("key", self.handleKey)
 	self:addEventListener("char", self.handleChar)
 	self:addEventListener("paste", self.handleChar)
-	--self:addEventListener("mouse_down", self.handleDown)
-	--self:addEventListener("mouse_drag", self.handleDrag)
+	self:addEventListener("mouse_click", self.handleDown)
+	self:addEventListener("mouse_drag", self.handleDrag)
 end
 
-function TextField:handleDown(xPos, yPos, mouse)
+function TextField:handleDown(event, mouse, xPos, yPos)
 	if self:isInBounds(xPos, yPos) then
 		local point = self:getPoint(xPos)
 		--point = math.min(#self.text, point)
@@ -31,7 +31,7 @@ function TextField:handleDown(xPos, yPos, mouse)
 end
 
 
-function TextField:handleDrag(xPos, yPos, mouse)
+function TextField:handleDrag(event, mouse, xPos, yPos)
 	if self:isFocus() then
 		xPos = math.max(self.xPos, math.min(xPos, self.xPos + self.width - 1))
 		local point = self:getPoint(xPos)
