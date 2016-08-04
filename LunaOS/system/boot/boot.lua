@@ -5,7 +5,7 @@ dofile("/LunaOS/system/APIs/multishell.lua")
  --		 mathUtils.time(function() f:draw() end, 60)
   
   
-os.loadAPI("/LunaOS/system/object/object.lua")
+os.loadAPI("/LunaOS/system/APIs/object.lua")
 
 os.loadAPIDir("LunaOS/system/utils/")
 
@@ -69,24 +69,25 @@ function t(a)
 	eventListner:addEventListener("terminate", function() f:stop() end)
 	ls = GUI.Label(2,1,1,12,"123456789abc")
 	
-	v2 = GUI.ScrollView(2, 3, 49, 16, 100, 100) --1.1
-	v = GUI.ScrollView(28, 6, 20, 8, 51, 18)
-	--v = GUI.View(10, 3, 40, 10, "0")
+	v2 = GUI.View(28, 6, 20, 16) --1.1
+	v = GUI.View(28, 6, 20, 16)
+	v3 = GUI.View(28, 3, 6, 16)
 	
 	v2:addComponent(ls)
 	ls:applyTheme(default)
-	f:addComponent(eventListner)
+	--f:addComponent(eventListner)
 	--f:addComponent(v2)
 	
 	
-	v3 = GUI.View(2,2,20,20)
+	--v3 = GUI.View(2,2,20,20)
 	--v2:addComponent(v3)
-	v3.backgroundColour = "-1"
+	--v3.backgroundColour = "-1"
 	
 	
 
 	v:applyTheme(default)
 	v2:applyTheme(default)
+	v3:applyTheme(default)
 	v2.backgroundColour = "4"
 	--v2:addComponent(v)
 	vl = GUI.Button(2,10,5,1,"test")
@@ -96,7 +97,7 @@ function t(a)
 		v.backgroundColour = "0"
 		
 	oldf = f
-	--f = v
+	f = v
 	
 	sw1 = GUI.Switch(3,2,2,2)
 	sw1:transform(-1,-1)
@@ -213,6 +214,31 @@ function t(a)
 	end
 	
 	f = oldf
+	
+	b6 = GUI.TextField(4,4,15,"test")
+	--b6 = GUI.Button(4,4,15,3,"test")
+	b6:applyTheme(default)
+	v3:addComponent(b6)
+	
+	local open = 1
+	v2:addComponent(b6)
+	
+	mv = GUI.TabbedView(2,2,20,16)
+	mv:addView(v, "1")
+	mv:addView(v2, "2")
+	mv:addView(v3, "3")
+	f:addComponent(mv)
+	--f:addComponent(v2)
+	mv:gotoView("1")
+	
+	function n()
+		mv:gotoView(tostring(open))
+		open = open + 1
+	end
+	
+	mv:addEventListener("key", n)
+	
+	
 	if a then f:mainLoop() else dofile("rom/programs/lua") end
 		
 end
