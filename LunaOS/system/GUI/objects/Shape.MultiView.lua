@@ -1,7 +1,7 @@
 MultiView = object.class(GUI.Shape)
 
-function MultiView:init(xPos, yPos, width, size)
-	self.super:init(xPos, yPos, width, size)
+function MultiView:init(xPos, yPos, width, height)
+	self.super:init(xPos, yPos, width, height)
 	self:addEventListener("", self.handleAny)
 	self.views = {}
 end
