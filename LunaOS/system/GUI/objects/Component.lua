@@ -42,6 +42,10 @@ function Component:getParentPane()
 end
 
 function Component:setParentPane(pane)
+	if self.parentPane then
+		self.parentPane:removeComponent(self)
+	end
+	
 	self.parentPane = pane
 end
 
