@@ -159,12 +159,6 @@ function Buffer:drawEllipse(xPos, yPos, width, height, colour)
 	self:drawFunction(xPos, yPos, width, height, 0, 0, elipseFunction, colour)
 end
 
---             mathUtils.time(function() f.buffer:drawBuffer(v.buffer) end, 500)
-
---5.9 --> 3.6
---4.3
---0.15
-
 --draws another buffer to this buffer
 --the buffer passed gets drawn ontop of the self buffer
 function Buffer:drawBuffer(buffer, xPos, yPos, width, height)
@@ -209,9 +203,13 @@ function Buffer:drawBuffer(buffer, xPos, yPos, width, height)
 		local bufferPos = buffer:XYToIndex(xPos, yPos + y)
 		
 		for x = 0, xEnd do
-			selfText[selfBufferPos] =  text[bufferPos]
-			selfPixel[selfBufferPos] = pixel[bufferPos]
-			selfTextColour[selfBufferPos] = textColour[bufferPos]
+			local t =  text[bufferPos]
+			local p = pixel[bufferPos]
+			local tc = textColour[bufferPos]
+		
+			if t ~= " "  or p ~= "-1" then selfText[selfBufferPos] =  t end
+			if p ~= "-1" then selfPixel[selfBufferPos] = p end
+			if  t ~= " "  or p ~= "-1"  or tc ~= "-1" then selfTextColour[selfBufferPos] = tc end 
 			
 			selfBufferPos = selfBufferPos + 1
 			bufferPos = bufferPos + 1
@@ -335,8 +333,8 @@ function Buffer:writeCharRaw(pos, c, textColour, textBackgroundColour)
 	textBackgroundColour = toBlit(textBackgroundColour)
 	
 	self.textBuffer[pos] = c
-	self.textColourBuffer[pos] = textColour or self.textColourBuffer[pos] or self.pixelBuffer[pos]  or "2"
-	self.pixelBuffer[pos] = textBackgroundColour or self.pixelBuffer[pos] or "2"
+	if textColour then self.textColourBuffer[pos] = textColour end
+	if textBackgroundColour then self.pixelBuffer[pos] = textBackgroundColour end
 end
 
 --draws a char to the buffer at a given X, Y coord
