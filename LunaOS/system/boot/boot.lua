@@ -75,13 +75,14 @@ function t(a)
 	ls = GUI.Label(2,1,1,12,"123456789abc")
 	
 	v2 = GUI.View(2, 2, 49, 17) --1.1
-	v = GUI.ScrollView(9, 3, 20, 12, 51, 18)
+	v = GUI.ScrollView(1, 1, 51, 18, 70, 80)
 	v3 = GUI.View(28, 3, 6, 16)
 	
 	v2:addComponent(ls)
 	ls:applyTheme(default)
 	f:addComponent(eventListner)
-	f:addComponent(v2)
+	--f:addComponent(v2)
+	f:addComponent(v)
 	
 	
 	--v3 = GUI.View(2,2,20,20)
@@ -94,7 +95,7 @@ function t(a)
 	v2:applyTheme(default)
 	v3:applyTheme(default)
 	v2.backgroundColour = "4"
-	v2:addComponent(v)
+	--v2:addComponent(v)
 	vl = GUI.Button(2,10,5,1,"test")
 	vl:applyTheme(default)
 	v:addComponent(vl)

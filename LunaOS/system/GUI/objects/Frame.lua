@@ -1,6 +1,7 @@
 Frame = object.class()
 
 Frame.running = false
+Frame.components = {}
 
 function Frame:init(window)
 	self.window = window or term.current()
@@ -13,12 +14,7 @@ function Frame:init(window)
  	self.ySize = y
 	self.backgroundColour =  "0"
 	
-	
-	--self.window = window.create(term.native(), self.xPos, self.yPos, self.xSize, self.ySize, true)
-	--term.setCursorPos(xCursor, yCursor)
-	
 	self.buffer = GUI.Buffer(self.window, self.xPos, self.yPos, self.xSize, self.ySize, self.backgroundColour)
-	self.components = {}
 end
 
 function Frame:getFrame()

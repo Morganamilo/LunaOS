@@ -1,5 +1,6 @@
 View = object.class(GUI.Shape)
 View.components = {}
+
 function View:init(xPos, yPos, width, height)
 	self.super:init(xPos, yPos, width, height)
 

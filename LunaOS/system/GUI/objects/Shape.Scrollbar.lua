@@ -1,12 +1,12 @@
 Scrollbar = object.class(GUI.Shape)
 
 Scrollbar.held = false
+Scrollbar.scrollLevel = 1
 
 function Scrollbar:init(xPos, yPos, width, height, steps) --   mathUtils.time(function() f:draw() end, 60)
 	self.super:init(xPos, yPos, width, height) -- some bug, stupid dirty workaround
 	
 	self.steps = steps
-	self.scrollLevel = 1
 	
 	self:addEventListener("mouse_click", self. handleDown)
 	self:addEventListener("mouse_up",  self.handleUp)

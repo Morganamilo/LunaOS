@@ -1,13 +1,13 @@
 TextField = object.class(GUI.Button)
 
-
+TextField.scrollPos = 1
+TextField.cursorPos = 1
+TextField.blinking = false
+	
 function TextField:init(xPos, yPos, width, text)
 	self.super:init(xPos, yPos, width, 1, text)
 	
 	self.text = text or ""
-	self.scrollPos = 1
-	self.cursorPos = 1
-	self.blinking = false
 
 	self:addEventListener("key", self.handleKey)
 	self:addEventListener("char", self.handleChar)
