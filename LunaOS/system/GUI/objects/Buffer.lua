@@ -209,7 +209,7 @@ function Buffer:drawBuffer(buffer, xPos, yPos, width, height)
 		
 			if t ~= " "  or p ~= "-1" then selfText[selfBufferPos] =  t end
 			if p ~= "-1" then selfPixel[selfBufferPos] = p end
-			if  t ~= " "  or p ~= "-1"  or tc ~= "-1" then selfTextColour[selfBufferPos] = tc end 
+			if  (t ~= " "  or p ~= "-1")  and tc ~= "-1" then selfTextColour[selfBufferPos] = tc end 
 			
 			selfBufferPos = selfBufferPos + 1
 			bufferPos = bufferPos + 1
@@ -217,25 +217,41 @@ function Buffer:drawBuffer(buffer, xPos, yPos, width, height)
 	end
 end
 
-function Buffer:drawShape(xPos, yPos, shape)
-	local xSize = shape[1]
-	local ySize = shape[2]
+function Buffer:drawImage(xPos, yPos, image)
+	if xPos > self.xSize or yPos > self.ySize then return end
+
+	image = imageUtils.decodeImage(image)
+	
+	local xSize = image.size[1]
+	local ySize = image.size[2]
+	
 	local buffer = self.pixelBuffer
+	local textColour = self.textColourBuffer
+	local text = self.textBuffer
+	
+	local imageBuffer = image.colour
+	local imageTextColour = image.textColour
+	local imageText = image.text
 	
 	local index = self:XYToIndex(xPos, yPos)
-	local shapeIndex = 3
+	local shapeIndex = 1
 	
-	for y = 1, ySize do
-		for x= 1, xSize do
-			if shape[shapeIndex] then
-				buffer[index + x] = shape[shapeIndex]
-			end
+	for y = math.max(0, -yPos + 1), math.min(ySize - 1, self.ySize - yPos)  do
+		for x  = math.max(0, -xPos + 1), math.min(xSize - 1, self.xSize - xPos) do
+			local currentIndex = index + x
+			local currentShapeIndex = shapeIndex + x
 			
-			shapeIndex = shapeIndex + 1
+			local b = imageBuffer[currentShapeIndex]
+			local tc = imageTextColour[currentShapeIndex]
+			local t = imageText[currentShapeIndex]
+			
+			if b ~= "-1" then buffer[currentIndex] = b end
+			if (t ~= " " or b ~= "-1") and tc ~= "-1" then textColour[currentIndex] = tc end
+			if t ~= " " or b ~= "-1" then text[currentIndex] = t end
 		end
 		
 		index = index + self.xSize
-		self.changed[xPos + y - 1] = true
+		shapeIndex = shapeIndex + xSize
 	end
 end
 
