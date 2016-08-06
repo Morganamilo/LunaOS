@@ -32,7 +32,7 @@ end
 function ScrollView:handleScroll(event, direction, xPos, yPos)
 	local bar
 	
-	if kernel.keyHandler.isKeyDown(42) then
+	if keyHandler.isKeyDown(42) then
 		bar = self.hBar
 	else
 		bar = self.vBar
@@ -181,7 +181,7 @@ function ScrollView:handleAny(...)
 			elseif event[1] == "mouse_scroll" then
 				local bar
 	
-				if kernel.keyHandler.isKeyDown(42) then
+				if keyHandler.isKeyDown(42) then
 					bar = self.hBar
 				else
 					bar = self.vBar
@@ -193,7 +193,7 @@ function ScrollView:handleAny(...)
 					self:requestFocus()
 				end
 			elseif event[1] ~= "mouse_up" then
-				self:requestFocus()
+				--self:requestFocus()
 			end
 		end
 	end

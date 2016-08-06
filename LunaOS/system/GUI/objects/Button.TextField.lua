@@ -72,7 +72,7 @@ function TextField:handleKey(event, key)
 			self:removeChar(self.cursorPos)
 		end
 		
-		if key == 30 and kernel.keyHandler.isKeyDown(29)  then--ctrl + a
+		if key == 30 and keyHandler.isKeyDown(29)  then--ctrl + a
 			self.startSelect = 1
 			self.endSelect = #self.text
 			
@@ -226,6 +226,7 @@ function TextField:draw(buffer)
 	else
 		if self.blinking then
 			term.setCursorBlink(false)
+			self.blinking = false
 		end
 		
 		if  #self.text == 0 and self.hint then

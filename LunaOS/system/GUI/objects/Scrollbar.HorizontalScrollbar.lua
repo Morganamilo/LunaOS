@@ -39,7 +39,7 @@ function HorizontalScrollbar:handleKey(event, key)
 end
 
 function HorizontalScrollbar:handleScroll(event, direction, xPos, yPos)
-	if self:isInBounds(xPos, yPos) and kernel.keyHandler.isKeyDown(42)  then
+	if self:isInBounds(xPos, yPos) and keyHandler.isKeyDown(42)  then
 		if direction < 0 and self.scrollLevel > 1 then
 			self:scrollUp()
 			self:requestFocus()
