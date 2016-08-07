@@ -15,7 +15,7 @@
 	[8192] = "d",
 	[16384] = "e",
 	[32768] = "f",
-	["-1"] = "-1"
+	["-"] = "-"
 }
 
  local colourConversions = {
@@ -35,7 +35,7 @@
 	["d"] = 8192,
 	["e"] = 16384,
 	["f"] = 32768,
-	["-1"] = "-1"
+	["-"] = "-"
 }
 
 blits = {
@@ -57,7 +57,7 @@ blits = {
 	green = "d",
 	red = "e",
 	black = "f",
-	transparent = "-1"
+	transparent = "-"
 }
 
 colours = {
@@ -79,7 +79,7 @@ colours = {
 	green = 8192,
 	red = 16384,
 	black = 32768,
-	transparent = "-1"
+	transparent = "-"
 }
 		
 		
@@ -102,7 +102,7 @@ local invertTable = {
 	[colours.green] = colours.purple,
 	[colours.red] = colours.cyan,
 	[colours.black] = colours,
-	["-1"] = "-1"
+	["-"] = "-"
 }
 
 local lighterTable = {
@@ -124,7 +124,7 @@ local lighterTable = {
 	[colours.green] = colours.lime,
 	[colours.red] = colours.orange,
 	[colours.black] = colours.gray,
-	["-1"] = "-1"
+	["-"] = "-"
 }
 
 local darkerTable = {
@@ -146,7 +146,7 @@ local darkerTable = {
 	[colours.green] = colours.gray,
 	[colours.red] = colours.brown,
 	[colours.black] = colours.black,
-	["-1"] = "-1"
+	["-"] = "-"
 }
 
 local highlightTable = {
@@ -167,7 +167,7 @@ local highlightTable = {
 	[colours.green] = colours.lime,
 	[colours.red] = colours.orange,
 	[colours.black] = colours.gray,
-	["-1"] = "-1"
+	["-"] = "-"
 }
 
 function colourToBlit(colour)

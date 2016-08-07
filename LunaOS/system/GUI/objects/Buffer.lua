@@ -207,9 +207,9 @@ function Buffer:drawBuffer(buffer, xPos, yPos, width, height)
 			local p = pixel[bufferPos]
 			local tc = textColour[bufferPos]
 		
-			if t ~= " "  or p ~= "-1" then selfText[selfBufferPos] =  t end
-			if p ~= "-1" then selfPixel[selfBufferPos] = p end
-			if  (t ~= " "  or p ~= "-1")  and tc ~= "-1" then selfTextColour[selfBufferPos] = tc end 
+			if t ~= " "  or p ~= "-" then selfText[selfBufferPos] =  t end
+			if p ~= "-" then selfPixel[selfBufferPos] = p end
+			if  (t ~= " "  or p ~= "-")  and tc ~= "-" then selfTextColour[selfBufferPos] = tc end 
 			
 			selfBufferPos = selfBufferPos + 1
 			bufferPos = bufferPos + 1
@@ -245,9 +245,9 @@ function Buffer:drawImage(xPos, yPos, image)
 			local tc = imageTextColour[currentShapeIndex]
 			local t = imageText[currentShapeIndex]
 			
-			if b ~= "-1" then buffer[currentIndex] = b end
-			if (t ~= " " or b ~= "-1") and tc ~= "-1" then textColour[currentIndex] = tc end
-			if t ~= " " or b ~= "-1" then text[currentIndex] = t end
+			if b ~= "-" then buffer[currentIndex] = b end
+			if (t ~= " " or b ~= "-") and tc ~= "-" then textColour[currentIndex] = tc end
+			if t ~= " " or b ~= "-" then text[currentIndex] = t end
 		end
 		
 		index = index + self.xSize
