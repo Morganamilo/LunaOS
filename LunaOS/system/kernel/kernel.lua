@@ -23,7 +23,7 @@ _private._runningPID = nil --pid of the currently running process
 _private._runningHistory = {}
 _private._waitingFor = {}
 --local keyHandlerPath = "/LunaOS/system/kernel/keyHandler.lua"
---keyHandler = os.loadAPILocal(keyHandlerPath)
+windowHandler = {} --os.loadAPILocal(keyHandlerPath)
 
 _private.programDataPath = lunaOS.getProp("dataPath")
 _private.programPath = lunaOS.getProp("programPath")
@@ -216,8 +216,9 @@ function _private.getYield(data)
 		
 		event = {coroutine.yield()} --the event we get + extra data
 		
-		success = pcall(keyHandler.handleKeyEvent, event)
-		if not success then _private.cirticalError(event) end
+		success, e = pcall(keyHandler.handleKeyEvent, event)
+		
+		if not success then _private.cirticalError(e) end
 		
 		success, event = pcall(windowHandler.handleEvent, event)
 		if not success then _private.cirticalError(event) end
@@ -407,7 +408,7 @@ function killProcess(PID)
 	_private.killProcessInternal(PID)
 end
 
-function startProcesses(PID)
+function startProcessess(PID)
 	errorUtils.expect(PID, 'number', true, 2)
 	errorUtils.assert(_private._processes[PID], "Error: PID " .. PID .. " is invalid or does not exist", 2)
 	errorUtils.assert(not _private._runningPID, "Error: kernel already running", 2)
@@ -439,8 +440,11 @@ function startProcesses(PID)
 	--os.shutdown()
 end
 
-  
- 
+ function startProcesses(PID)
+	a,b = pcall(startProcessess, PID)
+	print(b)
+	sleep(10)
+end
 ----------------------------------------------------------------------------------------------------------------
 --Window Handler
 ----------------------------------------------------------------------------------------------------------------

@@ -18,6 +18,7 @@ log.i("------- Finished loading utils -------")
 os.loadAPI("/LunaOS/system/APIs/lunaOS.lua")
 os.loadAPI("/LunaOS/system/APIs/time.lua")
 os.loadAPI("/LunaOS/system/APIs/sha256.lua")
+os.loadAPI("/LunaOS/system/APIs/keyHandler.lua")
 os.loadAPI("/LunaOS/system/kernel/kernel.lua")
 
 
@@ -28,7 +29,7 @@ os.initAPIs()
 
 log.i("------- Finished loading APIs -------")
 
-kernel.setWindowHandler(os.loadAPILocal("/LunaOS/system/kernel/windowHandler.lua"))
+--kernel.setWindowHandler(os.loadAPILocal("/LunaOS/system/kernel/windowHandler.lua"))
 
 function T()
 	print(mathUtils.time(function() f:draw() end, 60))
