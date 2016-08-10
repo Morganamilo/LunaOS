@@ -13,7 +13,7 @@ local function initFile()
 end
 
 local function writeToDB()
-	if not useServer then return end
+	--if not useServer then return end
 	local sql = "p=LunaOS&sql=INSERT%20INTO%20Logs%20(Time,Type,message)%20VALUES%20"
 	local file = fs.open(logPath,"r")
 	if not file then return end
@@ -34,6 +34,8 @@ local function writeToDB()
 	end
 	
 	sql = sql:sub(1,-2)
+	
+	http.post("http://lunadb.ddns.net/", sql)
 	
 end
 

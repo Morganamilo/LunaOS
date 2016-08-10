@@ -10,7 +10,7 @@ local function initTime()
 		return 0 --if we cant get the real time just use 0
 	end
 	
-	local returnedTime = data.readLine()
+	local returnedTime = request.readLine()
 	returnedTime = tonumber(returnedTime)
 	
 	if not returnedTime then
@@ -18,7 +18,7 @@ local function initTime()
 		return 0
 	end
 	
-	isRealTime = true
+	realTime = true
 	
 	return returnedTime - math.floor(os.clock()) --for this to properly return the time at boot we must take away the system up time
 end
@@ -64,7 +64,7 @@ function timef(s, t)
 	
 	day = tmpDays - monthsInDays[month]
 
-	s=s:gsub("\00", " ") --this is all i could think of to escape %%4
+	s=s:gsub("\00", " ") --this is all i could think of to escape %%
 	s=s:gsub("(%%%%)", "\00")
 	
 	local characterClasses = {
@@ -95,28 +95,7 @@ function timef(s, t)
 	s=s:gsub("\00", "%%")
 	
 	
-	--[[s=s:gsub("\00", " ") --this is all i could think of to escape %%4
-	s=s:gsub("(%%%%)", "\00")
-	s=s:gsub("%%c", "%%x, %%X")
-	s=s:gsub("%%x", "%%d/%%m/%%Y")
-	s=s:gsub("%%X", "%%I:%%M:%%S %%p")
-	s=s:gsub("%%Y", tostring(year))
-	s=s:gsub("%%y", tostring(year):sub(3))
-	s=s:gsub("%%B", tostring(monthNames[month]))
-	s=s:gsub("%%b", tostring(monthNames[month]):sub(1,3))
-	s=s:gsub("%%w", tostring(weekday))
-	s=s:gsub("%%A", tostring(weekNames[weekday]))
-	s=s:gsub("%%a", tostring(weekNames[weekday]):sub(1,3))
-	s=s:gsub("%%d", string.format("%02d", day))
-	s=s:gsub("%%H", string.format("%02d", hours))
-	s=s:gsub("%%I", string.format("%02d", hours % 12))
-	s=s:gsub("%%M", string.format("%02d", minutes))
-	s=s:gsub("%%m", string.format("%02d", month))
-	s=s:gsub("%%S", string.format("%02d", seconds))
-	s=s:gsub("%%p", hours <= 12 and "AM" or "PM")
-	s=s:gsub("\00", "%%")]]
 	
-	--s=s:gsub("[^%%](%%Y)", tostring(year))
 	
 	return s 
 end
