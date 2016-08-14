@@ -40,7 +40,8 @@ function timef(s, t)
 	local function isLeap(year)
 		return year % 4 == 0 and (year % 100 ~= 0 or year % 400 == 0)
 	end
-		local year = 1970
+	
+	local year = 1970
 	local tmpDays = mathUtils.div(t, 86400) + 1
 	local month = 12
 	local monthsInDays
@@ -49,7 +50,7 @@ function timef(s, t)
 	local seconds = t % 60 
 	local minutes = mathUtils.div(t, 60) % 60
 	local hours = mathUtils.div(t, 60*60) % 24
-	local weekday = ((mathUtils.div(t, 86400) - 4 ) % 7) + 1
+	local weekday = ((mathUtils.div(t, 86400) - 3 ) % 7) + 1
 	
 	while tmpDays >= 365 do
 		year = year + 1
@@ -93,9 +94,6 @@ function timef(s, t)
 	end
 	
 	s=s:gsub("\00", "%%")
-	
-	
-	
 	
 	return s 
 end
