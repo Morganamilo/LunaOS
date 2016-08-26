@@ -50,7 +50,7 @@ function _private.getEnv(SU)
 	return env
 end
 
-function _private.newProcessInternal(func, parent, name, desc, SU, dir)
+function _private.newProcessInternal(func, parent, name, desc, SU, package)
 	errorUtils.expect(func, 'function', true, 3)
 	errorUtils.expect(parent, 'number', false, 3)
 	errorUtils.expect(name, 'string', false, 3)
@@ -67,17 +67,19 @@ function _private.newProcessInternal(func, parent, name, desc, SU, dir)
 	end
 		
 	local wrappedFunc = function()
-		func() 
-		local success, res = pcall(windowHandler.handleFinish, PID) 
+		local success, res = pcall(func) 
+		
 		if not success then
-			_private.cirticalError(res)
-		end 
+			windowHandler.handleError(_private._processes[_private._runningPID], res)
+		else
+			windowHandler.handleFinish()
+		end
 	end
 	
 	local co = coroutine.create(wrappedFunc)
 	local window = windowHandler.newWindow(PID)
 	
-	_private._processes[PID] = {co = co, parent = parent, children = {}, name = name, desc = desc, PID = PID, SU = SU, dir = dir, window = window}
+	_private._processes[PID] = {co = co, parent = parent, children = {}, name = name, desc = desc, PID = PID, SU = SU, package = package, window = window}
 	log.i("Created new " .. (SU and "Root" or "User") .. " process with PID " .. PID)
 	return PID
 end
@@ -85,10 +87,10 @@ end
 function _private.runProgramInternal(program, parent, su, args)
 	errorUtils.expect(program, 'string', true, 3)
 	
-	local root = fs.combine(_private.programPath, program)
+	local root = packageHandler.getPackagePath(program)
 	local name
 	
-	errorUtils.assert(fs.isDir(root), "Error: Program does not exist", 2)
+	errorUtils.assert(root, "Error: Program does not exist", 2)
 	
 	fs.isFile = fs.exists
 	
@@ -118,7 +120,7 @@ function _private.runProgramInternal(program, parent, su, args)
 		program,
 		desc,
 		su,
-		root
+		program
 	)
 end
 
@@ -185,14 +187,6 @@ function _private.next(data)
 	
 	success, data = _private.resume(currentProc.co, data)
 	
-	if not success then --handle error
-		local success, res = pcall(windowHandler.handleError, currentProc, data[1])
-		if not success then _private.cirticalError(res) end
-		
-		data = {}
-	end
-	
-	
 	if coroutine.status(currentProc.co) == 'dead' then --handle death
 		_private.killProcessInternal(currentProc.PID)
 		data = {}
@@ -217,12 +211,8 @@ function _private.getYield(data)
 		
 		event = {coroutine.yield()} --the event we get + extra data
 		
-		success, e = pcall(keyHandler.handleKeyEvent, event)
-		
-		if not success then _private.cirticalError(e) end
-		
-		success, event = pcall(windowHandler.handleEvent, event)
-		if not success then _private.cirticalError(event) end
+		keyHandler.handleKeyEvent(event)
+		windowHandler.handleEvent(event)
 		
 	until tableUtils.indexOf(data, event[1]) or #data == 0 and #event ~= 0 or event[1] == 'terminate'
 	
@@ -339,19 +329,18 @@ function getRunning()
 	return _private._runningPID
 end
 
-function getRunningProgramPath()
+function getCurrentPackage()
 	if _private._runningPID then
-		return _private._processes[_private._runningPID].dir
+		return _private._processes[_private._runningPID].package
 	end
 end
 
-function getRunningProgram()
-	local path = getRunningProgramPath()
-	
-	if path then
-		return fs.getName(path)
+function getCurrentDataPath()
+	if getCurrentPackage() then
+		return fs.combine(packageHandler.getDataPath(), getCurrentPackage())
 	end
 end
+
 
 function isSU()
 	if not _private._runningPID then return true end --if the kernel is not in use give root
@@ -403,13 +392,13 @@ end
 
 function killProcess(PID)
 	errorUtils.expect(PID, 'number', true, 2)
-	errorUtils.assertLog(isSU() or not _private._processes[PID].SU, "Error: process with PID " .. (_private._runningPID or "") .. " tried to kill root proccess", 2, nil, "Warning")
+	errorUtils.assertLog(isSU() or not _private._processes[PID].SU, "Error: process with PID " .. (_private._runningPID or "") .. " tried to kill root process", 2, nil, "Warning")
 	errorUtils.assert(_private._processes[PID], "Error: PID " .. PID .. " is invalid or does not exist", 2)
 	
 	_private.killProcessInternal(PID)
 end
 
-function startProcessess(PID)
+function startProcesses(PID)
 	errorUtils.expect(PID, 'number', true, 2)
 	errorUtils.assert(_private._processes[PID], "Error: PID " .. PID .. " is invalid or does not exist", 2)
 	errorUtils.assert(not _private._runningPID, "Error: kernel already running", 2)
@@ -418,13 +407,9 @@ function startProcessess(PID)
 	
 	gotoPID(PID)
 	
-	local success, res = pcall(windowHandler.init)
-	if not success then _private.cirticalError(res) end
+	windowHandler.init()
 	
 	local data = {} --the events we are listening for
-	
-	term.native = term.current
-	
 	
 	while _private._runningPID do
 		data = _private.next(data)
@@ -437,12 +422,6 @@ function startProcessess(PID)
 	term.clear()
 	term.setCursorPos(1,1)
 	
-	print("Craft OS")
-	--os.shutdown()
-end
-
- function startProcesses(PID)
-	a,b = pcall(startProcessess, PID)
-	print(b)
-	sleep(10)
+	--print("Craft OS")
+	os.shutdown()
 end

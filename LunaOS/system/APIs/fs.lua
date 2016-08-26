@@ -126,8 +126,8 @@ function hasReadPerm(path)
 	if kernel.isSU() then return true end
 	errorUtils.expect(path, "string", true, 2)
 	
-	local program = kernel.getRunningProgram()
-	if program and isSubdirOf(combine(dataPath, program), path) then 
+	local dataPath = kernel.getCurrentDataPath()
+	if dataPath and isSubdirOf(dataPath, path) then 
 		return true
 	end
 	
@@ -139,8 +139,8 @@ function hasReadPermTree(path)
 	errorUtils.expect(path, "string", true, 2)
 	if kernel.isSU() then return true end
 	
-	local program = kernel.getRunningProgram()
-	if program and isSubdirOf(combine(kernel.getProgramDataPath(), program), path) then 
+	local dataPath = kernel.getCurrentDataPath()
+	if dataPath and isSubdirOf(dataPath, path) then 
 		return true
 	end
 	
@@ -153,8 +153,8 @@ function hasWritePerm(path)
 	errorUtils.expect(path, "string", true, 2)
 	if kernel.isSU() and not oldFs.isReadOnly(path) then return true end
 	
-	local program = kernel.getRunningProgram()
-	if program and isSubdirOf(combine(dataPath, program), path) then 
+	local dataPath = kernel.getCurrentDataPath()
+	if dataPath and isSubdirOf(dataPath, path) then 
 		return true
 	end
 	

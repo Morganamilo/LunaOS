@@ -9,126 +9,130 @@
 local xSize, ySize = term.getSize()
 local native = term.native()
 local windowOrder = {}
-local extended = false
 local kernel
+local hidden = false
+
+local downArrow = string.char(31)
+local upArrow = string.char(30)
+local x = string.char(215) .. ' '
 
 local banner = window.create(native, 1, 1, xSize, 1, false)
 local workingArea = window.create(native, 1,2, xSize, ySize - 1, false)
 
+local buffer = GUI.Buffer(banner, 1, 1, xSize, 1)
+
+local backgroundColour = colourUtils.blits.grey
+local textColour = colourUtils.blits.cyan
+local xColour = colourUtils.blits.grey
+local selectedColour = colourUtils.blits.blue
+
+local errorBackgroundColour = colours.grey
+local errorTextColour = colours.lightGrey
+local errorValuesColour = colours.cyan
+
 function setPrivate(p)
-	kernel = setmetatable({}, {__index = function(t, k)
-		if p[k] ~= nil then return p[k]
-		else return _G.kernel[k] end
-	end
-	})
+	local metaFunction =  function(t, k) if p[k] ~= nil then return p[k] else return _G.kernel[k] end end
+	
+	kernel = setmetatable({}, {__index = metaFunction})
 end
 
-local function reposAll(newH)
-	banner.reposition(1, 1, xSize, newH)
+local function getLabelAt(xPos, yPos)
+	local pos = 0
 	
-	for k, v in pairs(kernel._processes) do
-		v.window.reposition(1, newH)
-	end
-end
-
-local function getLabelAt(Xpos, Ypos)
-	local length = 0
-	
-	for k,v in ipairs(windowOrder) do
-		local parent = kernel._processes[v].parent
-	
+	for _, PID in ipairs(windowOrder) do
+		local proc = kernel._processes[PID]
 		
-		if (not parent and Ypos == 1) or ((parent == kernel._runningPID or parent == kernel._processes[kernel._runningPID].parent and parent) and Ypos == 2)  then
-		local start = length
-		length = length + #kernel._processes[v].name + 2
-		if kernel._runningPID == v then length = length + 2 end
-		if Xpos > start and Xpos <= length  then return v, Xpos - start - 1 end
-		end
-	end
-end
-
-local function writeProcess(PID)
-	if PID == kernel._runningPID then
-		banner.setBackgroundColor(colors.gray)
-		banner.setTextColor(colors. red)
-		banner.write(' ' .. string.char(215)) --X
+		pos = pos + #proc.name + 2
 		
-		if table.getn(kernel._processes[PID].children) > 0 then
-			banner.write(string.char(extended and 30 or 31)) --down arrow
-		else
-			banner.write(' ')
+		if kernel._runningPID == PID then
+			pos = pos + 2
 		end
 		
-		banner.setTextColor(colors. blue)
-	else
-		banner.setBackgroundColor(colors.cyan)
-		banner.write(' ')
-		banner.setTextColor(colors. yellow)
-	end
-
-	banner.write( kernel._processes[PID].name .. ' ' )
-	banner.setBackgroundColor(colors.cyan)
-end
-
-local function writeProcesses()
-	banner.setCursorPos(1,1)
-	banner.setBackgroundColor(colors.cyan)
-	banner.clear()
-	
-	for k,v in ipairs(windowOrder) do
-		if kernel._processes[v] and not kernel._processes[v].parent then
-			-- banner.setTextColor(colors. white)
-			-- banner.write(string.char(215) .. " ")
-			-- banner.write(kernel._processes[v].name) --32 215
-			-- banner.setTextColor(colors. red)
-			-- if table.getn(kernel._processes[v].children)  > 0 then banner.write(string.char(31)) end
-			writeProcess(v)
-			
+		if xPos == pos - 1 and kernel._runningPID == PID then
+			return -1
+		end
+		
+		if xPos <= pos then
+			return PID
 		end
 	end
 end
 
 local function updateBanner()
-	writeProcesses()
-	
-	if extended then
-		banner.setCursorPos(1, 2)
+		local pos = 1
+		buffer:clear(backgroundColour)
 		
-		for k,v in pairs(windowOrder) do	
-				if kernel._processes[v].parent == kernel._runningPID or (kernel._processes[kernel._runningPID].parent and kernel._processes[v].parent == kernel._processes[kernel._runningPID].parent) then
-					writeProcess(k)
+		for _, PID in ipairs(windowOrder) do
+				local proc = kernel._processes[PID]
+				local padding = 2
+				local colour
+				
+				if kernel._runningPID == PID then
+					padding = padding + 1
+					colour = selectedColour
 				end
-		end
+			
+				buffer:writeStr(pos, 1, ' ' .. proc.name .. ' ', textColour, colour)
+				
+				pos = pos + #proc.name + 2
+				
+				if kernel._runningPID == PID then
+					buffer:writeStr(pos, 1, x, xColour, colour)
+					pos = pos + 2
+				end
+			end
+	
+	buffer:writeStr(buffer.xSize, 1, upArrow, textColour, backgroundColour)
+	
+	if not hidden then
+		buffer:draw()
 	end
 	
 	term.current().restoreCursor()
 end
 
-local function handleBannerEvent(event)
-	local proc, pos = getLabelAt(event[3], event[4])
-	if proc and event[1] == 'mouse_click' then
-		if proc == kernel._runningPID then
-			if pos == 1 then
-				kernel.killProcessInternal(kernel._runningPID)
-			elseif pos == 2 and table.getn(kernel._processes[kernel._runningPID].children) > 0 then
-				extended = not extended
-				reposAll(extended and 2 or 1)
-			end
-		else
-				if event[2] == 1 then
-					if (not kernel._processes[kernel._runningPID].parent and not kernel._processes[proc].parent) or ( kernel._processes[proc].parent ~= kernel._runningPID and kernel._processes[kernel._runningPID].parent ~= proc and kernel._processes[proc].parent ~= kernel._processes[kernel._runningPID].parent) then
-						extended = false
-						reposAll(1)
-					end
-					
-					kernel.gotoPID(proc)
-					
-				else
-					kernel.killProcessInternal(proc)
-				end
-		end
+local function setHidden(state)
+	local newPos = 2
+	local newSize = ySize - 1
+	
+	if state then
+		newPos = 1
+		newSize = ySize
 	end
 	
+	workingArea.reposition(1, newPos, xSize, newSize)
+	
+	for k, v in pairs(kernel._processes) do
+		local x, y = v.window.getCursorPos()
+		
+		if y > newSize then
+			v.window.scroll(1)
+			v.window.setCursorPos(x, newSize)
+		end
+		
+		v.window.reposition(1, 1, xSize, newSize)
+	end
+	
+	banner.setVisible(not state)
+	
+	hidden = state
+end
+
+local function handleBannerEvent(event)
+	if event[3] == buffer.xSize and event[1] == "mouse_click" then
+		setHidden(not hidden)
+		return
+	end
+
+	local proc = getLabelAt(event[3], event[4])
+	
+		if proc == -1 and event[1] == 'mouse_click' then
+			kernel.killProcessInternal(kernel._runningPID)
+		elseif proc and event[1] == 'mouse_click' and event[2] == 1 then
+			kernel.gotoPID(proc)
+		elseif proc and event[1] == 'mouse_click' and event[2] == 2 then
+			kernel.killProcessInternal(proc)
+		end
 	
 	updateBanner()
 end
@@ -137,9 +141,8 @@ function init()
 	banner.setVisible(true)
 	workingArea.setVisible(true)
 	updateBanner()
+	setHidden(true)
 end
-
---init()
 
 function newWindow(PID)
 	updateBanner()
@@ -161,17 +164,16 @@ function gotoWindow(oldWin, newWin)
 		newWin.redraw()
 end
 
-function handleEvent(event)
-	bannerX, bannerY = banner.getSize()
-	
-	
+function handleEvent(event)	
 	if event[1] == "mouse_click" or
 	   event[1] == "mouse_up" or
 	   event[1] == "mouse_scroll" or
 	   event[1] == "mouse_drag" then
-		if event[4] > bannerY then
-			
-			event[4] = event[4] - bannerY 
+		
+		if event[4] > 1 and not hidden then	
+			event[4] = event[4] - 1
+			return event
+		elseif hidden and event[3] ~= buffer.xSize then
 			return event
 		else
 			handleBannerEvent(event)
@@ -184,25 +186,46 @@ function handleEvent(event)
 end
 
 function handleError(proc, data)
-	--log.e("Process " .. proc.name .. " (" ..  proc.PID .. ") has crashed: " .. data)
+	data = data or ""
+	
+	log.e("Process " .. proc.name .. " (" ..  proc.PID .. ") has crashed: " .. data)
 	
 	if data == 'Terminated' then return end
 	
-	term.redirect(proc.window)
-	term.setTextColor(colors.red)
-	term.setBackgroundColor(4)
-	term.clear()
-	term.setCursorPos(1,1)
-
-	print("Error: process Has crashed")
-	print("\tPID: ".. proc.PID)
-	print("\tName: ".. proc.name)
-	print("\tReason: ".. (data or ''))
-	print("Returning to processes\n") --coroutine.yield("terminate")
-	print("Press any key to continue") --kernel.runProgram("lunashell")
-	print(math.random(1000))
+	local x, y = term.getSize()
+	local lines = {}
+	local errorLines = textUtils.wrap(data, 40,5)
 	
-	coroutine.yield("key")--]] --kernel.gotoPID(kernel.newProcess(function() f() end))
+	 lines[#lines + 1] = "This process Has crashed"
+	 lines[#lines + 1] = "The process " .. proc.name .. " with PID: " .. proc.PID
+	 lines[#lines + 1] = "has encountered an error and needs to close"
+	 lines[#lines + 1] = ""
+	 
+	 lines = tableUtils.combine(lines, errorLines)
+	 
+	 lines[#lines + 1] = ""
+	 lines[#lines + 1] = "Press any key to continue"
+	
+	term.redirect(proc.window)
+	term.setBackgroundColor(errorBackgroundColour)
+	term.clear()
+	
+	for n, line in pairs(lines) do
+		local lineLength = #line --+ #values[n]
+		local cursorXPos = math.floor(x/2) - math.floor((lineLength)/2)
+		local cursorYPos = math.floor(y/2) - math.floor(#lines/2) + n - 1
+		term.setCursorPos(cursorXPos, cursorYPos)
+		
+		if n >= 5 and lines[n + 2]  then
+			term.setTextColor(errorValuesColour)
+		else
+			term.setTextColor(errorTextColour)
+		end
+		
+		term.write(lines[n])
+	end
+	
+	coroutine.yield("key")
 end
 
 function handleDeath(PID)
@@ -214,9 +237,12 @@ function handleFinish()
 	local x, y = term.getSize()
 	local currentX, currentY = term.getCursorPos()
 	
+	term.setBackgroundColor(errorBackgroundColour)
+	term.setTextColor(errorValuesColour)
+	
 	if currentY == y then term.scroll(1) end
 	term.setCursorPos(1, y)
-	term.write("This process has finished. Press any key to Close")
+	term.write("This process has finished, press any key to close.")
 	coroutine.yield("key")
 end
 
