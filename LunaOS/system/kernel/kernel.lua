@@ -122,6 +122,8 @@ function _private.runProgramInternal(program, parent, su, args)
 		su,
 		program
 	)
+	
+	return PID
 end
 
 function _private.killProcessInternal(PID)
@@ -294,7 +296,7 @@ end
 
 function runRootProgram(program, parent, ...)
 	errorUtils.assertLog(isSU(), "Error: process with PID " .. (_private._runningPID or "") .. " tried to start a new program as root: Access denied", 2, nil, "Warning")
-	_private.runProgramInternal(program, parent, true, arg)
+	return _private.runProgramInternal(program, parent, true, arg)
 end
 
 --ruturns a copy of all processes excluding the thread
