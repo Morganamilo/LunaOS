@@ -16,6 +16,10 @@ function TextField:init(xPos, yPos, width, text)
 	self:addEventListener("mouse_drag", self.handleDrag)
 end
 
+function TextField:setSize(width)
+	self.super:setSize(width, 1)
+end
+
 function TextField:handleDown(event, mouse, xPos, yPos)
 	if self:isInBounds(xPos, yPos) then
 		local point = self:getPoint(xPos)
@@ -68,6 +72,12 @@ function TextField:handleKey(event, key)
 			self:removeChar()
 		end
 		
+		if key == 28 then --enter
+			if self.onEnter then
+				self:onEnter()
+			end
+		end
+		
 		if key == 211 then --del
 			self:removeChar(self.cursorPos)
 		end
@@ -79,6 +89,13 @@ function TextField:handleKey(event, key)
 			self:goToStart()
 		end
 	end
+end
+
+function TextField:setText(text)
+	self.super:setText(text)
+	
+	self:goToEnd()
+	self:unSelect()
 end
 
 function TextField:handleChar(event, chr)
@@ -213,7 +230,7 @@ function TextField:draw(buffer)
 	local trimedText
 	local textColour = self.textColour
 	
-	if self.mask and #self.mask > 1  then
+	if self.mask and #self.mask > 0  then
 		trimedText = self.mask:rep(#self.text):sub(1, #self.text):sub(self.scrollPos, self.scrollPos + self.width - 1)
 	else
 		trimedText = self.text:sub(self.scrollPos, self.scrollPos + self.width - 1)
