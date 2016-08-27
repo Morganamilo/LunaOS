@@ -301,6 +301,7 @@ function listAllSubFiles(path, includePath)
 	errorUtils.assert(hasReadPerm(path), "Error: permission denied", 2)
 	errorUtils.assert(oldFs.isDir(path), "Error: Not a directory", 2)
 	
+	path = combine(path)
 	includePath = includePath or 0
 	
 	local files = {}
@@ -322,6 +323,7 @@ function listAllSubDirs(path, includePath)
 	errorUtils.assert(hasReadPerm(path), "Error: permission denied", 2)
 	errorUtils.assert(oldFs.isDir(path), "Error: Not a directory", 2)
 	
+	path = combine(path)
 	includePath = includePath or 2
 	
 	local dirs = {}
