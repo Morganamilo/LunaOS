@@ -15,7 +15,11 @@ os.initAPIs()
 
 log.i("------- Finished loading utils -------")
 
+os.loadAPI("/LunaOS/system/GUI/GUI.lua")
+os.initAPIs()
+
 os.loadAPI("/LunaOS/system/APIs/lunaOS.lua")
+os.loadAPI("/LunaOS/system/APIs/packageHandler.lua")
 os.loadAPI("/LunaOS/system/APIs/time.lua")
 os.loadAPI("/LunaOS/system/APIs/sha256.lua")
 os.loadAPI("/LunaOS/system/APIs/keyHandler.lua")
@@ -23,7 +27,6 @@ os.loadAPI("/LunaOS/system/kernel/kernel.lua")
 
 
 os.loadAPI("/LunaOS/system/APIs/fs.lua")
-os.loadAPI("/LunaOS/system/GUI/GUI.lua")
 os.initAPIs()
 
 
@@ -253,12 +256,13 @@ end
 
 local pid = kernel.runRootFile("rom/programs/shell")
 
+kernel.runProgram("keygaurd")
 kernel.runRootFile("rom/programs/lua")
 kernel.newProcess(function() t(true) end , nil, "GUI")
 kernel.newProcess(function() t()  end , nil, "GUI Shell")
 kernel.runFile("rom/programs/shell")
 kernel.runProgram("EventPrinter")
-kernel.newProcess(f1, nil, "a")
+kernel.newProcess(function() error("ooppps") end , nil, "a")
 kernel.newProcess(f1, nil, "b")
 kernel.runProgram("LunaShell", 2)
 kernel.runProgram("LunaShell", 2)

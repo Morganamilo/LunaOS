@@ -23,6 +23,12 @@ function getPackagePath(packageName)
 	end
 end
 
+function getPackageDataPath(packageName)
+	if tableUtils.indexOf(list(programDataPath), packageName) then
+		return fs.combine(programDataPath, packageName)
+	end
+end
+
 function installPackage(dir)
 	errorUtils.assert(kernel.isSU(), "Error: permission denied", 2)
 	errorUtils.assert(fs.exists(dir), "Error: Package does not exist", 2)

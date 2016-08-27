@@ -1,3 +1,7 @@
+--text
+--textColour
+--pixelColour
+
 local hexToNum = {["-"] = 255, ["0"] = 0, ["1"] = 1, ["2"] = 2, ["3"] = 3, ["4"] = 4, ["5"] = 5, ["6"] = 6, ["7"] = 7, ["8"] = 8, ["9"] = 9, ["a"] = 10, ["b"] = 11, ["c"] = 12, ["d"] = 13, ["e"] = 14, ["f"] = 15}
 local numToHex = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"}
 numToHex[0] = "0"
@@ -40,8 +44,18 @@ function decodeImage(image)
 end
 
 function decodeFile(path)
-	local file = fs.open(path, "r")
-	local image = file.readAll()
+	local file = fs.open(path, "rb")
+	local image = ""
+	
+	while true do
+		local char = file.read()
+		
+		if not char then
+			break
+		end
+		
+		image = image .. string.char(char)
+	end
 	file.close()
 	
 	return decodeImage(image)

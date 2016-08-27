@@ -335,6 +335,12 @@ function getCurrentPackage()
 	end
 end
 
+function getCurrentPackagePath()
+	if _private._runningPID then
+		return packageHandler.getPackagePath(_private._processes[_private._runningPID].package)
+	end
+end
+
 function getCurrentDataPath()
 	if getCurrentPackage() then
 		return fs.combine(packageHandler.getDataPath(), getCurrentPackage())
