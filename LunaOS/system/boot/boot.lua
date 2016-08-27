@@ -19,6 +19,7 @@ os.loadAPI("/LunaOS/system/GUI/GUI.lua")
 os.initAPIs()
 
 os.loadAPI("/LunaOS/system/APIs/lunaOS.lua")
+os.loadAPI("/LunaOS/system/APIs/password.lua")
 os.loadAPI("/LunaOS/system/APIs/packageHandler.lua")
 os.loadAPI("/LunaOS/system/APIs/time.lua")
 os.loadAPI("/LunaOS/system/APIs/sha256.lua")
