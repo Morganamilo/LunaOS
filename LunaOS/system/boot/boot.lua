@@ -256,7 +256,7 @@ end
 
 local pid = kernel.runRootFile("rom/programs/shell")
 
-kernel.runProgram("keygaurd")
+kernel.runRootProgram("keygaurd")
 kernel.runRootFile("rom/programs/lua")
 kernel.newProcess(function() t(true) end , nil, "GUI")
 kernel.newProcess(function() t()  end , nil, "GUI Shell")
