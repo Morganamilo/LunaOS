@@ -29,9 +29,11 @@ local function loadDir(dir)
 	repeat
 		local allLoaded = true
 		
-		for _, file in pairs(fs.listFiles(dir)) do
-			local l = loadObject(file, dir) 
-			allLoaded = l and allLoaded
+		for _, file in pairs(fs.list(dir)) do
+			if not fs.isDir(file) then
+				local l = loadObject(file, dir) 
+				allLoaded = l and allLoaded
+			end
 		end
 	until allLoaded
 end
