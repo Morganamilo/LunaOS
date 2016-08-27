@@ -154,7 +154,7 @@ function TextField:addChar(chr)
 	local leftPart = self.text:sub(1, self.cursorPos - 1)
 	local rightPart = self.text:sub(self.cursorPos)
 	
-	self:setText(leftPart .. chr .. rightPart)
+	self.text = leftPart .. chr .. rightPart
 	self:moveCursorRight(#chr)
 end
 
@@ -173,7 +173,7 @@ function TextField:removeChar(pos, amount)
 	local rightPart = self.text:sub(pos + amount)
 	
 	
-	self:setText(leftPart .. rightPart)
+	self.text = leftPart .. rightPart
 	self:moveCursorLeft(amount)
 	
 	if self.cursorPos == #self.text + 1 and self.scrollPos == #self.text - self.width + 3  then 
@@ -185,7 +185,7 @@ function TextField:removeSelected()
 	local startSelect, endSelect = self:getSelectedPos()
 			
 	if startSelect then
-		self. text = self.text:sub(1, startSelect - 1) .. self.text:sub(endSelect + 1)
+		self.text = self.text:sub(1, startSelect - 1) .. self.text:sub(endSelect + 1)
 		self.cursorPos = startSelect
 		self:unSelect()
 	end
