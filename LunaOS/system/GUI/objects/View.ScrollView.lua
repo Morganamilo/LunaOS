@@ -17,7 +17,7 @@ function ScrollView:init(xPos, yPos, width, height, virtualwidth, virtualheight)
 	self:setSubComponentSize()
 	self:setSubComponentSteps()
 	
-	self:addEventListener("", self. handleAny)
+	self:addEventListener("", self.handleAny)
 	
 	self.vBar:setParentPane(self)
 	self.hBar:setParentPane(self)
@@ -144,8 +144,11 @@ end
 function ScrollView:setSize(width, height)
 	self.width = width
 	self.height = height
-	self.buffer:resize(self.virtualwidth, self.virtualheight, self.backgroundColour)
+	--self.buffer:resize(self.virtualwidth, self.virtualheight, self.backgroundColour)
+	
+	self:setSubComponentPos()
 	self:setSubComponentSize()
+	self:setSubComponentSteps()
 end
 
 function ScrollView:setVirtualSize(width, height)
