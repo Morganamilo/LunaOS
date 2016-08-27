@@ -58,7 +58,7 @@ local function getLabelAt(xPos, yPos)
 	end
 end
 
-local function updateBanner()
+function updateBanner()
 		local pos = 1
 		buffer:clear(backgroundColour)
 		
@@ -91,7 +91,9 @@ local function updateBanner()
 	term.current().restoreCursor()
 end
 
-local function setHidden(state)
+function setHidden(state)
+	if lunaOS.isLocked() then return end
+	
 	local newPos = 2
 	local newSize = ySize - 1
 	
@@ -117,6 +119,8 @@ local function setHidden(state)
 	
 	workingArea.setVisible(true)
 	hidden = state
+	
+	updateBanner()
 end
 
 local function handleBannerEvent(event)
@@ -156,11 +160,6 @@ function gotoWindow(oldWin, newWin)
 	if oldWin then oldWin.setVisible(false) end
 		newWin.setVisible(true)
 		term.redirect(newWin)
-		if kernel._processes[kernel._runningPID].parent then
-			extended = true
-			reposAll(2)
-		end
-		
 		updateBanner()
 		newWin.redraw()
 end
@@ -181,6 +180,10 @@ function handleEvent(event)
 			updateBanner()
 			return {}
 		end
+	end
+	
+	if event[1] == "term_resize" then
+		updateBanner()
 	end
 	
 	return event

@@ -81,6 +81,8 @@ function _private.newProcessInternal(func, parent, name, desc, SU, package)
 	
 	_private._processes[PID] = {co = co, parent = parent, children = {}, name = name, desc = desc, PID = PID, SU = SU, package = package, window = window}
 	log.i("Created new " .. (SU and "Root" or "User") .. " process with PID " .. PID)
+
+	windowHandler.updateBanner()
 	return PID
 end
 
@@ -173,7 +175,6 @@ function _private.killProcessInternal(PID)
 	end
 end
 
-
 function _private.resume(co, data)	
 	data = { coroutine.resume(co, unpack(data)) }
 	local success = table.remove(data, 1)
@@ -225,6 +226,10 @@ end
 --Public
 ----------------------------------------------------------------------------------------------------------------
 
+function setBarVisable(visable)
+	windowHandler.setHidden(not visable)
+end
+
 --pauses the current process and starts/resumes the specifid process
 function gotoPID(PID, ...)
 	errorUtils.expect(PID, 'number', true, 2)
@@ -246,6 +251,10 @@ function gotoPID(PID, ...)
 	
 	os.queueEvent('goto', unpack(arg))
 	return coroutine.yield("goto")
+end
+
+function die()
+	_private.killProcessInternal(_private._runningPID)
 end
 
 function getProgramDataPath()

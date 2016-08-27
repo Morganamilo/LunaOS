@@ -1,12 +1,8 @@
 dofile("/LunaOS/system/APIs/override.lua")
 dofile("/LunaOS/system/APIs/log.lua")
 dofile("/LunaOS/system/APIs/multishell.lua")
-
- --		 mathUtils.time(function() f:draw() end, 60)
-  
   
 os.loadAPI("/LunaOS/system/APIs/object.lua")
-
 os.loadAPIDir("LunaOS/system/utils/")
 
 log.init()
@@ -25,16 +21,13 @@ os.loadAPI("/LunaOS/system/APIs/time.lua")
 os.loadAPI("/LunaOS/system/APIs/sha256.lua")
 os.loadAPI("/LunaOS/system/APIs/keyHandler.lua")
 os.loadAPI("/LunaOS/system/kernel/kernel.lua")
-
-
 os.loadAPI("/LunaOS/system/APIs/fs.lua")
 os.initAPIs()
 
 
 log.i("------- Finished loading APIs -------")
 
---kernel.setWindowHandler(os.loadAPILocal("/LunaOS/system/kernel/windowHandler.lua"))
-
+term.native = term.current
 function T()
 	print(mathUtils.time(function() f:draw() end, 60))
 end
@@ -255,10 +248,10 @@ function t(a)
 end
 
 
-local pid = kernel.runRootFile("rom/programs/shell")
-
-kernel.runRootProgram("keygaurd")
+--kernel.runRootProgram("keygaurd")
+pid = kernel.runRootProgram("LunaOS")
 kernel.runRootFile("rom/programs/lua")
+kernel.runRootFile("rom/programs/shell")
 kernel.newProcess(function() t(true) end , nil, "GUI")
 kernel.newProcess(function() t()  end , nil, "GUI Shell")
 kernel.runFile("rom/programs/shell")
@@ -268,8 +261,8 @@ kernel.newProcess(f1, nil, "b")
 kernel.runProgram("LunaShell", 2)
 kernel.runProgram("LunaShell", 2)
 
-
-
 --kernel.gotoPID(1)
 term.clear()
-a,b =pcall(kernel.startProcesses,pid +1 )--]]
+a,b =pcall(kernel.startProcesses,pid)--]]
+print(a,b)
+sleep(1)

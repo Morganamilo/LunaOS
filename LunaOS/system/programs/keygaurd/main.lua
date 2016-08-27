@@ -1,5 +1,7 @@
 if password.isPassword("") then
-	kernel.killProcess(kernel.getRunning())
+	lunaOS.unlock()
+	kernel.setBarVisable(true)
+	kernel.die()
 end
 
 local dataPath = kernel.getCurrentDataPath()
@@ -16,7 +18,9 @@ local function tryPassword(self)
 	local correct = password.isPassword(passwordField.text)
 	
 	if correct then
-		kernel.killProcess(kernel.getRunning())
+		lunaOS.unlock()
+		kernel.setBarVisable(true)
+		kernel.die()
 	else
 		loginLabel.textColour = colourUtils.blits.red
 		loginLabel.text = "Password Is Incorrect"
