@@ -100,6 +100,7 @@ local function setHidden(state)
 		newSize = ySize
 	end
 	
+	workingArea.setVisible(false)
 	workingArea.reposition(1, newPos, xSize, newSize)
 	
 	for k, v in pairs(kernel._processes) do
@@ -111,10 +112,10 @@ local function setHidden(state)
 		end
 		
 		v.window.reposition(1, 1, xSize, newSize)
+		v.window.redraw()
 	end
 	
-	banner.setVisible(not state)
-	
+	workingArea.setVisible(true)
 	hidden = state
 end
 
