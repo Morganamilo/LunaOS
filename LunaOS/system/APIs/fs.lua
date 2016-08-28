@@ -94,6 +94,8 @@ end
 function getEffectivePerm(path)
 	errorUtils.expect(path, "string", true, 2)
 	
+	if path == '' then return getPerm(path) end
+	
 	local perm = 3
 	while path ~= '' do
 		local currentPerm = getPerm(path)
