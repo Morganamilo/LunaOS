@@ -443,8 +443,18 @@ end
 
 function find(path)
 	errorUtils.expect(path, "string", true, 2)
-	errorUtils.assert(hasReadPerm(path), "Error: permission denied", 2)
-	return oldFs.find(path)
+	errorUtils.assert(hasReadPerm(path), "Error permission denied", 2)
+	
+	local files = oldFs.find(path)
+	local fixedFiles = {}
+	
+	for k, v in pairs(files) do
+		if fs.hasReadPerm(fs.getDir(v)) then
+			fixedFiles[#fixedFiles + 1] = v
+		end
+	end
+	
+	return fixedFiles
 end
 
 -------------------------------------------------------------------

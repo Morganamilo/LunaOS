@@ -34,7 +34,9 @@ function Component:draw()
 end
 
 function Component:getFrame()
-	return self:getParentPane():getFrame()
+	if self:getParentPane() and self:getParentPane():getFrame() then
+		return self:getParentPane():getFrame()
+	end
 end
 
 function Component:getParentPane()
