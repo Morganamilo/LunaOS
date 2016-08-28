@@ -215,7 +215,7 @@ function _private.getYield(data)
 		event = {coroutine.yield()} --the event we get + extra data
 		
 		keyHandler.handleKeyEvent(event)
-		windowHandler.handleEvent(event)
+		event = windowHandler.handleEvent(event)
 		
 	until tableUtils.indexOf(data, event[1]) or #data == 0 and #event ~= 0 or event[1] == 'terminate'
 	
@@ -249,6 +249,7 @@ function gotoPID(PID, ...)
 	
 	windowHandler.gotoWindow(old, _private._processes[PID].window)
 	
+	os.queueEvent('gotoooooo')
 	os.queueEvent('goto', unpack(arg))
 	return coroutine.yield("goto")
 end
@@ -384,7 +385,6 @@ function gotoPID(PID, ...)
 	
 	windowHandler.gotoWindow(old, _private._processes[PID].window)
 	
-	os.queueEvent('goto', unpack(arg))
 	return coroutine.yield("goto")
 end
 
