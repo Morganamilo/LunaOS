@@ -13,6 +13,11 @@ getDir  = oldFs.getDir
 --store perm data in memory for faster access
 --only use the file if we are changing a perm and not just reading 
 
+--0 = nothing
+--1 = read only
+--2 = write only
+--3 = read and write
+
  function getPermData()
 	local file = errorUtils.assert(oldFs.open(permPath, "r"), "Error: File Permissions are missing", 0)
 	local data = file.readAll()
@@ -98,8 +103,6 @@ function getEffectivePerm(path)
 		elseif currentPerm < perm then perm = currentPerm end
 		path = getDir(path)
 	end
-	
-	if path == '' then return getPerm(path) end
 	
 	return perm
 end
