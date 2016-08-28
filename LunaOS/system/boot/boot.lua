@@ -249,7 +249,7 @@ end
 
 
 --kernel.runRootProgram("keygaurd")
---pid = kernel.runRootProgram("LunaOS")
+pid = kernel.runRootProgram("LunaOS")
 pid = kernel.runProgram("Explorer")
 kernel.runRootFile("rom/programs/lua")
 kernel.runRootFile("rom/programs/shell")
@@ -264,6 +264,9 @@ kernel.runProgram("LunaShell", 2)
 
 --kernel.gotoPID(1)
 term.clear()
-a,b =pcall(kernel.startProcesses,7)--]]
+--print("KENRELLLLL")
+
+--kernel.setBarVisable(false)
+a,b =pcall(kernel.startProcesses,1)--]]
 print(a,b)
 sleep(5)

@@ -1,3 +1,5 @@
+kernel.requestSU()
+
 local dataPath = kernel.getCurrentDataPath()
 local default = GUI.Theme()
 local frame = GUI.Frame(term.current())

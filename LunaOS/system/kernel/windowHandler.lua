@@ -10,14 +10,14 @@ local xSize, ySize = term.getSize()
 local native = term.native()
 local windowOrder = {}
 local kernel
-local hidden = false
+local hidden = true
 
 local downArrow = string.char(31)
 local upArrow = string.char(30)
 local x = string.char(215) .. ' '
 
 local banner = window.create(native, 1, 1, xSize, 1, false)
-local workingArea = window.create(native, 1,2, xSize, ySize - 1, false)
+local workingArea = window.create(native, 1,1, xSize, ySize, false)
 
 local buffer = GUI.Buffer(banner, 1, 1, xSize, 1)
 
@@ -86,6 +86,8 @@ function updateBanner()
 	
 	if not hidden then
 		buffer:draw()
+		banner.setVisible(true)
+		banner.setVisible(false)
 	end
 	
 	
@@ -120,6 +122,7 @@ function setHidden(state)
 		v.window.redraw()
 	end
 	
+	os.queueEvent("term_resizee")
 	workingArea.setVisible(true)
 	hidden = state
 	
@@ -146,7 +149,7 @@ local function handleBannerEvent(event)
 end
 
 function init()
-	banner.setVisible(true)
+	--banner.setVisible(true)
 	workingArea.setVisible(true)
 	updateBanner()
 	--setHidden(true)
@@ -190,8 +193,9 @@ function handleEvent(event)
 		end
 	end
 	
-	if event[1] == "term_resize" then
+	if event[1] == "term_resize" and kernel._processes[kernel._focus] then
 		updateBanner()
+		kernel._processes[kernel._focus].window.redraw()
 	end
 	
 	return event

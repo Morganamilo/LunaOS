@@ -17,7 +17,7 @@ end
 
 local _private = {}
 local windowHandler = os.loadAPILocal("/LunaOS/system/kernel/windowHandler.lua")
-local focusEvents = {"mouse_click", "mouse_up", "mouse_drag", "mouse_scroll", "char", "key", "key_up"}
+local focusEvents = {"mouse_click", "mouse_up", "mouse_drag", "mouse_scroll", "char", "key"}
 
 windowHandler.setPrivate(_private)
 
@@ -88,6 +88,11 @@ function _private.newProcessInternal(func, parent, name, desc, SU, package)
 	log.i("Created new " .. (SU and "Root" or "User") .. " process with PID " .. PID)
 
 	windowHandler.updateBanner()
+
+	
+	--_private.pushEvent(PID, {})
+	
+	
 	return PID
 end
 
@@ -96,10 +101,6 @@ function _private.runProgramInternal(program, parent, su, args)
 	
 	local root = packageHandler.getPackagePath(program)
 	local name
-	
-	if fs.getDir(root) == packageHandler.getSystemProgramPath() then
-		su = true
-	end
 	
 	errorUtils.assert(root, "Error: Program does not exist", 2)
 	
@@ -196,20 +197,19 @@ function _private.pushEvent(PID, event)
 	local waiting  = _private._waitingFor[PID]
 	local currentProc = _private._processes[PID]
 	
-		if not waiting or (#event > 0 and (tableUtils.indexOf(waiting, event[1]) or #waiting == 0 or event[1] == 'terminate')) then
-			local data = _private.resume(currentProc.co, event)
+	if not waiting or (#event > 0 and (tableUtils.indexOf(waiting, event[1]) or #waiting == 0 or event[1] == 'terminate')) then
+		_private._runningPID = PID
+		term.redirect(_private._processes[PID].window)
+		local data = _private.resume(currentProc.co, event)
 
-			if  _private._processes[PID] then
-				_private._waitingFor[PID] = data 
-			end
-			
-			if coroutine.status(currentProc.co) == 'dead'  and _private._processes[PID] then --handle death
-				_private.killProcessInternal(PID)
-				data = {}
-			end
+		if  _private._processes[PID] then
+			_private._waitingFor[PID] = data 
 		end
-	
-	return data
+		
+		if coroutine.status(currentProc.co) == 'dead'  and _private._processes[PID] then --handle death
+			_private.killProcessInternal(PID)
+		end
+	end
 end
 
 function _private.tick(event)
@@ -223,8 +223,6 @@ function _private.tick(event)
 	
 	for k, v in pairs(processes) do
 		if not  _private._waitingFor[v] then
-			_private._runningPID = v
-			term.redirect(_private._processes[v].window)
 			_private.pushEvent(v, {})
 		end
 	end
@@ -235,8 +233,6 @@ function _private.tick(event)
 		end
 		
 		if _private._processes[v] and (not tableUtils.indexOf(focusEvents, event[1]) or v == _private._focus)then
-			_private._runningPID = v
-			term.redirect(_private._processes[v].window)
 			_private.pushEvent(v, event)
 		end
 		
@@ -414,9 +410,19 @@ function getCurrentDataPath()
 	end
 end
 
+function requestSU()
+	if not kernel.getCurrentPackagePath() then return false end
+	
+	if fs.getDir(kernel.getCurrentPackagePath()) == packageHandler.getSystemProgramPath() then
+		_private._processes[_private._runningPID].SU = true
+		return true
+	end
+	
+	return false
+end
 
 function isSU()
-	if not _private._focus then return true end --if the kernel is not in use give root
+	if not _private._runningPID then return true end --if the kernel is not in use give root
 	return _private._processes[_private._runningPID].SU
 end
 
@@ -436,12 +442,13 @@ function gotoPID(PID, ...)
 	_private._runningHistory[#_private._runningHistory + 1] = PID
 	
 	local old = _private._focus and _private._processes[_private._focus].window or nil
+				
 	_private._focus = PID
 	
-
 	windowHandler.gotoWindow(old, _private._processes[PID].window)
-	os.queueEvent("YOU DEAD SON")
-	coroutine.yield("YOU DEAD SON")
+	
+	os.queueEvent("goto")
+	coroutine.yield("goto")
 end
 
 function getAllChildren(PID)
@@ -486,16 +493,16 @@ function startProcesses(PID)
 	
 	while _private._focus do
 		_private.tick(data)
-		--_private._runningPID = _private._focus
-		--_private.pushEvent(_private._focus, data)
 		data = _private.getEvent()
 	end
 	
-	term.redirect(current)
-	term.setBackgroundColor(colors.black)
-	term.setTextColor(1)
-	term.clear()
-	term.setCursorPos(1,1)
+	_private._runningPID = nil
+	
+	-- term.redirect(current)
+	-- term.setBackgroundColor(colors.black)
+	-- term.setTextColor(1)
+	-- term.clear()
+	-- term.setCursorPos(1,1)
 	
 	--print("Craft OS")
 	os.shutdown()
