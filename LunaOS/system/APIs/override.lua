@@ -168,10 +168,12 @@ function http.timedRequest(url, timeout, post, headers)
 		local event, url, data = coroutine.yield()
 	
 		if event == "http_success" then
+			os.cancelTimer(timer)
 			return data
 		elseif event == "timer" and url == timer then
 			return nil, "Timed out"
 		elseif event == "http_failure" then
+			os.cancelTimer(timer)
 			return nil, data
 		end
 	end
