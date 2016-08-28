@@ -2,13 +2,13 @@ ScrollView = object.class(GUI.View)
 
 function ScrollView:init(xPos, yPos, width, height, virtualwidth, virtualheight)
 	--self.super:init(xPos, yPos, width, height)
-	self.super:init(xPos, yPos, virtualwidth, virtualheight)
+	self.super:init(xPos or 1, yPos or 1, virtualwidth, virtualheight)
 	
-	self.width = width
-	self.height = height
+	self.width = width or 1
+	self.height = height or 1
 	
-	self.virtualwidth = virtualwidth
-	self.virtualheight = virtualheight
+	self.virtualwidth = virtualwidth or 0
+	self.virtualheight = virtualheight or 0
 	
 	self.vBar = GUI.Scrollbar()
 	self.hBar = GUI.HorizontalScrollbar()

@@ -23,3 +23,13 @@ end
 function Shape:transform(xDifference, yDifference)
 	self:setPos(self.xPos + xDifference, self.yPos + yDifference)
 end
+
+function Shape:draw(buffer)
+	if self.backgroundColour then
+		buffer:drawBox(self.xPos, self.yPos, self.width, self.height, self.backgroundColour) 
+	end
+end
+
+function Shape:applyTheme(theme)
+	self.backgroundColour = theme.backgroundColour
+end

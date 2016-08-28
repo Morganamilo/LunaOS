@@ -146,7 +146,7 @@ function init()
 	banner.setVisible(true)
 	workingArea.setVisible(true)
 	updateBanner()
-	setHidden(true)
+	--setHidden(true)
 end
 
 function newWindow(PID)
@@ -196,6 +196,7 @@ function handleError(proc, data)
 	
 	if data == 'Terminated' then return end
 	
+	term.redirect(proc.window)
 	local x, y = term.getSize()
 	local lines = {}
 	local errorLines = textUtils.wrap(data, 40,5)
@@ -210,7 +211,6 @@ function handleError(proc, data)
 	 lines[#lines + 1] = ""
 	 lines[#lines + 1] = "Press any key to continue"
 	
-	term.redirect(proc.window)
 	term.setBackgroundColor(errorBackgroundColour)
 	term.clear()
 	
@@ -238,6 +238,8 @@ function handleDeath(PID)
 end
 
 function handleFinish()
+	term.redirect(kernel._processes[kernel._runningPID].window)
+	
 	local x, y = term.getSize()
 	local currentX, currentY = term.getCursorPos()
 	

@@ -31,8 +31,14 @@ function Frame:addComponent(component)
 end
 
 function Frame:removeComponent(component)
-	table.remove(self.components, tableUtils.indexOf(self.components, component))
-	component:setParentPane(nil)
+	if component then
+		local index = tableUtils.indexOf(self.components, component)
+		
+		if index then
+			table.remove(self.components, index)
+			component:setParentPane(nil)
+		end
+	end
 end
 
 function Frame:stop()
