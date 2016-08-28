@@ -55,6 +55,8 @@ function HorizontalScrollbar:getLength()
 end
 
 function HorizontalScrollbar:handleDown(event, mouseButton, xPos, yPos)
+	if mouseButton == 2 then return end
+	
 	if self:isInBounds(xPos, yPos) then
 		local barSize = self:getBarSize() 
 		local barPos = self:getBarPos()

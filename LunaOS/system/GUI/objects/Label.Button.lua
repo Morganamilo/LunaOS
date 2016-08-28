@@ -12,6 +12,8 @@ function Button:init(xPos, yPos, width, height, text)
 end
 
 function Button:handleDown(event, mouse, xPos, yPos)
+	if mouse == 2 then return end
+
 	if self:isInBounds(xPos, yPos) then
 		self.held = true
 		

@@ -21,6 +21,8 @@ function TextField:setSize(width)
 end
 
 function TextField:handleDown(event, mouse, xPos, yPos)
+	if mouse == 2 then return end
+
 	if self:isInBounds(xPos, yPos) then
 		local point = self:getPoint(xPos)
 		--point = math.min(#self.text, point)

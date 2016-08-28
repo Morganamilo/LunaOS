@@ -60,6 +60,8 @@ function Scrollbar:handleScroll(event, direction, xPos, yPos)
 end
 
 function Scrollbar:handleDown(event, mouseButton, xPos, yPos)	
+	if mouseButton == 2 then return end
+	
 	if self:isInBounds(xPos, yPos) then
 		local barSize = self:getBarSize() 
 		local barPos = self:getBarPos()
