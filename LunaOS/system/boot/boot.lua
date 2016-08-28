@@ -227,20 +227,20 @@ function t(a)
 	local open = 1
 	v2:addComponent(b6)
 	
-	mv = GUI.TabbedView(2,2,20,16)
+	--mv = GUI.TabbedView(2,2,20,16)
 	--mv:addView(v, "1")
 	--mv:addView(v2, "2")
-	mv:addView(v3, "3")
+	--mv:addView(v3, "3")
 	--f:addComponent(mv)
 	--f:addComponent(v2)
-	mv:gotoView("1")
+	--mv:gotoView("1")
 	
 	function n()
 		mv:gotoView(tostring(open))
 		open = open + 1
 	end
 	
-	mv:addEventListener("key", n)
+	--mv:addEventListener("key", n)
 	
 	
 	if a then f:mainLoop() else dofile("rom/programs/lua") end
@@ -249,14 +249,14 @@ end
 
 
 --kernel.runRootProgram("keygaurd")
-pid = kernel.runRootProgram("LunaOS")
+--pid = kernel.runRootProgram("LunaOS")
 pid = kernel.runProgram("Explorer")
 kernel.runRootFile("rom/programs/lua")
 kernel.runRootFile("rom/programs/shell")
 kernel.newProcess(function() t(true) end , nil, "GUI")
 kernel.newProcess(function() t()  end , nil, "GUI Shell")
 kernel.runFile("rom/programs/shell")
-kernel.runProgram("EventPrinter")
+kernel.runProgram("EventPrinter", nil,"abc")
 kernel.newProcess(function() error("ooppps") end , nil, "a")
 kernel.newProcess(f1, nil, "b")
 kernel.runProgram("LunaShell", 2)
@@ -264,6 +264,6 @@ kernel.runProgram("LunaShell", 2)
 
 --kernel.gotoPID(1)
 term.clear()
-a,b =pcall(kernel.startProcesses,pid)--]]
+a,b =pcall(kernel.startProcesses,7)--]]
 print(a,b)
-sleep(1)
+sleep(5)

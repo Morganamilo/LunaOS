@@ -1,9 +1,3 @@
-if password.isPassword("") then
-	lunaOS.unlock()
-	kernel.setBarVisable(true)
-	kernel.die()
-end
-
 local dataPath = kernel.getCurrentDataPath()
 local default = GUI.Theme()
 local frame = GUI.Frame(term.current())
@@ -19,7 +13,6 @@ local function tryPassword(self)
 	
 	if correct then
 		lunaOS.unlock()
-		kernel.setBarVisable(true)
 		kernel.die()
 	else
 		loginLabel.textColour = colourUtils.blits.red

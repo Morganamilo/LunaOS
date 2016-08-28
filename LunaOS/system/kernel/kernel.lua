@@ -17,12 +17,17 @@ end
 
 local _private = {}
 local windowHandler = os.loadAPILocal("/LunaOS/system/kernel/windowHandler.lua")
+local focusEvents = {"mouse_click", "mouse_up", "mouse_drag", "mouse_scroll", "char", "key", "key_up"}
+
 windowHandler.setPrivate(_private)
 
 _private._processes = {}
+_private._focus = nil
 _private._runningPID = nil --pid of the currently running process 
 _private._runningHistory = {}
 _private._waitingFor = {}
+
+w = function() return _private._waitingFor end
 --local keyHandlerPath = "/LunaOS/system/kernel/keyHandler.lua"
 --windowHandler = {} --os.loadAPILocal(keyHandlerPath)
 
@@ -92,6 +97,10 @@ function _private.runProgramInternal(program, parent, su, args)
 	local root = packageHandler.getPackagePath(program)
 	local name
 	
+	if fs.getDir(root) == packageHandler.getSystemProgramPath() then
+		su = true
+	end
+	
 	errorUtils.assert(root, "Error: Program does not exist", 2)
 	
 	fs.isFile = fs.exists
@@ -160,35 +169,104 @@ function _private.killProcessInternal(PID)
 		end
 	end
 	
-	_private._runningPID = nil
+	_private._focus = nil
 	
 	log.i("Finished killing: " .. PID)
 	
 	--decide the process that takes over
 	local newRunning = _private._runningHistory[#_private._runningHistory] or tableUtils.lowestIndex(_private._processes)
+	
 	if newRunning then
 		gotoPID(newRunning) 
 	else
-		_private._runningPID = nil
-		--os.queueEvent("stop")
-		--coroutine.yield("stop")
+		_private._focus = nil
 	end
+end
+
+function _private.getEvent()
+	event = {coroutine.yield()} --the event we get + extra data
+		
+	keyHandler.handleKeyEvent(event)
+	event = windowHandler.handleEvent(event)
+	
+	return event
+end
+
+function _private.pushEvent(PID, event)
+	local waiting  = _private._waitingFor[PID]
+	local currentProc = _private._processes[PID]
+	
+		if not waiting or (#event > 0 and (tableUtils.indexOf(waiting, event[1]) or #waiting == 0 or event[1] == 'terminate')) then
+			local data = _private.resume(currentProc.co, event)
+
+			if  _private._processes[PID] then
+				_private._waitingFor[PID] = data 
+			end
+			
+			if coroutine.status(currentProc.co) == 'dead'  and _private._processes[PID] then --handle death
+				_private.killProcessInternal(PID)
+				data = {}
+			end
+		end
+	
+	return data
+end
+
+function _private.tick(event)
+	local processes = {}
+	
+	for k, v in pairs(_private._processes) do
+		processes[#processes + 1] = k
+	end
+	
+	local endLoop = false
+	
+	for k, v in pairs(processes) do
+		if not  _private._waitingFor[v] then
+			_private._runningPID = v
+			term.redirect(_private._processes[v].window)
+			_private.pushEvent(v, {})
+		end
+	end
+	
+	for k, v in pairs(processes) do
+		if tableUtils.indexOf(focusEvents, event[1]) and v == _private._focus then
+			endLoop = true
+		end
+		
+		if _private._processes[v] and (not tableUtils.indexOf(focusEvents, event[1]) or v == _private._focus)then
+			_private._runningPID = v
+			term.redirect(_private._processes[v].window)
+			_private.pushEvent(v, event)
+		end
+		
+		if endLoop then
+			break
+		end
+	end
+
+	term.redirect(_private._processes[_private._focus].window)
+	
+	if term.current().restoreCursor then
+		 term.current().restoreCursor()
+	end
+	
+	--term.redirect(_private._processes[_private._focuss].window)
 end
 
 function _private.resume(co, data)	
 	data = { coroutine.resume(co, unpack(data)) }
 	local success = table.remove(data, 1)
-	return success, data
+	return data
 end
 
 function _private.next(data)
-	if  _private._waitingFor[_private._runningPID] then return _private._waitingFor[_private._runningPID]  end
+	if  _private._waitingFor[_private._focus] then return _private._waitingFor[_private._focus]  end
 	
-	local currentProc = _private._processes[_private._runningPID]
-	local success
+	local currentProc = _private._processes[_private._focus]
 	local event
 	
-	success, data = _private.resume(currentProc.co, data)
+	data = _private.resume(currentProc.co, data)
 	
 	if coroutine.status(currentProc.co) == 'dead' then --handle death
 		_private.killProcessInternal(currentProc.PID)
@@ -199,16 +277,16 @@ function _private.next(data)
 end
 
 function _private.getYield(data)
-	local proc = _private._runningPID
+	local proc = _private._focus
 	local event
 	
 	repeat
 		local success
 		
-		if proc ~= _private._runningPID then --if the process has changed since we starded the loop
+		if proc ~= _private._focus then --if the process has changed since we starded the loop
 			if _private._processes[proc] then _private._waitingFor[proc] = data end
 			return data
-		elseif _private._runningPID then
+		elseif _private._focus then
 			_private._waitingFor[proc] = nil
 		end
 		
@@ -230,29 +308,6 @@ function setBarVisable(visable)
 	windowHandler.setHidden(not visable)
 end
 
---pauses the current process and starts/resumes the specifid process
-function gotoPID(PID, ...)
-	errorUtils.expect(PID, 'number', true, 2)
-	errorUtils.assert(_private._processes[PID], "Error: PID " .. PID .. " is invalid or does not exist", 2)
-	log.i("Going to PID " .. PID)
-	
-	--if the PID is already in the history move it to the top
-	local index = tableUtils.indexOf(_private._runningHistory, PID)
-	if index then
-		table.remove(_private._runningHistory, index)
-	end
-	
-	_private._runningHistory[#_private._runningHistory + 1] = PID
-	
-	local old = _private._runningPID and _private._processes[_private._runningPID].window or nil
-	_private._runningPID = PID
-	
-	windowHandler.gotoWindow(old, _private._processes[PID].window)
-	
-	os.queueEvent('gotoooooo')
-	os.queueEvent('goto', unpack(arg))
-	return coroutine.yield("goto")
-end
 
 function die()
 	_private.killProcessInternal(_private._runningPID)
@@ -280,7 +335,7 @@ function newRootProcess(func, parent, name, desc)
 	--_env[PID] = env -- sandboxes each process
 	setfenv(func, env)
 	
-	errorUtils.assertLog(isSU(), "Error: process with PID " .. (_private._runningPID or "") .. " tried to start a new process as root: Access denied", 2, nil, "Warning")
+	errorUtils.assertLog(isSU(), "Error: process with PID " .. (_private._focus or "") .. " tried to start a new process as root: Access denied", 2, nil, "Warning")
 	return _private.newProcessInternal(func, parent, name, desc, true)
 end
 
@@ -305,7 +360,7 @@ function runProgram(program, parent, ...)
 end
 
 function runRootProgram(program, parent, ...)
-	errorUtils.assertLog(isSU(), "Error: process with PID " .. (_private._runningPID or "") .. " tried to start a new program as root: Access denied", 2, nil, "Warning")
+	errorUtils.assertLog(isSU(), "Error: process with PID " .. (_private._focus or "") .. " tried to start a new program as root: Access denied", 2, nil, "Warning")
 	return _private.runProgramInternal(program, parent, true, arg)
 end
 
@@ -342,13 +397,13 @@ function getRunning()
 end
 
 function getCurrentPackage()
-	if _private._runningPID then
+	if _private._focus then
 		return _private._processes[_private._runningPID].package
 	end
 end
 
 function getCurrentPackagePath()
-	if _private._runningPID then
+	if _private._focus then
 		return packageHandler.getPackagePath(_private._processes[_private._runningPID].package)
 	end
 end
@@ -361,7 +416,7 @@ end
 
 
 function isSU()
-	if not _private._runningPID then return true end --if the kernel is not in use give root
+	if not _private._focus then return true end --if the kernel is not in use give root
 	return _private._processes[_private._runningPID].SU
 end
 
@@ -380,12 +435,13 @@ function gotoPID(PID, ...)
 	
 	_private._runningHistory[#_private._runningHistory + 1] = PID
 	
-	local old = _private._runningPID and _private._processes[_private._runningPID].window or nil
-	_private._runningPID = PID
+	local old = _private._focus and _private._processes[_private._focus].window or nil
+	_private._focus = PID
 	
+
 	windowHandler.gotoWindow(old, _private._processes[PID].window)
-	
-	return coroutine.yield("goto")
+	os.queueEvent("YOU DEAD SON")
+	coroutine.yield("YOU DEAD SON")
 end
 
 function getAllChildren(PID)
@@ -409,7 +465,7 @@ end
 
 function killProcess(PID)
 	errorUtils.expect(PID, 'number', true, 2)
-	errorUtils.assertLog(isSU() or not _private._processes[PID].SU, "Error: process with PID " .. (_private._runningPID or "") .. " tried to kill root process", 2, nil, "Warning")
+	errorUtils.assertLog(isSU() or not _private._processes[PID].SU, "Error: process with PID " .. (_private._focus or "") .. " tried to kill root process", 2, nil, "Warning")
 	errorUtils.assert(_private._processes[PID], "Error: PID " .. PID .. " is invalid or does not exist", 2)
 	
 	_private.killProcessInternal(PID)
@@ -418,7 +474,7 @@ end
 function startProcesses(PID)
 	errorUtils.expect(PID, 'number', true, 2)
 	errorUtils.assert(_private._processes[PID], "Error: PID " .. PID .. " is invalid or does not exist", 2)
-	errorUtils.assert(not _private._runningPID, "Error: kernel already running", 2)
+	errorUtils.assert(not _private._focus, "Error: kernel already running", 2)
 	
 	local current = term.current()
 	
@@ -428,9 +484,11 @@ function startProcesses(PID)
 	
 	local data = {} --the events we are listening for
 	
-	while _private._runningPID do
-		data = _private.next(data)
-		data = _private.getYield(data)
+	while _private._focus do
+		_private.tick(data)
+		--_private._runningPID = _private._focus
+		--_private.pushEvent(_private._focus, data)
+		data = _private.getEvent()
 	end
 	
 	term.redirect(current)

@@ -44,11 +44,11 @@ local function getLabelAt(xPos, yPos)
 		
 		pos = pos + #proc.name + 2
 		
-		if kernel._runningPID == PID then
+		if kernel._focus == PID then
 			pos = pos + 2
 		end
 		
-		if xPos == pos - 1 and kernel._runningPID == PID then
+		if xPos == pos - 1 and kernel._focus == PID then
 			return -1
 		end
 		
@@ -67,7 +67,7 @@ function updateBanner()
 				local padding = 2
 				local colour
 				
-				if kernel._runningPID == PID then
+				if kernel._focus == PID then
 					padding = padding + 1
 					colour = selectedColour
 				end
@@ -76,7 +76,7 @@ function updateBanner()
 				
 				pos = pos + #proc.name + 2
 				
-				if kernel._runningPID == PID then
+				if kernel._focus == PID then
 					buffer:writeStr(pos, 1, x, xColour, colour)
 					pos = pos + 2
 				end
@@ -88,11 +88,14 @@ function updateBanner()
 		buffer:draw()
 	end
 	
-	term.current().restoreCursor()
+	
+	if term.current().restoreCursor then
+		 term.current().restoreCursor()
+	end
 end
 
 function setHidden(state)
-	if lunaOS.isLocked() then return end
+	if lunaOS.isLocked() and hidden then return end
 	
 	local newPos = 2
 	local newSize = ySize - 1
@@ -132,7 +135,7 @@ local function handleBannerEvent(event)
 	local proc = getLabelAt(event[3], event[4])
 	
 		if proc == -1 and event[1] == 'mouse_click' then
-			kernel.killProcessInternal(kernel._runningPID)
+			kernel.killProcessInternal(kernel._focus)
 		elseif proc and event[1] == 'mouse_click' and event[2] == 1 then
 			kernel.gotoPID(proc)
 		elseif proc and event[1] == 'mouse_click' and event[2] == 2 then
@@ -150,10 +153,15 @@ function init()
 end
 
 function newWindow(PID)
+	local y = ySize
 	updateBanner()
 	windowOrder[#windowOrder + 1] = PID
 	
-	return window.create(workingArea, 1, 1, xSize, ySize - 1, false)
+	if not hidden then
+		y = y - 1
+	end
+	
+	return window.create(workingArea, 1, 1, xSize, y, false)
 end
 
 function gotoWindow(oldWin, newWin)
@@ -238,7 +246,7 @@ function handleDeath(PID)
 end
 
 function handleFinish()
-	term.redirect(kernel._processes[kernel._runningPID].window)
+	term.redirect(kernel._processes[kernel._focus].window)
 	
 	local x, y = term.getSize()
 	local currentX, currentY = term.getCursorPos()

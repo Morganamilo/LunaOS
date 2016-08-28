@@ -10,16 +10,20 @@ function isLocked()
 end
 
 function lock()
-	errorUtils.assert(kernel.isSU(), "Error: permission denied", 2)
 	if locked then return end
+	if password.isPassword("") then return end
 	
-	local PID = kernel.runRootProgram("keygaurd")
 	kernel.setBarVisable(false)
+	local PID = kernel.runProgram("keygaurd")
+	
 	locked = true
 	kernel.gotoPID(PID)
 end
 
 function unlock()
+	if not locked then return end
+	
 	errorUtils.assert(kernel.isSU(), "Error: permission denied", 2)
 	locked = false
+	kernel.setBarVisable(true)
 end

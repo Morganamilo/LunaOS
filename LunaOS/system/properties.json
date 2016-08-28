@@ -1,7 +1,7 @@
 {
- 	"programPath":"/lunaOS/data/programs",
-	"dataPath":"/lunaOS/data/data",
- 	"permPath":"/LunaOS/data/system/perms.json",
- 	"systemProgramPath":"/lunaOS/system/programs",
+ 	"programPath":"LunaOS/data/programs",
+	"dataPath":"LunaOS/data/data",
+ 	"permPath":"LunaOS/data/system/perms.json",
+ 	"systemProgramPath":"LunaOS/system/programs",
  	"version":"0.3"
 }
