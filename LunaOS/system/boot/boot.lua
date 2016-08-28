@@ -250,6 +250,7 @@ end
 
 --kernel.runRootProgram("keygaurd")
 pid = kernel.runRootProgram("LunaOS")
+pid = kernel.runProgram("Explorer")
 kernel.runRootFile("rom/programs/lua")
 kernel.runRootFile("rom/programs/shell")
 kernel.newProcess(function() t(true) end , nil, "GUI")
