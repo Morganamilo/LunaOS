@@ -165,7 +165,7 @@ function _private.killProcessInternal(PID)
 	log.i("Finished killing: " .. PID)
 	
 	--decide the process that takes over
-	local newRunning = thisPoc.parent or _private._runningHistory[#_private._runningHistory] or tableUtils.lowestIndex(_private._processes)
+	local newRunning = _private._runningHistory[#_private._runningHistory] or tableUtils.lowestIndex(_private._processes)
 	if newRunning then
 		gotoPID(newRunning) 
 	else
