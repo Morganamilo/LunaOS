@@ -27,7 +27,6 @@ _private._runningPID = nil --pid of the currently running process
 _private._runningHistory = {}
 _private._waitingFor = {}
 
-w = function() return _private._waitingFor end
 --local keyHandlerPath = "/LunaOS/system/kernel/keyHandler.lua"
 --windowHandler = {} --os.loadAPILocal(keyHandlerPath)
 
@@ -88,10 +87,6 @@ function _private.newProcessInternal(func, parent, name, desc, SU, package)
 	log.i("Created new " .. (SU and "Root" or "User") .. " process with PID " .. PID)
 
 	windowHandler.updateBanner()
-
-	
-	--_private.pushEvent(PID, {})
-	
 	
 	return PID
 end
@@ -314,23 +309,10 @@ function getProgramDataPath()
 end
 
 function newProcess(func, parent, name, desc)
-	func = load(string.dump(func))
-	
-	local env = _private.getEnv(SU)
-	--_env[PID] = env -- sandboxes each process
-	setfenv(func, env)
-	
 	return _private.newProcessInternal(func, parent, name, desc, false)
 end
 
 function newRootProcess(func, parent, name, desc)
-	func = load(string.dump(func))
-	
-	func = load(string.dump(func))
-	local env = _private.getEnv(SU)
-	--_env[PID] = env -- sandboxes each process
-	setfenv(func, env)
-	
 	errorUtils.assertLog(isSU(), "Error: process with PID " .. (_private._focus or "") .. " tried to start a new process as root: Access denied", 2, nil, "Warning")
 	return _private.newProcessInternal(func, parent, name, desc, true)
 end
