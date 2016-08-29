@@ -17,7 +17,7 @@ end
 
 local _private = {}
 local windowHandler = os.loadAPILocal("/LunaOS/system/kernel/windowHandler.lua")
-local focusEvents = {"mouse_click", "mouse_up", "mouse_drag", "mouse_scroll", "char", "key"}
+local focusEvents = {"mouse_click", "mouse_up", "mouse_drag", "mouse_scroll", "char", "key", "paste"}
 
 windowHandler.setPrivate(_private)
 
