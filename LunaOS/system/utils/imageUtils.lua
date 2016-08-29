@@ -35,9 +35,9 @@ function decodeImage(image)
 		local colour = string.byte(image, n + 2)
 		local l = #decodeImage.text + 1
 		
-		decodeImage.text[l] = text
-		decodeImage.textColour[l] = numToHex[textColour]
-		decodeImage.colour[l] = numToHex[colour]
+		decodeImage.text[l] = text or " "
+		decodeImage.textColour[l] = numToHex[textColour] or "0"
+		decodeImage.colour[l] = numToHex[colour] or "0"
 	end
 	
 	return decodeImage
