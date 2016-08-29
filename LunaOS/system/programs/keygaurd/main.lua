@@ -18,7 +18,7 @@ local function tryPassword(self)
 		kernel.die()
 	else
 		loginLabel.textColour = colourUtils.blits.red
-		loginLabel.text = "Password Is Incorrect"
+		loginLabel.text = " Incorrect Password"
 		passwordField:setText("")
 	end
 end
