@@ -5,6 +5,7 @@ local isLoading = {}
 local toInit = {}
 local oldfs = fs
 local oldGetfenv = getfenv
+local _has8BitCharacters = settings ~= nil
 
 --[[function getfenv(level)
 	local env = oldGetfenv(level)
@@ -180,7 +181,37 @@ function http.timedRequest(url, timeout, post, headers)
 	
 end
 
+function term.has8BitCharacters()
+	--anything >= 192 errors
+	return _has8BitCharacters
+end
 
+if not _has8BitCharacters then
+	local oldTermWrite = term.write
+	function term.write(str)
+		for n = 1, #str do
+			local b = string.byte(str, n)
+			
+			if n >= 192 then
+				str =str:gsub(n, "?")
+			end
+		end
+		
+		oldTermWrite(str)
+	end
 
+	local oldTermBlit = term.blit
+	function term.blit(str, textColour, backgroundColour)
+		for n = 1, #str do
+			local b = string.byte(str, n)
+			
+			if n >= 192 then
+				str =str:gsub(n, "?")
+			end
+		end
+		
+		oldTermBlit(str, textColour, backgroundColour)
+	end
+end
 
 
