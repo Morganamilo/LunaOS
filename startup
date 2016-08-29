@@ -1,1 +1,2 @@
+term.clear()
 dofile("bootloader/bootloader")

@@ -1,28 +1,28 @@
 local sizeX, sizeY = term.getSize()
 local str = "Press Shift To Enter Recovery"
 local booting = "Booting..."
-term.setBackgroundColor(128)
-term.clear()
-term.setTextColor(2048)
-term.setCursorPos(1,1)
+-- term.setBackgroundColor(128)
+-- term.clear()
+-- term.setTextColor(2048)
+-- term.setCursorPos(1,1)
 
-local img = fs.open("/bootloader/bootimage", 'r')
+-- local img = fs.open("/bootloader/bootimage", 'r')
 
-repeat
-	local line = img.readLine()
-	local _, pos = term.getCursorPos()
+-- repeat
+	-- local line = img.readLine()
+	-- local _, pos = term.getCursorPos()
 	
-	term.write(line)
-	term.setCursorPos(1, pos+1)
-until not line
+	-- term.write(line)
+	-- term.setCursorPos(1, pos+1)
+-- until not line
 
-img.close()
+-- img.close()
 
-term.setCursorPos(1, sizeY)
-term.setTextColor(1)
-term.write(string.rep(" ", sizeX - #str) .. str)
+-- term.setCursorPos(1, sizeY)
+-- term.setTextColor(1)
+--term.write(string.rep(" ", sizeX - #str) .. str)
 
-local timer = os.startTimer(.5)
+local timer = os.startTimer(0.5)
 
 while true do
 	local event, key = coroutine.yield()
