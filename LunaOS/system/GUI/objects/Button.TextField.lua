@@ -96,6 +96,7 @@ end
 function TextField:setText(text)
 	self.super:setText(text)
 	
+	self.scrollPos = 1
 	self:goToEnd()
 	self:unSelect()
 end
