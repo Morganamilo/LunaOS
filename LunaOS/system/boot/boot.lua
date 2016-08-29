@@ -138,9 +138,9 @@ local function drawImage()
 		local textColour = ""
 		
 		for x = 1, image.size[1] do
-			pixel = pixel .. image.colour[x + ((y - 1)* image.size[1])]
-			text = text .. image.text[x + ((y - 1)* image.size[1])]
-			textColour = textColour .. image.textColour[x + ((y - 1)* image.size[1])]
+			pixel = pixel .. image.colour[x + ((y - 1)* image.size[1])] or " "
+			text = text .. image.text[x + ((y - 1)* image.size[1])] or "0"
+			textColour = textColour .. image.textColour[x + ((y - 1)* image.size[1])] or "0"
 		end
 		
 		term.setCursorPos(1 + math.floor(xSize/2 - image.size[1]/2), 1 + math.floor(ySize/2 - image.size[2]/2) + y)
