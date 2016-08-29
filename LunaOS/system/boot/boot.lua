@@ -1,3 +1,6 @@
+local oldPullEvent = os.pullEvent
+os.pullEvent = coroutine.yield
+
 term.setBackgroundColor(128)
 term.clear()
 
@@ -356,6 +359,8 @@ kernel.runRootFile("rom/programs/shell")
 kernel.newProcess(function() gui(true) end , nil, "GUI")
 kernel.newProcess(function() gui()  end , nil, "GUI Shell")
 
+
+os.pullEvent = oldPullEvent
 
 local a,b =pcall(kernel.startProcesses, pid)--]]
 print(a,b)
