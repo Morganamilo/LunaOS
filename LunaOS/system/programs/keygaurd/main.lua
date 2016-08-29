@@ -45,7 +45,7 @@ shutdown.textColour = colourUtils.blits.cyan
 shutdown.onClick = os.shutdown5
 
 loginLabel:setSize(32, 1)
-loginLabel:setPos(math.floor(frame.xSize/2 - loginLabel.width/2), 9)
+loginLabel:setPos(1+ math.floor(frame.xSize/2 - loginLabel.width/2), 9)
 loginLabel.backgroundColour = nil
 loginLabel:setText("Please Login")
 loginLabel:setAlignment("center", "top")
@@ -55,10 +55,10 @@ infoLabel.textColour = colourUtils.blits.grey
 infoLabel:setAlignment("center", "top")
 
 image:setImageFromFile(fs.combine(kernel.getCurrentPackagePath(), "logon.img"))
-image:setPos(math.floor(frame.xSize/2 - image.width/2), 3)
+image:setPos(1 + math.floor(frame.xSize/2 - image.width/2), 3)
 
 passwordField:setSize(32)
-passwordField:setPos(math.floor(frame.xSize/2 - passwordField.width/2), 11)
+passwordField:setPos(1 + math.floor(frame.xSize/2 - passwordField.width/2), 11)
 passwordField.hint = "Password:"
 passwordField.mask = "*"
 passwordField.onEnter = tryPassword

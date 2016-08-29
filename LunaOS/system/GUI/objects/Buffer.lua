@@ -408,7 +408,7 @@ function Buffer:writeTextBox(xPos, yPos, width, height, str, textColour, backgro
 			currentLine = textUtils.trimTrailingSpaces(currentLine)
 			offset = width - #currentLine
 		elseif xAlignment == "center" then
-			offset = math.floor((width - #textUtils.trimTrailingSpaces(currentLine))/2)
+			offset = math.floor(( 1 + width - #textUtils.trimTrailingSpaces(currentLine))/2)
 		end
 	
 		self:writeStr(xPos + offset, y, currentLine, textColour, backgroundColour)
