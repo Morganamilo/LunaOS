@@ -14,11 +14,12 @@ local hidden = true
 
 local downArrow = "v"
 local upArrow = "^"
-local x = string.char(215) .. ' '
+local x = "x "
 
 if term.has8BitCharacters() then
 	downArrow = string.char(31)
 	upArrow = string.char(30)
+	x= string.char(215) .. ' '
 end
 
 local banner = window.create(native, 1, 1, xSize, 1, false)

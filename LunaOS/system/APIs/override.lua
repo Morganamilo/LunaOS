@@ -5,7 +5,7 @@ local isLoading = {}
 local toInit = {}
 local oldfs = fs
 local oldGetfenv = getfenv
-local _has8BitCharacters = settings == nil
+local _has8BitCharacters = fs.exists("rom/apis/settings")
 
 --[[function getfenv(level)
 	local env = oldGetfenv(level)
