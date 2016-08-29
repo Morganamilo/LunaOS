@@ -189,11 +189,13 @@ end
 if not _has8BitCharacters then
 	local oldTermWrite = term.write
 	function term.write(str)
-		for n = 1, #str do
-			local b = string.byte(str, n)
-			
-			if b >= 192 then
-				str =str:gsub(string.char(b), "?")
+		if type(str) == "string" then
+			for n = 1, #str do
+				local b = string.byte(str, n)
+				
+				if b >= 192 then
+					str =str:gsub(string.char(b), "?")
+				end
 			end
 		end
 		
@@ -202,11 +204,13 @@ if not _has8BitCharacters then
 
 	local oldTermBlit = term.blit
 	function term.blit(str, textColour, backgroundColour)
-		for n = 1, #str do
-			local b = string.byte(str, n)
-			
-			if b >= 192 then
-				str =str:gsub(string.char(b), "?")
+		if type(str) == "string" then
+			for n = 1, #str do
+				local b = string.byte(str, n)
+				
+				if b >= 192 then
+					str =str:gsub(string.char(b), "?")
+				end
 			end
 		end
 		
