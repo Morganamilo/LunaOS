@@ -1,36 +1,48 @@
 local weekNames = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"}
 local monthNames = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"}
 local realTime = false --give the program a chance to check if the time is real before ending up with 01/01/1970
+local timeAtBoot
+local offset
 
 local function initTime()
-	local request, err = http.timedRequest("http://lunadb.ddns.net/time.php", 2)
+	if not fs.exists("/LunaOS/data/system/timezone") then
+		local file = fs.open("/LunaOS/data/system/timezone", "w")
+		file.write("Europe/London")
+		file.close()
+	end
+	
+	local file = fs.open("/LunaOS/data/system/timezone", "r")
+	local timezone = file.readLine()
+	file.close()
+
+	local request, err = http.timedRequest("http://lunadb.ddns.net/time.php?timezone=" .. textutils.urlEncode(timezone), 2)
 	
 	if not request then
 		log.i("No connection to server, using local time")
-		return 0 --if we cant get the real time just use 0
+		return 0, 0 --if we cant get the real time just use 0
 	end
 	
-	local returnedTime = request.readLine()
-	returnedTime = tonumber(returnedTime)
+	local response = jsonUtils.decode(request.readLine())
+	
+	local returnedTime = tonumber(response[1])
+	local offset = tonumber(response[2])
 	
 	if not returnedTime then
 		log.i("invalid response, using local time")
-		return 0
+		return 0, 0
 	end
 	
 	realTime = true
 	
-	return returnedTime - math.floor(os.clock()) --for this to properly return the time at boot we must take away the system up time
+	return returnedTime - math.floor(os.clock()), offset --for this to properly return the time at boot we must take away the system up time
 end
-
-local timeAtBoot = initTime() --cache the time at boot so we dont nee to access the webserver everytime we need to check the time
 
 function time()
 	return timeAtBoot + math.floor(os.clock())
 end
 
 function timef(s, t)
-	t = t or time()
+	t = t or time() + offset
 	s = s or "%c"
 
 	errorUtils.assert(type(s) == "string", "Error: string expected got " .. type(s), 2)
@@ -101,3 +113,9 @@ end
 function isRealTime()
 	return realTime
 end
+
+function getOffset()
+	return offset
+end
+
+timeAtBoot, offset = initTime() --cache the time at boot so we dont nee to access the webserver everytime we need to check the time
