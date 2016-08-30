@@ -34,7 +34,7 @@ local function drawBar(text, percent)
 end
 
 local function drawText()
-	local text = "Botting LunaOS..."
+	local text = "Booting LunaOS..."
 	local textPos = 1 + math.floor(xSize/2 - #text/2)
 	
 	term.setCursorPos(textPos, 11)
