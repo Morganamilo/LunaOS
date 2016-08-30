@@ -29,9 +29,20 @@ local function drawBar(text, percent)
 	local textColour = string.rep("0", width)
 	local backgroundColour = string.rep("9", percent) ..  string.rep("8", width - percent) 
 	
-	term.setCursorPos(1 + math.floor(xSize/2 - width/2), 11)
+	term.setCursorPos(1 + math.floor(xSize/2 - width/2), 13)
 	term.blit(text, textColour, backgroundColour)
 end
+
+local function drawText()
+	local text = "Botting LunaOS..."
+	local textPos = 1 + math.floor(xSize/2 - #text/2)
+	
+	term.setCursorPos(textPos, 11)
+	term.setTextColour(colours.lightGrey)
+	term.setBackgroundColour(colours.grey)
+	term.write(text)
+end
+
 
 local function newSleep(time)
 	if time > 0 then
@@ -143,7 +154,7 @@ local function drawImage()
 			textColour = textColour .. image.textColour[x + ((y - 1)* image.size[1])] or "0"
 		end
 		
-		term.setCursorPos(1 + math.floor(xSize/2 - image.size[1]/2), 1 + math.floor(ySize/2 - image.size[2]/2) + y)
+		term.setCursorPos(1 + math.floor(xSize/2 - image.size[1]/2), y + 6)
 		term.blit(text, textColour, pixel)
 	end
 end
@@ -151,6 +162,7 @@ end
 image = decodeFile(imagePath)
 
 drawImage()
+drawText()
 loadAPIs()
 
 function gui(a)
