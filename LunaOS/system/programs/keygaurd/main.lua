@@ -46,7 +46,7 @@ shutdown:setPos(frame.xSize - shutdown.width + 1, frame.ySize)
 shutdown.backgroundColour = nil
 shutdown.textColour = colourUtils.blits.cyan
 shutdown.heldTextColour = colourUtils.blits.lightGrey
-shutdown.onClick = os.shutdown5
+shutdown.onClick = os.shutdown
 
 loginLabel:setSize(32, 1)
 loginLabel:setPos(1+ math.floor(frame.xSize/2 - loginLabel.width/2), 11)
