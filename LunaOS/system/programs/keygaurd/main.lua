@@ -37,6 +37,7 @@ restart:setSize(#restart.text,1)
 restart:setPos(frame.xSize - restart.width + 1, frame.ySize - 1)
 restart.backgroundColour = nil
 restart.textColour = colourUtils.blits.cyan
+restart.heldTextColour = colourUtils.blits.lightGrey
 restart.onClick = os.reboot
 
 shutdown:setText("Shutdown")
@@ -44,6 +45,7 @@ shutdown:setSize(#shutdown.text,1)
 shutdown:setPos(frame.xSize - shutdown.width + 1, frame.ySize)
 shutdown.backgroundColour = nil
 shutdown.textColour = colourUtils.blits.cyan
+shutdown.heldTextColour = colourUtils.blits.lightGrey
 shutdown.onClick = os.shutdown5
 
 loginLabel:setSize(32, 1)
