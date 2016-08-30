@@ -1,5 +1,5 @@
 local oldFs = fs
-local permData
+local permData = {}
 local permPath = lunaOS.getProp("permPath")
 local dataPath = lunaOS.getProp("dataPath")
 
@@ -28,7 +28,7 @@ end
 
 local function saveData()
 	local file = oldFs.open(permPath, "w")
-	local data = jsonUtils.encode(permData)
+	local data = jsonUtils.encode(permData, true)
 	file.write(data)
 	file.close()	
 end
@@ -463,32 +463,12 @@ function find(path)
 end
 
 -------------------------------------------------------------------
-
---[[function makeSymlink(real, link)
-	errorUtils.expect(real, 'string', true, 2)
-	errorUtils.expect(link, 'string', true, 2)
-	errorUtils.assert(hasWritePerm(link), "Error: permission denied", 2)
-	errorUtils.assert(hasReadPerm(getDir(real)), "Error: permission denied", 2)
-	errorUtils.assert(oldFs.exists(real), "Error: Source does not exist", 2)
-	errorUtils.assert(not oldFs.exists(dest), "Error: Destination exists", 2)
-
-	if oldFs.isDir(real) then
-		oldFs.mkDir(link)
-	else
-		oldFs.open(link, 'w').close()
-	end
-	
-	symLinks[combine(link):lower()] = combine(real):lower()
+if not oldFs.exists("LunaOS/data/system/perms.json") then
+	setPermTree("/", 3)
+	setPermTree("/LunaOS/system", 1)
+	setPermTree("bootloader", 1)
+	setPerm("startup", 1)
+	setPermTree("/LunaOS/data", 0)
+	setPermTree("/rom", 0)
+	setPermTree("/LunaOS/home", 3)
 end
-
-function unLink(link)
-	errorUtils.expect(link, 'string', true, 2)
-	errorUtils.assert(symLinks[combine(link):lower()], "Error: Not a link", 2)
-	
-	symLinks[combine(link):lower()] = nil
-	oldFs.delete(link)
-end]]
-
-------------------------------------------------------------------------
-
-permData = getPermData()
