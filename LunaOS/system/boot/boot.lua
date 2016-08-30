@@ -6,7 +6,7 @@ term.clear()
 
 local numToHex = {"1", "2", "3", "4", "5", "6", "7", "b", "9", "a", "b", "c", "d", "e", "f"}
 numToHex[0] = "0"
-numToHex[255] = "-"
+numToHex[16] = "-"
 
 local xSize, ySize = term.getSize()
 local filesToLoad = 14
@@ -102,7 +102,7 @@ local function loadAPIs()
 	log.i("------- Finished loading APIs -------")
 end
 
-function decodeImage(image)
+local function decodeImage(image)
 	local decodeImage = {size = {}, text = {}, textColour = {}, colour = {}}
 	
 	decodeImage.size[1] = string.byte(image:sub(1,1)) 
@@ -122,7 +122,7 @@ function decodeImage(image)
 	return decodeImage
 end
 
-function decodeFile(path)
+local function decodeFile(path)
 	local file = fs.open(path, "rb")
 	local image = ""
 	
@@ -159,7 +159,7 @@ local function drawImage()
 	end
 end
 
-image = decodeFile(imagePath)
+local image = decodeFile(imagePath)
 
 drawImage()
 drawText()
