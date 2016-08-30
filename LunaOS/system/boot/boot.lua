@@ -14,6 +14,7 @@ local loaded = 0
 local imagePath = "LunaOS/system/boot/boot.img"
 local image
 local sleepTime = 0
+local image
 
 local function drawBar(text, percent)
 	local width = 31
@@ -159,7 +160,7 @@ local function drawImage()
 	end
 end
 
-local image = decodeFile(imagePath)
+image = decodeFile(imagePath)
 
 drawImage()
 drawText()
