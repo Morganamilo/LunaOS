@@ -37,7 +37,7 @@ function isPassword(password)
 	errorUtils.assert(kernel.isSU(), "Error: permission denied", 2)
 	
 	if not (fs.exists(saltPath) and fs.exists(passwordPath)) then
-		makeFiles()
+		setPassword("")
 	end
 	
 	local salt = getSalt()
