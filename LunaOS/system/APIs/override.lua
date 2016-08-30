@@ -163,7 +163,7 @@ end
 function http.timedRequest(url, timeout, post, headers)
 	local timeRequest = http.request(url, post, headers)
 	local timer = os.startTimer(timeout)
-	local event, url, data
+
 		
 	while true do
 		local event, _url, data = coroutine.yield()
