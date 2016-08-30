@@ -88,7 +88,12 @@ while true do
 		selected = (selected % #options) + 1
 		desc = options[selected].desc
 	elseif key == 28 then --enter
-		if type(options[selected].action) == "function" then
+		if options[selected].action == "craftos" then
+			desc = "Running..."
+			local sucess, res = pcall(dofile, fs.combine("/bootloader", options[selected].action))
+			desc = res or "Completed"
+			break
+		elseif type(options[selected].action) == "function" then
 			options[selected].action()
 		elseif type(options[selected].action) == "string" then
 			desc = "Running..."

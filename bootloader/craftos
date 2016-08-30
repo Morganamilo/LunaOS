@@ -1,0 +1,6 @@
+term.setBackgroundColour(colours.black)
+term.setCursorPos(1, 1)
+term.clear()
+term.setTextColour(colours.yellow)
+print(os.version())
+term.setTextColour(colours.white)
