@@ -60,7 +60,7 @@ function Buffer:drawLine(xPos, yPos, width, colour)
 	end
 	
 	local startPos = self:XYToIndex(xPos, yPos)
-	local endPos = math.min(width - 1, self.xSize - xPos) + startPos
+	local endPos = width - 1 + startPos
 	
 	for n = startPos, endPos do
 		self:drawPixelIndexRaw(n, colour)
@@ -70,22 +70,24 @@ function Buffer:drawLine(xPos, yPos, width, colour)
 end
 
 function Buffer:drawVLine(xPos, yPos, width, colour)
-	--only draw if the position is in the range
+--only draw if the position is in the range
 	if xPos < 1 or xPos > self.xSize or yPos > self.ySize then return end
 	colour = toBlit(colour)
 	
 	--ajust the line so that if part off the buffer then only draw the part that is on the buffer
 	if yPos < 1 then
+		width  = width + yPos - 1
 		yPos = 1
-		width = width + (yPos - 1)
 	end
 	
 	local startPos = self:XYToIndex(xPos, yPos)
-	local endPos = math.min(width - 1, self.ySize - yPos) + start
+	local endPos = startPos + (width - 1)* self.xSize
 	
-	for y = startPos, endPos, self.xSize do
-		self:drawPixelIndexRaw(start + (y * self.xSize), colour)
+	for n = startPos, endPos, self.xSize do
+		self:drawPixelIndexRaw(n, colour)
 	end
+	
+	self.changed[yPos] = true
 end
 
 function Buffer:drawBox(xPos, yPos, width, height, colour)
