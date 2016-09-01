@@ -25,6 +25,7 @@ end
 
 function Button:handleUp(event, mouse, xPos, yPos)
 	if self:isInBounds(xPos, yPos) and self.held and self.activateOnRelease then
+		self.held = false
 		self:onClick()
 	end
 	
