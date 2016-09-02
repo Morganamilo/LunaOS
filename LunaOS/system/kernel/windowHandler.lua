@@ -128,7 +128,7 @@ function setHidden(state)
 		v.window.redraw()
 	end
 	
-	os.queueEvent("term_resizee")
+	os.queueEvent("term_resize")
 	workingArea.setVisible(true)
 	hidden = state
 	
