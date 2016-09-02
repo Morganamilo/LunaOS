@@ -217,7 +217,7 @@ function gui(a)
 	vl:applyTheme(default)
 	v:addComponent(vl)
 	
-		v.backgroundColour = "0"
+		--v.backgroundColour = "0"
 		
 	oldf = f
 	f = v
@@ -249,7 +249,6 @@ function gui(a)
 
 	
 	
-	
 
 	
 	
@@ -266,7 +265,7 @@ function gui(a)
 	b = GUI.Button(10,2,10,4,"this is a test")
 	
 	
-	function b:onClick() counter = counter + 1  self.text = "i have been pressed " .. counter   .. " times"  pb.progress = counter end
+	function b:onClick() counter = counter + 1  self.text = "i have been pressed " .. counter   .. " times"  pb.progress = counter  GUI.Popup.dialog(f, "quit?", "text", "yes", "no", "maybe") end
 	
 	
 	
@@ -361,16 +360,17 @@ function gui(a)
 	
 	--mv:addEventListener("key", n)
 	
-	
 	if a then f:mainLoop() else dofile("rom/programs/lua") end
 		
 end
 
 local pid = kernel.runRootProgram("LunaOS")
 kernel.runRootFile("rom/programs/lua")
+kernel.runRootFile("rom/programs/lua")
 kernel.runRootFile("rom/programs/shell")
-kernel.newProcess(function() gui(true) end , nil, "GUI")
 kernel.newProcess(function() gui()  end , nil, "GUI Shell")
+kernel.newProcess(function() gui(true) end , nil, "GUI")
+kernel.runProgram("Explorer")
 
 
 os.pullEvent = oldPullEvent
