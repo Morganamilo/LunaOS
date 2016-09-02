@@ -27,9 +27,6 @@ _private._runningPID = nil --pid of the currently running process
 _private._runningHistory = {}
 _private._waitingFor = {}
 
---local keyHandlerPath = "/LunaOS/system/kernel/keyHandler.lua"
---windowHandler = {} --os.loadAPILocal(keyHandlerPath)
-
 _private.programDataPath = lunaOS.getProp("dataPath")
 _private.programPath = lunaOS.getProp("programPath")
 
@@ -194,9 +191,12 @@ function _private.pushEvent(PID, event)
 	
 	if not waiting or (#event > 0 and (tableUtils.indexOf(waiting, event[1]) or #waiting == 0 or event[1] == 'terminate')) then
 		_private._runningPID = PID
-		term.redirect(_private._processes[PID].window)
+		windowHandler.redirect(PID)
+		
 		local data = _private.resume(currentProc.co, event)
 
+		windowHandler.setCurrentWindow(PID)
+		
 		if  _private._processes[PID] then
 			_private._waitingFor[PID] = data 
 		end
@@ -236,13 +236,11 @@ function _private.tick(event)
 		end
 	end
 
-	term.redirect(_private._processes[_private._focus].window)
+	windowHandler.redirect(_private._focus)
 	
 	if term.current().restoreCursor then
 		 term.current().restoreCursor()
 	end
-	
-	--term.redirect(_private._processes[_private._focuss].window)
 end
 
 function _private.resume(co, data)	
@@ -351,9 +349,7 @@ function getProcesses()
 	local procs = {}
 	
 	for k, v in pairs(_private._processes) do
-		procs[k] = tableUtils.copy(v)
-		procs[k].co = nil
-		procs[k].window = nil
+		procs[#procs + 1] = getProcess(k)
 	end
 	
 	return procs
@@ -361,13 +357,20 @@ end
 
 function getProcess(n)
 	errorUtils.expect(n, 'number', true, 2)
-	if not _private._processes[n] then return end
-
-	local proc = tableUtils.copy(_private._processes[n])
-	proc.co = nil
-	proc.window = nil
-	return proc
 	
+	local proc = _private._processes[n]
+	local stripedProc = {}
+	
+	if not proc then return end
+	
+	stripedProc.PID = proc.PID
+	stripedProc.name = proc.name
+	stripedProc.SU = proc.SU
+	stripedProc.desc = proc.desc
+	stripedProc.package = proc.package
+	stripedProc.parent = proc.parent
+	stripedProc.children = tableUtils.deepCopy(proc.children)
+	return stripedProc
 end
 
 function getRunning()
@@ -423,11 +426,11 @@ function gotoPID(PID, ...)
 	
 	_private._runningHistory[#_private._runningHistory + 1] = PID
 	
-	local old = _private._focus and _private._processes[_private._focus].window or nil
-				
+	local old = _private._focus
+	
 	_private._focus = PID
 	
-	windowHandler.gotoWindow(old, _private._processes[PID].window)
+	windowHandler.gotoWindow(old, PID)
 	
 	os.queueEvent("goto")
 	coroutine.yield("goto")
@@ -480,12 +483,5 @@ function startProcesses(PID)
 	
 	_private._runningPID = nil
 	
-	-- term.redirect(current)
-	-- term.setBackgroundColor(colors.black)
-	-- term.setTextColor(1)
-	-- term.clear()
-	-- term.setCursorPos(1,1)
-	
-	--print("Craft OS")
 	os.shutdown()
 end
