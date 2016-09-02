@@ -9,6 +9,7 @@
 local xSize, ySize = term.getSize()
 local native = term.native()
 local windowOrder = {}
+local currentWindow = {}
 local kernel
 local hidden = true
 
@@ -40,6 +41,10 @@ function setPrivate(p)
 	local metaFunction =  function(t, k) if p[k] ~= nil then return p[k] else return _G.kernel[k] end end
 	
 	kernel = setmetatable({}, {__index = metaFunction})
+end
+
+function setCurrentWindow(PID, window)
+	currentWindow[PID] = term.current()
 end
 
 local function getLabelAt(xPos, yPos)
@@ -163,22 +168,33 @@ end
 
 function newWindow(PID)
 	local y = ySize
-	updateBanner()
-	windowOrder[#windowOrder + 1] = PID
 	
 	if not hidden then
 		y = y - 1
 	end
 	
-	return window.create(workingArea, 1, 1, xSize, y, false)
+	local win = window.create(workingArea, 1, 1, xSize, y, false)
+	
+	updateBanner()
+	windowOrder[#windowOrder + 1] = PID
+	currentWindow[PID] = win
+	
+	return win
 end
 
-function gotoWindow(oldWin, newWin)
-	if oldWin then oldWin.setVisible(false) end
-		newWin.setVisible(true)
-		term.redirect(newWin)
-		updateBanner()
-		newWin.redraw()
+function gotoWindow(old, new)
+	local newWin = kernel._processes[new].window
+
+	if old then 
+		kernel._processes[old].window.setVisible(false)
+	end
+	
+	newWin.setVisible(true)
+	updateBanner()
+end
+
+function redirect(PID)
+	term.redirect(currentWindow[PID])
 end
 
 function handleEvent(event)	
@@ -253,6 +269,7 @@ end
 function handleDeath(PID)
 	tableUtils.removeValue(windowOrder, PID)
 	updateBanner()
+	currentWindow[PID] = nil
 end
 
 function handleFinish()
