@@ -55,11 +55,11 @@ function Menu:popup(v, xPos, yPos)
 	end
 	
 	
-	theme.backgroundColour = nil
-	theme.textColour = colourUtils.blits.grey
-	theme.heldBackgroundColour = colourUtils.blits.blue
-	theme.heldTextColour = colourUtils.blits.white
-	theme.viewBackgroundColour = colourUtils.blits.white
+	theme.backgroundColour = self.backgroundColour
+	theme.textColour = self.textColour
+	theme.heldBackgroundColour = self.heldBackgroundColour
+	theme.heldTextColour = self.heldTextColour
+	theme.viewBackgroundColour = self.backgroundColour
 	
 	view:applyTheme(theme)
 	
@@ -82,7 +82,7 @@ function Menu:popup(v, xPos, yPos)
 			local label = GUI.Label(1, k, width, 1, string.rep(v.char, width))
 	
 			label:applyTheme(theme)
-			label.textColour = colourUtils.blits.lightGrey
+			label.textColour = self.separatorColour
 			view:addComponent(label)
 		end
 	end
@@ -91,4 +91,12 @@ function Menu:popup(v, xPos, yPos)
 	self:setPos(frame, view, xPos, yPos)
 	
 	return GUI.Popup.popup(frame, view, true)
+end
+
+function Menu:applyTheme(theme)
+	self.textColour = theme.menuTextColour
+	self.heldTextColour = theme.menuHeldTextColour
+	self.backgroundColour = theme.menuBackgroundColour
+	self.heldBackgroundColour = theme.menuHeldBackgroundColour
+	self.separatorColour = theme.menuSeparatorColour
 end

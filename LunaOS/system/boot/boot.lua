@@ -265,6 +265,7 @@ function gui(a)
 	b = GUI.Button(10,2,10,4,"this is a test")
 	
 	c = GUI.Menu()
+	c:applyTheme(default)
 	c:addItem("Copy")
 	c:addSeparator("-")
 	c:addItem("Cut")
