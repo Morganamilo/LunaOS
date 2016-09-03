@@ -177,7 +177,6 @@ function ScrollView:handleAny(...)
 	self.vBar:handleEvent(event)
 	self.hBar:handleEvent(event)
 	
-	
 	if event[1] == "mouse_click" or event[1] == "mouse_up" or event[1] == "mouse_scroll" or event[1] == "mouse_drag" then
 		inBounds = self:isInBounds(event[3], event[4])
 		
@@ -185,6 +184,10 @@ function ScrollView:handleAny(...)
 			event[3] = math.huge
 			event[4] = math.huge
 		end
+	end
+	
+	if event[1] == ("mouse_click" or "mouse_up" ) and inBounds then
+		self.held = true
 	end
 
 	if event[1] == "mouse_scroll" then
@@ -219,6 +222,12 @@ function ScrollView:handleAny(...)
 	if event[1] == "mouse_scroll" and inBounds then
 		self:handleScroll(unpack(event))
 	end
+	
+	if event[1] == ("mouse_click" or "mouse_up" ) and inBounds and not self:getFrame():getFocus() then
+		self:requestFocus()
+		self.held = false
+	end
+
 end
 
 function ScrollView:setCursorPos(xPos, yPos)
