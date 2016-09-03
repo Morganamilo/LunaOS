@@ -60,7 +60,7 @@ function Buffer:drawLine(xPos, yPos, width, colour)
 	end
 	
 	local startPos = self:XYToIndex(xPos, yPos)
-	local endPos = width - 1 + startPos
+	local endPos = math.min(width - 1, self.xSize - xPos) + startPos
 	
 	for n = startPos, endPos do
 		self:drawPixelIndexRaw(n, colour)
@@ -81,7 +81,7 @@ function Buffer:drawVLine(xPos, yPos, width, colour)
 	end
 	
 	local startPos = self:XYToIndex(xPos, yPos)
-	local endPos = startPos + (width - 1)* self.xSize
+	local endPos =  math.min(startPos + (width - 1)* self.xSize, self.size)
 	
 	for n = startPos, endPos, self.xSize do
 		self:drawPixelIndexRaw(n, colour)
