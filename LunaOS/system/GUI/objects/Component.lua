@@ -59,8 +59,17 @@ function Component:setCursorBlink(blink)
 	end
 end
 
+function Component:isInBounds()
+	return false
+end
+
 function Component:setParentPane(pane)	
 	self.parentPane = pane
+end
+
+function Component:getAbsolutePos()
+	local xPos, yPos = self:getParentPane():getAbsolutePos()
+	return xPos + self.xPos - 1, yPos + self.yPos - 1 
 end
 
 function Component:requestFocus()

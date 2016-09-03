@@ -1,30 +1,31 @@
 Popup = object.class()
 
-function Popup:init(xPos, yPos, width,  height)
-	self.xPos = xPos
-	self.yPos = yPos
-	self.width = width
-	self.height = height
-end
-
-function Popup.static.popup(frame, view)
+function Popup.static.popup(frame, view, closeAfterEvent)	
 	while view.active do
 		frame:drawInternal()
 		view:draw(frame.buffer)
 		
 		frame.buffer:drawLine(view.xPos + 1, view.yPos + view.height, view.width,  colourUtils.blits.grey)
 		frame.buffer:drawVLine(view.xPos + view.width, view.yPos + 1, view.height - 1, colourUtils.blits.grey)
-		
+	
 		frame.buffer:draw()
 	
 		local event = {coroutine.yield()}
 		view:handleEvent(event)
+		
+		if closeAfterEvent then
+			if (event[1] == "mouse_click" or event[1] == "mouse_scroll") and not view:isInBounds(event[3], event[4]) then
+				return nil
+			end
+		end
+	
 	end
 	
 	return view.result
 end
 
-function Popup.static.dialog(frame, title, text, ...)
+function Popup.static.dialog(v, title, text, ...)
+	local frame = v:getFrame()
 	local view = GUI.View()
 	local theme = GUI.Theme()
 	

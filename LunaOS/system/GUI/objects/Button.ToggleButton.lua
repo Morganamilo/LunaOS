@@ -12,21 +12,17 @@ function ToggleButton:toggleSelected()
 	self.selected = not self.selected
 end
 
-function ToggleButton:onSelect()
-
-end
-
-function ToggleButton:onUnSelect()
-
-end
-
 function ToggleButton:onClick()
 	self:toggleSelected()
 
 	if self.selected then
-		self:onSelect()
+		if self.onSelect then
+			self:onSelect()
+		end
 	else
-		self:onUnSelect()
+		if self.onUnSelect then
+			self:onUnSelect()
+		end
 	end
 end
 

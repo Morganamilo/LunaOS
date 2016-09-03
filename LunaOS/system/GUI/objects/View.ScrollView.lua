@@ -173,9 +173,14 @@ function ScrollView:handleAny(...)
 	local xAjust, yAjust = self:getAjust()
 	
 	local inBounds
+	local hit = false
 	
 	self.vBar:handleEvent(event)
 	self.hBar:handleEvent(event)
+	
+	if event[1] == "mouse_click"  then
+		hit = true
+	end
 	
 	if event[1] == "mouse_click" or event[1] == "mouse_up" or event[1] == "mouse_scroll" or event[1] == "mouse_drag" then
 		inBounds = self:isInBounds(event[3], event[4])
@@ -183,13 +188,11 @@ function ScrollView:handleAny(...)
 		if not inBounds then
 			event[3] = math.huge
 			event[4] = math.huge
+			hit  = false
+			self.held = false
 		end
 	end
 	
-	if event[1] == ("mouse_click" or "mouse_up" ) and inBounds then
-		self.held = true
-	end
-
 	if event[1] == "mouse_scroll" then
 		if inBounds then
 			local bar
@@ -205,15 +208,13 @@ function ScrollView:handleAny(...)
 			elseif event[2] > 0 and bar.scrollLevel < bar.steps then
 				self:requestFocus()
 			end
-		end
 		
+		end
 	end
 	
 	event = self:ajustEvent(event, -xAjust, -yAjust)
 	
-	for _, component in pairs(self.components) do
-		component:handleEvent(event)
-	end
+	self:pushEvent(event)
 	
 	if event[1] == "key" then
 		self:handleKey(unpack(event))
@@ -223,26 +224,20 @@ function ScrollView:handleAny(...)
 		self:handleScroll(unpack(event))
 	end
 	
-	if event[1] == ("mouse_click" or "mouse_up" ) and inBounds and not self:getFrame():getFocus() then
-		self:requestFocus()
+	if event[1] == "mouse_up" and self.held then
 		self.held = false
+		self:requestFocus()
+		
+		if event[2] == 1 and self.onClick then
+			self:onClick(event[1], event[2], event[3], event[4])
+		end
+		
+		if event[2] == 2 and self.onRightClick then
+			self:onRightClick(event[1], event[2], event[3], event[4])
+		end
 	end
-
-end
-
-function ScrollView:setCursorPos(xPos, yPos)
-	xPos = xPos + self.xPos - self.hBar.scrollLevel
-	yPos = yPos + self.yPos - self.vBar.scrollLevel
 	
-	if self:isInBounds(xPos, yPos) then
-		self:getParentPane():setCursorPos(xPos, yPos)
-	else
-		self:getParentPane():setCursorPos(nil, nil)
+	if hit then
+		self.held = true
 	end
-end
-
-function ScrollView:getCursorPos()
-	xPos = xPos - self.xPos + self.hBar.scrollLevel
-	yPos = yPos - self.yPos + self.vBar.scrollLevel
-	return self:getParentPane():getCursorPos(xPos, yPos)
 end

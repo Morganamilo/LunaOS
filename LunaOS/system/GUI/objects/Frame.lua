@@ -100,10 +100,6 @@ function Frame:setCursorPos(xPos, yPos)
 	self.cursorYPos = yPos
 end
 
-function Frame:getCursorPos()
-	return self.cursorXPos, self.cursorYPos
-end
-
 function Frame:setCursorBlink(blink)
 	self.blink = blink
 end
@@ -114,4 +110,8 @@ end
 
 function Frame:getFocus()
 	return self.focus
+end
+
+function Frame:getAbsolutePos()
+	return 1, 1
 end
