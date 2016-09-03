@@ -10,8 +10,7 @@ function View:init(xPos, yPos, width, height)
 	self.yPos = yPos or 1
 	self.width = width or x
  	self.height = height or y
-
-	self:setAjustFunctions()
+	
 	self.buffer = GUI.Buffer(term.current(), self.xPos, self.yPos, self.width, self.height)
 	
 	self:addEventListener("", self.handleAny)
@@ -40,23 +39,11 @@ function View:getAjust()
 end
 
 function View:drawInternal()
-	self.oldSetCursorPos = term.setCursorPos
-	self.oldGetCursorPos = term.getCursorPos
-	self.oldSetCursorBlink = term.setCursorBlink
-	
-	term.setCursorPos = self.ajustedSetCursorPos
-	term.getCursorPos = self.ajustedGetCursorPos
-	term.setCursorBlink = self.ajustedSetCursorBlink
-	
 	self:clear() 
 	
 	for _, component in pairs(self.components) do  
 		component:onDraw(self.buffer)
 	end
-		
-	term.setCursorPos = self.oldSetCursorPos
-	term.getCursorPos = self.oldGetCursorPos
-	term.setCursorBlink = self.oldSetCursorBlink
 end
 
 function View:clear()
@@ -133,36 +120,23 @@ function View:applyTheme(theme)
 	self.backgroundColour = theme.viewBackgroundColour
 end
 
-function View:setAjustFunctions()
-	self.ajustedSetCursorPos = function(xPos, yPos)
-		local xAjust, yAjust = self:getAjust()
+function View:setCursorPos(xPos, yPos)
+	xPos = xPos + self.xPos - 1
+	yPos = yPos + self.yPos - 1
 		
-		xPos = xPos + xAjust
-		yPos = yPos + yAjust
-		
-		self.oldSetCursorPos(xPos, yPos)
-		
-		if not self:isInBounds(xPos, yPos) then
-			term.setCursorBlink(false)
-		end
+	if self:isInBounds(xPos, yPos) then
+		self:getParentPane():setCursorPos(xPos, yPos)
+	else
+		self:getParentPane():setCursorPos(nil, nil)
 	end
-	
-	self.ajustedGetCursorPos = function()
-		local x, y = self.oldGetCursorPos()
-		local xAjust, yAjust = self:getAjust()
-		
-		return x - xAjust, y - yAjust
-	end
-	
-	self.ajustedSetCursorBlink = function(blink)
-		if not blink then
-			self.oldSetCursorBlink(false)
-		else
-			local x, y = self.oldGetCursorPos()
-			
-			if self:isInBounds(x, y) then
-				self.oldSetCursorBlink(true)
-			end
-		end
-	end
+end
+
+function View:getCursorPos()
+	xPos = xPos - self.xPos + 1
+	yPos = yPos - self.yPos + 1
+	return self:getParentPane():getCursorPos()
+end
+
+function View:setCursorBlink(blink)
+	self:getParentPane():setCursorBlink(blink)
 end

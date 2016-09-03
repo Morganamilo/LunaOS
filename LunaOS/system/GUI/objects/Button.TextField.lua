@@ -36,7 +36,6 @@ function TextField:handleDown(event, mouse, xPos, yPos)
 	end
 end
 
-
 function TextField:handleDrag(event, mouse, xPos, yPos)
 	if self:isFocus() then
 		xPos = math.max(self.xPos, math.min(xPos, self.xPos + self.width - 1))
@@ -93,12 +92,24 @@ function TextField:handleKey(event, key)
 	end
 end
 
-function TextField:setText(text)
+function TextField:setTextInternal(text)
 	self.super:setText(text)
+	
+	if self.onChange then
+		self:onChange()
+	end
+end
+
+function TextField:setText(text)
+	self:setTextInternal(text)
 	
 	self.scrollPos = 1
 	self:goToEnd()
 	self:unSelect()
+end
+
+function TextField:clear()
+	self:setText("")
 end
 
 function TextField:handleChar(event, chr)
@@ -157,7 +168,7 @@ function TextField:addChar(chr)
 	local leftPart = self.text:sub(1, self.cursorPos - 1)
 	local rightPart = self.text:sub(self.cursorPos)
 	
-	self.text = leftPart .. chr .. rightPart
+	self:setTextInternal(leftPart .. chr .. rightPart)
 	self:moveCursorRight(#chr)
 end
 
@@ -176,7 +187,7 @@ function TextField:removeChar(pos, amount)
 	local rightPart = self.text:sub(pos + amount)
 	
 	
-	self.text = leftPart .. rightPart
+	self:setTextInternal(leftPart .. rightPart)
 	self:moveCursorLeft(amount)
 	
 	if self.cursorPos == #self.text + 1 and self.scrollPos == #self.text - self.width + 3  then 
@@ -188,7 +199,7 @@ function TextField:removeSelected()
 	local startSelect, endSelect = self:getSelectedPos()
 			
 	if startSelect then
-		self.text = self.text:sub(1, startSelect - 1) .. self.text:sub(endSelect + 1)
+		self:setTextInternal(self.text:sub(1, startSelect - 1) .. self.text:sub(endSelect + 1))
 		self.cursorPos = startSelect
 		self:unSelect()
 	end
@@ -240,12 +251,12 @@ function TextField:draw(buffer)
 	end
 	
 	if self:isFocus() then 
-		term.setCursorBlink(true)
+		self:setCursorBlink(true)
 		self.blinking = true
-		term.setCursorPos(self.xPos + self.cursorPos - self.scrollPos, self.yPos)
+		self:setCursorPos(self.xPos + self.cursorPos - self.scrollPos, self.yPos)
 	else
 		if self.blinking then
-			term.setCursorBlink(false)
+			self:setCursorBlink(false)
 			self.blinking = false
 		end
 		

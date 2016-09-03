@@ -43,6 +43,24 @@ function Component:getParentPane()
 	return self.parentPane
 end
 
+function Component:setCursorPos(xPos, yPos)
+	if self:getParentPane() then
+		return self:getParentPane():setCursorPos(xPos, yPos)
+	end
+end
+
+function Component:getCursorPos()
+	if self:getParentPane() then
+		return self:getParentPane():getCursorPos()
+	end
+end
+
+function Component:setCursorBlink(blink)
+	if self:getParentPane() then
+		return self:getParentPane():setCursorBlink(blink)
+	end
+end
+
 function Component:setParentPane(pane)
 	if self.parentPane then
 		self.parentPane:removeComponent(self)
