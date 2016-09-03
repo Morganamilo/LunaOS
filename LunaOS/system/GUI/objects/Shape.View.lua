@@ -82,34 +82,19 @@ function View:ajustEvent(event, xAjust, yAjust)
 end
 
 function View:handleAny(...)
-	self:handleAnyInternal(false, ...)
-end
-
-function View:handleAnyForce(...)
-	self:handleAnyInternal(true, ...)
-end
-
-function View:handleAnyInternal(force, ...)
 	local event = arg
 	
 	local xAjust, yAjust = self:getAjust()
 		
-	if not force then
-		if event[1] == "mouse_click" or event[1] == "mouse_up" or event[1] == "mouse_scroll" or event[1] == "mouse_drag" then
-			--if the event is out of the range of the view then dont process any further
-			if not self:isInBounds(event[3], event[4]) then
-				if event[1] == "mouse_up" then
-					event[3] = 0
-					event[4] = 0
-				else
-					return
-				end
-			end
+	if event[1] == "mouse_click" or event[1] == "mouse_up" or event[1] == "mouse_scroll" or event[1] == "mouse_drag" then
+		--if the event is out of the range of the view then dont process any further
+		if not self:isInBounds(event[3], event[4]) then
+			event[3] = math.huge
+			event[4] = math.huge
 		end
 	end
 	
 	event = self:ajustEvent(event, -xAjust, -yAjust)
-	
 	
 	for _, component in pairs(self.components) do
 		component:handleEvent(event)
@@ -121,8 +106,10 @@ function View:applyTheme(theme)
 end
 
 function View:setCursorPos(xPos, yPos)
-	xPos = xPos + self.xPos - 1
-	yPos = yPos + self.yPos - 1
+	local xAjust, yAjust = self:getAjust()
+	
+	xPos = xPos + xAjust
+	yPos = yPos +yAjust
 		
 	if self:isInBounds(xPos, yPos) then
 		self:getParentPane():setCursorPos(xPos, yPos)
@@ -132,8 +119,10 @@ function View:setCursorPos(xPos, yPos)
 end
 
 function View:getCursorPos()
-	xPos = xPos - self.xPos + 1
-	yPos = yPos - self.yPos + 1
+	local xAjust, yAjust = self:getAjust()
+	
+	xPos = xPos - xAjust
+	yPos = yPos - xAjust
 	return self:getParentPane():getCursorPos()
 end
 

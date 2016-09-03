@@ -82,7 +82,7 @@ function ScrollView:handleKey(event, key)
 end
 
 function ScrollView:getAjust()
-	return self.xPos  - self.hBar.scrollLevel, self.yPos - self.vBar.scrollLevel 
+	return self.xPos  - self.hBar.scrollLevel, self.yPos - self.vBar.scrollLevel
 end
 
 function ScrollView:clear()
@@ -170,51 +170,53 @@ end
 
 function ScrollView:handleAny(...)
 	local event = arg
+	local xAjust, yAjust = self:getAjust()
+	
+	local inBounds
 	
 	self.vBar:handleEvent(event)
 	self.hBar:handleEvent(event)
 	
-	if not force then
-		if event[1] == "mouse_click" or event[1] == "mouse_up" or event[1] == "mouse_scroll" or event[1] == "mouse_drag" then
-			--if the event is out of the range of the view then dont process any further
-			if not self:isInBounds(event[3], event[4]) then
-				if event[1] == "mouse_up" then
-					event[3] = 0
-					event[4] = 0
-				else
-					return
-				end
-			elseif event[1] == "mouse_scroll" then
-				local bar
 	
-				if keyHandler.isKeyDown(42) then
-					bar = self.hBar
-				else
-					bar = self.vBar
-				end
-				
-				if event[2] < 0 and bar.scrollLevel > 1 then
-					self:requestFocus()
-				elseif event[2] > 0 and bar.scrollLevel < bar.steps then
-					self:requestFocus()
-				end
-			elseif event[1] ~= "mouse_up" then
-				--self:requestFocus()
-			end
+	if event[1] == "mouse_click" or event[1] == "mouse_up" or event[1] == "mouse_scroll" or event[1] == "mouse_drag" then
+		inBounds = self:isInBounds(event[3], event[4])
+		
+		if not inBounds then
+			event[3] = math.huge
+			event[4] = math.huge
 		end
 	end
+
+	if event[1] == "mouse_scroll" then
+		if inBounds then
+			local bar
+
+			if keyHandler.isKeyDown(42) then
+				bar = self.hBar
+			else
+				bar = self.vBar
+			end
+			
+			if event[2] < 0 and bar.scrollLevel > 1 then
+				self:requestFocus()
+			elseif event[2] > 0 and bar.scrollLevel < bar.steps then
+				self:requestFocus()
+			end
+		end
+		
+	end
 	
-	local xAjust = self.hBar.scrollLevel - 1
-	local yAjust = self.vBar.scrollLevel - 1
+	event = self:ajustEvent(event, -xAjust, -yAjust)
 	
-	self:ajustEvent(event, xAjust, yAjust)
-	self.super:handleAnyForce(unpack(event))
+	for _, component in pairs(self.components) do
+		component:handleEvent(event)
+	end
 	
 	if event[1] == "key" then
 		self:handleKey(unpack(event))
 	end
 	
-	if event[1] == "mouse_scroll" then
+	if event[1] == "mouse_scroll" and inBounds then
 		self:handleScroll(unpack(event))
 	end
 end
