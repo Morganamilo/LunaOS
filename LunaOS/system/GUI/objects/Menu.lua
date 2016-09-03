@@ -41,7 +41,7 @@ function Menu:popup(v, xPos, yPos)
 	local theme = GUI.Theme()
 	
 	local width = 15
-	local height = #self.items
+	local height = #self.items + 2
 	
 	local realXPos, realYPos = v:getAbsolutePos()
 	
@@ -66,7 +66,7 @@ function Menu:popup(v, xPos, yPos)
 	
 	for k, v in pairs(self.items) do
 		if v.type == "button" then
-			local button = GUI.Button(1, k, width, 1, v.text)
+			local button = GUI.Button(1, k + 1, width, 1, v.text)
 			button:setMargin(0,0,1,1)
 			
 			function button:onClick()
@@ -79,7 +79,7 @@ function Menu:popup(v, xPos, yPos)
 		end
 		
 		if v.type == "separator" then
-			local label = GUI.Label(1, k, width, 1, string.rep(v.char, width))
+			local label = GUI.Label(1, k + 1, width, 1, string.rep(v.char, width))
 	
 			label:applyTheme(theme)
 			label.textColour = self.separatorColour
