@@ -2,6 +2,9 @@ Frame = object.class()
 
 Frame.running = false
 Frame.components = {}
+Frame.blink = false
+Frame.cursorXPos = nil
+Frame.cursorYPos = nil
 
 function Frame:init(window)
 	self.window = window or term.current()
@@ -70,11 +73,14 @@ function Frame:drawInternal()
 end
 
 function Frame:draw()
+	term.setCursorBlink(false)
 	self:drawInternal()
-	
-	self.xCursor, self.yCursor = term.getCursorPos()
 	self.buffer:draw()
-	term.setCursorPos(self.xCursor, self.yCursor)
+	
+	if self.cursorXPos and self.cursorYPos then
+		term.setCursorBlink(self.blink)
+		term.setCursorPos(self.cursorXPos, self.cursorYPos)
+	end
 end
 
 function Frame:applyTheme(theme)
@@ -87,6 +93,19 @@ function Frame:setFocus(component)
 	end
 	
 	self.focus = component
+end
+
+function Frame:setCursorPos(xPos, yPos)
+	self.cursorXPos = xPos
+	self.cursorYPos = yPos
+end
+
+function Frame:getCursorPos()
+	return self.cursorXPos, self.cursorYPos
+end
+
+function Frame:setCursorBlink(blink)
+	self.blink = blink
 end
 
 function Frame:unFocus()

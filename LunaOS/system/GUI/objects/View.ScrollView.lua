@@ -21,8 +21,6 @@ function ScrollView:init(xPos, yPos, width, height, virtualwidth, virtualheight)
 	
 	self.vBar:setParentPane(self)
 	self.hBar:setParentPane(self)
-	
-	self:setAjustFunctions()
 end
 
 function ScrollView:makeBufffer()
@@ -219,4 +217,21 @@ function ScrollView:handleAny(...)
 	if event[1] == "mouse_scroll" then
 		self:handleScroll(unpack(event))
 	end
+end
+
+function ScrollView:setCursorPos(xPos, yPos)
+	xPos = xPos + self.xPos - self.hBar.scrollLevel
+	yPos = yPos + self.yPos - self.vBar.scrollLevel
+	
+	if self:isInBounds(xPos, yPos) then
+		self:getParentPane():setCursorPos(xPos, yPos)
+	else
+		self:getParentPane():setCursorPos(nil, nil)
+	end
+end
+
+function ScrollView:getCursorPos()
+	xPos = xPos - self.xPos + self.hBar.scrollLevel
+	yPos = yPos - self.yPos + self.vBar.scrollLevel
+	return self:getParentPane():getCursorPos(xPos, yPos)
 end
