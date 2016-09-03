@@ -185,8 +185,6 @@ end
 --overridden functions
 -----------------------------------------------------------------------------------------
 
---local symLinks = {}
-
 function isSubdirOf(dir, subdir)
 	errorUtils.expect(dir, "string", true)
 	errorUtils.expect(subdir, "string", true)
@@ -472,3 +470,5 @@ if not oldFs.exists("LunaOS/data/system/perms.json") then
 	setPermTree("/rom", 0)
 	setPermTree("/LunaOS/home", 3)
 end
+
+permData = getPermData()
