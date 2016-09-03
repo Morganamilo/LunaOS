@@ -29,11 +29,11 @@ function Popup.static.dialog(v, title, text, ...)
 	local view = GUI.View()
 	local theme = GUI.Theme()
 	
-	local width = math.floor(frame.xSize / 1.5)
-	local lines = #textUtils.wrap(text, width, math.floor(frame.ySize / 2))
+	local width = math.floor(frame.width / 1.5)
+	local lines = #textUtils.wrap(text, width, math.floor(frame.height / 2))
 	
 	view:setSize(width, lines + 5)
-	view:setPos(math.floor(frame.xSize/2 - view.width/2), math.floor(frame.ySize/2 - view.height/2))
+	view:setPos(math.floor(frame.width/2 - view.width/2), math.floor(frame.height/2 - view.height/2))
 	
 	local topBar = GUI.Label(1,1, view.width - 1, 1)
 	local exitButton = GUI.Button(view.width, 1, 1, 1, "x")
