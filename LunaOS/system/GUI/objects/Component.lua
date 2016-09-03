@@ -34,9 +34,7 @@ function Component:draw()
 end
 
 function Component:getFrame()
-	if self:getParentPane() and self:getParentPane():getFrame() then
 		return self:getParentPane():getFrame()
-	end
 end
 
 function Component:getParentPane()
@@ -61,11 +59,7 @@ function Component:setCursorBlink(blink)
 	end
 end
 
-function Component:setParentPane(pane)
-	if self.parentPane then
-		self.parentPane:removeComponent(self)
-	end
-	
+function Component:setParentPane(pane)	
 	self.parentPane = pane
 end
 

@@ -127,7 +127,6 @@ function setPath(p)
 	if not fs.hasReadPerm(p) then
 		footer:setText("Access Denied")
 	elseif fs.isDir(p) then
-		adressBar:setText(p)
 		handleDirectory(p)
 	elseif fs.isFile(p) then
 		handleFile(p)

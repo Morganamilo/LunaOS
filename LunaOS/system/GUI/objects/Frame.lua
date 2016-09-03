@@ -38,8 +38,8 @@ function Frame:removeComponent(component)
 		local index = tableUtils.indexOf(self.components, component)
 		
 		if index then
+			self.components[index] = nils
 			table.remove(self.components, index)
-			component:setParentPane(nil)
 		end
 	end
 end
