@@ -8,7 +8,7 @@ local numToHex = {"1", "2", "3", "4", "5", "6", "7", "b", "9", "a", "b", "c", "d
 numToHex[0] = "0"
 numToHex[16] = "-"
 
-local width, height = term.getSize()
+local xSize, ySize = term.getSize()
 local filesToLoad = 14
 local loaded = 0
 local imagePath = "LunaOS/system/boot/boot.img"
@@ -30,13 +30,13 @@ local function drawBar(text, percent)
 	local textColour = string.rep("0", width)
 	local backgroundColour = string.rep("9", percent) ..  string.rep("8", width - percent) 
 	
-	term.setCursorPos(1 + math.floor(width/2 - width/2), 13)
+	term.setCursorPos(1 + math.floor(xSize/2 - width/2), 13)
 	term.blit(text, textColour, backgroundColour)
 end
 
 local function drawText()
 	local text = "Booting LunaOS..."
-	local textPos = 1 + math.floor(width/2 - #text/2)
+	local textPos = 1 + math.floor(xSize/2 - #text/2)
 	
 	term.setCursorPos(textPos, 11)
 	term.setTextColour(colours.lightGrey)
@@ -155,7 +155,7 @@ local function drawImage()
 			textColour = textColour .. image.textColour[x + ((y - 1)* image.size[1])] or "0"
 		end
 		
-		term.setCursorPos(1 + math.floor(width/2 - image.size[1]/2), y + 6)
+		term.setCursorPos(1 + math.floor(xSize/2 - image.size[1]/2), y + 6)
 		term.blit(text, textColour, pixel)
 	end
 end
@@ -192,7 +192,7 @@ function gui(a)
 	ls = GUI.Label(2,1,1,12,"123456789abc")
 	
 	v2 = GUI.View(2, 2, 49, 17) --1.1
-	v = GUI.ScrollView(4, 4, 44, 13, 70, 80)
+	v = GUI.ScrollView(4, 14, 44, 13, 70, 80)
 	v3 = GUI.View(28, 3, 6, 16)
 	
 	v2:addComponent(ls)

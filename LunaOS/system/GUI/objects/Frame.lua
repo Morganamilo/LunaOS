@@ -13,11 +13,11 @@ function Frame:init(window)
 	
 	self.xPos = 1
 	self.yPos = 1
-	self.width = x
- 	self.height = y
+	self.xSize = x
+ 	self.ySize = y
 	self.backgroundColour =  "0"
 	
-	self.buffer = GUI.Buffer(self.window, self.xPos, self.yPos, self.width, self.height, self.backgroundColour)
+	self.buffer = GUI.Buffer(self.window, self.xPos, self.yPos, self.xSize, self.ySize, self.backgroundColour)
 end
 
 function Frame:getFrame()

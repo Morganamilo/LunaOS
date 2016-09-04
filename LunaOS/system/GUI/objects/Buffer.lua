@@ -3,7 +3,7 @@ Buffer = object.class()
 local toBlit = colourUtils.colourToBlit
 local div = mathUtils.div
 
-function Buffer:init(term, xPos, yPos, width, height, colour)
+function Buffer:init(term, xPos, yPos, xSize, ySize, colour)
 	self.term = term
 	
 	self.pixelBuffer = {}
@@ -11,13 +11,13 @@ function Buffer:init(term, xPos, yPos, width, height, colour)
 	self.textColourBuffer = {}
 	self.changed = {}
 	
-	self.width = width
-	self.height = height
+	self.xSize = xSize
+	self.ySize = ySize
 	
 	self.xPos = xPos
 	self.yPos = yPos
 		
-	self.size = width * height
+	self.size = xSize * ySize
 	
 	if colour then self:clear(colour) end
 end
@@ -50,7 +50,7 @@ end
 --draws a line with a given length at a given X, Y coord
 function Buffer:drawLine(xPos, yPos, width, colour) 
 	--only draw if the position is in the range
-	if yPos < 1 or yPos > self.height or xPos > self.width then return end
+	if yPos < 1 or yPos > self.ySize or xPos > self.xSize then return end
 	colour = toBlit(colour)
 	
 	--ajust the line so that if part off the buffer then only draw the part that is on the buffer
@@ -60,7 +60,7 @@ function Buffer:drawLine(xPos, yPos, width, colour)
 	end
 	
 	local startPos = self:XYToIndex(xPos, yPos)
-	local endPos = math.min(width - 1, self.width - xPos) + startPos
+	local endPos = math.min(width - 1, self.xSize - xPos) + startPos
 	
 	for n = startPos, endPos do
 		self:drawPixelIndexRaw(n, colour)
@@ -71,7 +71,7 @@ end
 
 function Buffer:drawVLine(xPos, yPos, width, colour)
 --only draw if the position is in the range
-	if xPos < 1 or xPos > self.width or yPos > self.height then return end
+	if xPos < 1 or xPos > self.xSize or yPos > self.ySize then return end
 	colour = toBlit(colour)
 	
 	--ajust the line so that if part off the buffer then only draw the part that is on the buffer
@@ -81,9 +81,9 @@ function Buffer:drawVLine(xPos, yPos, width, colour)
 	end
 	
 	local startPos = self:XYToIndex(xPos, yPos)
-	local endPos =  math.min(startPos + (width - 1)* self.width, self.size)
+	local endPos =  math.min(startPos + (width - 1)* self.xSize, self.size)
 	
-	for n = startPos, endPos, self.width do
+	for n = startPos, endPos, self.xSize do
 		self:drawPixelIndexRaw(n, colour)
 	end
 	
@@ -131,7 +131,7 @@ function Buffer:drawFunction2(xPos, yPos, width, height, f, colour)
 		for x = 1, width do
 			local res = mathUtils.round(f(x))
 			local next =  f(x+1)
-			if res >= 1 and res <= self.height or next >= 1 and next <= self.height then
+			if res >= 1 and res <= self.ySize or next >= 1 and next <= self.ySize then
 				
 			
 				if next > res then
@@ -179,8 +179,8 @@ function Buffer:drawBuffer(buffer, xPos, yPos, width, height)
 	yPos = yPos or 1
 	xPos = xPos or 1
 	
-	width = width or buffer.width
-	height = height or buffer.height
+	width = width or buffer.xSize
+	height = height or buffer.ySize
 	
 	if  buffer.yPos < 1 then
 		height = height + bufferYPos - 1
@@ -194,11 +194,11 @@ function Buffer:drawBuffer(buffer, xPos, yPos, width, height)
 		bufferXPos = 1
 	end
 	
-	width = math.min(buffer.width, width)
-	height = math.min(buffer.height, height)
+	width = math.min(buffer.xSize, width)
+	height = math.min(buffer.ySize, height)
 	
-	local yEnd = math.min(self.height - bufferYPos , height -1) 
-	local xEnd = math.min(self.width - bufferXPos, width -1) 
+	local yEnd = math.min(self.ySize - bufferYPos , height -1) 
+	local xEnd = math.min(self.xSize - bufferXPos, width -1) 
 		
 	for y = 0, yEnd  do
 		local selfBufferPos = self:XYToIndex(bufferXPos, bufferYPos + y)
@@ -220,12 +220,12 @@ function Buffer:drawBuffer(buffer, xPos, yPos, width, height)
 end
 
 function Buffer:drawImage(xPos, yPos, image)
-	if xPos > self.width or yPos > self.height then return end
+	if xPos > self.xSize or yPos > self.ySize then return end
 
 	image = imageUtils.decodeImage(image)
 	
-	local width = image.size[1]
-	local height = image.size[2]
+	local xSize = image.size[1]
+	local ySize = image.size[2]
 	
 	local buffer = self.pixelBuffer
 	local textColour = self.textColourBuffer
@@ -238,8 +238,8 @@ function Buffer:drawImage(xPos, yPos, image)
 	local index = self:XYToIndex(xPos, yPos)
 	local shapeIndex = 1
 	
-	for y = math.max(0, -yPos + 1), math.min(height - 1, self.height - yPos)  do
-		for x  = math.max(0, -xPos + 1), math.min(width - 1, self.width - xPos) do
+	for y = math.max(0, -yPos + 1), math.min(ySize - 1, self.ySize - yPos)  do
+		for x  = math.max(0, -xPos + 1), math.min(xSize - 1, self.xSize - xPos) do
 			local currentIndex = index + x
 			local currentShapeIndex = shapeIndex + x
 			
@@ -252,8 +252,8 @@ function Buffer:drawImage(xPos, yPos, image)
 			if t ~= " " or b ~= "-" then text[currentIndex] = t end
 		end
 		
-		index = index + self.width
-		shapeIndex = shapeIndex + width
+		index = index + self.xSize
+		shapeIndex = shapeIndex + xSize
 	end
 end
 
@@ -264,13 +264,13 @@ function Buffer:draw(ignoreChanged)
 	local textBuffer = self.textBuffer
 	
 	local term = self.term
-	local whitespace = string.rep(" ", self.width)
+	local whitespace = string.rep(" ", self.xSize)
 	
-	for y = 1, self.height do
+	for y = 1, self.ySize do
 		if ignoreChanged or self.changed[y] then
 			--get the start and end index of each line 
 			local start = self:XYToIndex(1, y)
-			local finish = start + self.width - 1
+			local finish = start + self.xSize - 1
 			
 			local pixelColours = table.concat({unpack(buffer, start, finish)})
 			local textColours =  table.concat({unpack(textColourBuffer, start, finish)})
@@ -300,8 +300,8 @@ function Buffer:clear(colour)
 	self:changeAll()
 end
 
-function Buffer:clearArea(colour, xPos, yPos, width, height)
-	if xPos > self.width or yPos  > self.height then return end
+function Buffer:clearArea(colour, xPos, yPos, xSize, ySize)
+	if xPos > self.xSize or yPos  > self.ySize then return end
 	
 	self.pixelBuffer = {}
 	self.textBuffer = {}
@@ -313,20 +313,20 @@ function Buffer:clearArea(colour, xPos, yPos, width, height)
 	local start =  self:XYToIndex(xPos, yPos)
 	
 	if xPos < 1 then
-		width  = width + xPos - 1
+		xSize  = xSize + xPos - 1
 		xPos = 1
 	end
 	
 	if yPos < 1 then
 		yPos = 1
-		height = height + (yPos - 1)
+		ySize = ySize + (yPos - 1)
 	end
 	
-	for y = yPos, yPos + height do
+	for y = yPos, yPos + ySize do
 		local pos = start
 		self.changed[y] = true
 		
-		for x = 0, width do
+		for x = 0, xSize do
 			selfPixel[pos] = colour
 			selfText[pos] = " "
 			selfTextColour[pos] = colour
@@ -334,7 +334,7 @@ function Buffer:clearArea(colour, xPos, yPos, width, height)
 			pos = pos + 1
 		end
 		
-		start = start + self.width
+		start = start + self.xSize
 	end
 	
 	self:changeAll()
@@ -369,7 +369,7 @@ end
 --writes a string to the buffer
 --can optionally give a background colour to the text
 function Buffer:writeStr(xPos, yPos, str, textColour, textBackgroundColour)
-	if yPos < 1 or yPos > self.height or xPos > self.width then return end
+	if yPos < 1 or yPos > self.ySize or xPos > self.xSize then return end
 	
 	if xPos < 1 then
 		xPos = 1
@@ -378,7 +378,7 @@ function Buffer:writeStr(xPos, yPos, str, textColour, textBackgroundColour)
 	
 	local start = self:XYToIndex(xPos, yPos)
 	
-	for n = start, math.min(#str -1, self.width - xPos) + start do 
+	for n = start, math.min(#str -1, self.xSize - xPos) + start do 
 		self:writeCharRaw(n, str:sub(n - start + 1, n - start + 1), textColour, textBackgroundColour)
 	end
 	
@@ -424,20 +424,20 @@ end
 
 --takes an index and turns it to an X, Y coord
 function Buffer:indexToXY(index)
-	local y = div(index, self.width)
-	local x = index - y*self.width
+	local y = div(index, self.xSize)
+	local x = index - y*self.xSize
 	
 	return x,y
 end
 
 --takes an X, Y coord and turns it into a table index
 function Buffer:XYToIndex(xPos, yPos)
-	--if xPos > self.width or xPos < 1 or yPos > self.height or yPos < 1 then return end
-	return (yPos -1) * self.width + xPos
+	--if xPos > self.xSize or xPos < 1 or yPos > self.ySize or yPos < 1 then return end
+	return (yPos -1) * self.xSize + xPos
 end
 
 function Buffer:isInBounds(xPos, yPos)
-	return xPos < 1 or yPos < 1 or xPos > self.width or yPos > self.height 
+	return xPos < 1 or yPos < 1 or xPos > self.xSize or yPos > self.ySize 
 end
 
 ---------------------------------------------------------------------------------------------------
@@ -483,8 +483,8 @@ function Buffer:resize(width, height, colour)
 	self.textColourBuffer = newTextColourBuffer
 	self.textBuffer = newTextBuffer
 	
-	self.width = width
-	self.height = height
+	self.xSize = width
+	self.ySize = height
 	self.size = width * height
 	
 	self.changed = {}
@@ -493,7 +493,7 @@ end
 
 --mark all lines as changed
 function Buffer:changeAll()
-	for n = 1, self.height do
+	for n = 1, self.ySize do
 		self.changed[n] = true
 	end
 end

@@ -2,26 +2,23 @@ local args = {...}
 local path
 
 --local fileButtons = {}
-local mainColour = colourUtils.blits.cyan
-local secondaryColour = colourUtils.blits.grey
 
+local default = GUI.Theme()
+local HeaderTheme = object.class(GUI.Theme)
 
-local theme
+local frame = GUI.Frame(term.current())
+local header = GUI.Shape()
+local adressBar = GUI.TextField()
+
+local root = GUI.Button()
+local home = GUI.Button()
+local up = GUI.Button()
+local search = GUI.Button()
+local divider = GUI.Shape()
+local footer = GUI.Label()
+local fileView = GUI.View()
 local headerTheme
-
-local frame
-local header
-local adressBar
-
-local rootButton
-local homeButton
-local upButton
-local searchButton
-local footer
 local fileView
-local fileMenu 
-local fileView
-local fileViewMenu
 
 local setPath
 local displayFiles
@@ -69,12 +66,12 @@ function displayFiles(p)
 	
 	local files = fs.list(p)
 	local position =  4
-	local virtualWidth = frame.width
+	local virtualWidth = frame.xSize - 15
 	
 		
 	fileView = GUI.ScrollView()
-	fileView:setPos(1, 4)
-	fileView:setSize(frame.width, frame.height - 4)
+	fileView:setPos(16, 4)
+	fileView:setSize(frame.xSize - 15, frame.ySize - 4)
 	fileView:applyTheme(default)
 	fileView.backgroundColour = colourUtils.blits.yellow
 	
@@ -91,8 +88,8 @@ function displayFiles(p)
 		local file = fs.combine(p, v)
 		local text = v
 		
-		if #text > fileView.width - 8 then
-			text = text:sub(1, fileView.width - 8) .. "..."
+		if #text > 28 then
+			text = text:sub(1,25) .. "..."
 		end
 		
 		sizeLabel:setPos(fileView.width - position, k)
@@ -115,14 +112,6 @@ function displayFiles(p)
 		nameButton.backgroundColour = colourUtils.blits.grey
 		nameButton.onClick = function() setPath(fs.combine(p, nameButton.text)) end
 		nameButton.textColour = colourUtils.blits.lightBlue
-		
-		function nameButton:onRightClick(event, mouse, xPos, yPos)
-			local choice = fileMenu:popup(self, xPos, yPos)
-			
-			if choice == "delete" then
-				fs.delete(fs.combine(p, self.text))
-			end
-		end
 		
 		fileView:addComponent(nameButton)
 		fileView:addComponent(sizeLabel)
@@ -166,87 +155,70 @@ function handleDirectory(p)
 end
 
 function initComponents()
-	local HeaderTheme = object.class(GUI.Theme)
-	
-	HeaderTheme.textColour = mainColour
-	HeaderTheme.backgroundColour = secondaryColour
-	HeaderTheme.heldTextColour = mainColour
-	
-	theme = GUI.Theme()
+	HeaderTheme.textColour = colourUtils.blits.cyan
+	HeaderTheme.backgroundColour = colourUtils.blits.grey
+	HeaderTheme.heldTextColour = colourUtils.blits.cyan
+
 	headerTheme = HeaderTheme()
-
-	frame = GUI.Frame(term.current())
-	header = GUI.Shape()
-	adressBar = GUI.TextField()
-
-	rootButton = GUI.Button()
-	homeButton = GUI.Button()
-	upButton = GUI.Button()
-	searchButton = GUI.Button()
 	
-	footer	= GUI.Label()
-	fileView = GUI.View()
-	fileMenu = GUI.Menu()
-	fileView= GUI.View()
+	header:setPos(1, 1)
+	header:setSize(frame.xSize, 3)
+	
+	root:setPos(2, 2)
+	root:setSize(3,1)
+	root:setText(" /")
+	
+	home:setPos(6, 2)
+	home:setSize(3,1)
+	home:setText(" H")
+	
+	up:setPos(10, 2)
+	up:setSize(3,1)
+	up:setText(" ^")
+	
+	adressBar:setPos(18, 2)
+	adressBar:setSize(frame.xSize - 20)
+	
+	search:setPos(adressBar.xPos + adressBar.width + 1, 2)
+	search:setSize(1,1)
+	search:setText("?")
+	
+	divider:setPos(15, 4)
+	divider:setSize(1, frame.ySize - 4)
+	
+	footer:setPos(1, frame.ySize)
+	footer:setSize(frame.xSize, 1)
 	
 	frame:applyTheme(default)
 	header:applyTheme(default)
 	footer:applyTheme(default)
-	
-	adressBar:applyTheme(headerTheme)
-	rootButton:applyTheme(headerTheme)
-	homeButton:applyTheme(headerTheme)
-	upButton:applyTheme(headerTheme)
-	searchButton:applyTheme(headerTheme)
-	fileMenu:applyTheme(headerTheme)
-	
-	header:setPos(1, 1)
-	header:setSize(frame.width, 3)
-	
-	rootButton:setPos(2, 2)
-	rootButton:setSize(3,1)
-	rootButton:setText(" /")
-	
-	homeButton:setPos(6, 2)
-	homeButton:setSize(3,1)
-	homeButton:setText(" H")
-	
-	upButton:setPos(10, 2)
-	upButton:setSize(3,1)
-	upButton:setText(" ^")
-	
-	adressBar:setPos(18, 2)
-	adressBar:setSize(frame.width - 20)
-	
-	searchButton:setPos(adressBar.xPos + adressBar.width + 1, 2)
-	searchButton:setSize(1,1)
-	searchButton:setText("?")
-	
-	footer:setPos(1, frame.height)
-	footer:setSize(frame.width, 1)
 
-	header.backgroundColour = mainColour
+	adressBar:applyTheme(headerTheme)
+	root:applyTheme(headerTheme)
+	home:applyTheme(headerTheme)
+	up:applyTheme(headerTheme)
+	divider:applyTheme(headerTheme)
+	search:applyTheme(headerTheme)
+
+	header.backgroundColour = colourUtils.blits.cyan
+	divider.backgroundColour = colourUtils.blits.cyan
 	adressBar.textColour = colourUtils.blits.lightBlue
 	
 	adressBar.onEnter = function() setPath(adressBar.text) end
 	
-	upButton.onClick = function() setPath(fs.getDir(path)) end
-	rootButton.onClick = function() setPath("/") end
-	homeButton.onClick = function() setPath("LunaOS/home") end
+	up.onClick = function() setPath(fs.getDir(path)) end
+	root.onClick = function() setPath("/") end
+	home.onClick = function() setPath("LunaOS/home") end
 	
-	fileMenu:addItem("Open", "open")
-	fileMenu:addSeparator("-")
-	fileMenu:addItem("Copy", "copy")
-	fileMenu:addItem("Paste", "paste")
-	fileMenu:addItem("Delete", "delete", false)
 
 	frame:addComponent(header)
 	frame:addComponent(adressBar)
-	frame:addComponent(rootButton)
-	frame:addComponent(homeButton)
-	frame:addComponent(upButton)
+	frame:addComponent(root)
+	frame:addComponent(home)
+	frame:addComponent(up)
+	frame:addComponent(divider)
 	frame:addComponent(footer)
-	frame:addComponent(searchButton)
+	frame:addComponent(search)
 end
 
 initComponents()
