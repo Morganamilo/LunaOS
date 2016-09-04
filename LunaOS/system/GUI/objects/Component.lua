@@ -67,6 +67,10 @@ function Component:setParentPane(pane)
 	self.parentPane = pane
 end
 
+function Component:setCursorColour(colour)
+	self:getFrame():setCursorColour(colour)
+end
+
 function Component:getAbsolutePos()
 	local xPos, yPos = self:getParentPane():getAbsolutePos()
 	return xPos + self.xPos - 1, yPos + self.yPos - 1 

@@ -3,6 +3,7 @@ Frame = object.class()
 Frame.running = false
 Frame.components = {}
 Frame.blink = false
+Frame.cursorColour = 1
 Frame.cursorXPos = nil
 Frame.cursorYPos = nil
 
@@ -81,6 +82,8 @@ function Frame:draw()
 		term.setCursorBlink(self.blink)
 		term.setCursorPos(self.cursorXPos, self.cursorYPos)
 	end
+	
+	term.setTextColour(self.cursorColour)
 end
 
 function Frame:applyTheme(theme)
@@ -102,6 +105,14 @@ end
 
 function Frame:setCursorBlink(blink)
 	self.blink = blink
+end
+
+function Frame:setCursorColour(colour)
+	colour = colourUtils.blitToColour(colour)
+	
+	if not colour then return end
+	
+	self.cursorColour = colour
 end
 
 function Frame:unFocus()
