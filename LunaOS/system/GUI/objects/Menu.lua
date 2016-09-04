@@ -12,22 +12,22 @@ function Menu:addSeparator(char)
 end
 
 function Menu:setPos(frame, view, xPos, yPos)
-	if yPos + view.height - 1 > frame.ySize then
+	if yPos + view.height - 1 > frame.height then
 		yPos = yPos - view.height + 1
 	end
 	
 	if yPos < 1 then
-		local gap = frame.ySize - view.height
+		local gap = frame.height - view.height
 		
 		yPos = math.floor(gap / 2) + 1
 	end
 	
-	if xPos + view.width - 1 > frame.xSize then
+	if xPos + view.width - 1 > frame.width then
 		xPos = xPos - view.width - 1
 	end
 	
 	if xPos < 1 then
-		local gap = frame.xSize - view.width
+		local gap = frame.width - view.width
 		
 		xPos = math.floor(gap / 2) + 1
 	end

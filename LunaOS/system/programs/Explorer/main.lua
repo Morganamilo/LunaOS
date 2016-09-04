@@ -66,12 +66,12 @@ function displayFiles(p)
 	
 	local files = fs.list(p)
 	local position =  4
-	local virtualWidth = frame.xSize - 15
+	local virtualWidth = frame.width - 15
 	
 		
 	fileView = GUI.ScrollView()
 	fileView:setPos(16, 4)
-	fileView:setSize(frame.xSize - 15, frame.ySize - 4)
+	fileView:setSize(frame.width - 15, frame.height - 4)
 	fileView:applyTheme(default)
 	fileView.backgroundColour = colourUtils.blits.yellow
 	
@@ -162,7 +162,7 @@ function initComponents()
 	headerTheme = HeaderTheme()
 	
 	header:setPos(1, 1)
-	header:setSize(frame.xSize, 3)
+	header:setSize(frame.width, 3)
 	
 	root:setPos(2, 2)
 	root:setSize(3,1)
@@ -177,17 +177,17 @@ function initComponents()
 	up:setText(" ^")
 	
 	adressBar:setPos(18, 2)
-	adressBar:setSize(frame.xSize - 20)
+	adressBar:setSize(frame.width - 20)
 	
 	search:setPos(adressBar.xPos + adressBar.width + 1, 2)
 	search:setSize(1,1)
 	search:setText("?")
 	
 	divider:setPos(15, 4)
-	divider:setSize(1, frame.ySize - 4)
+	divider:setSize(1, frame.height - 4)
 	
-	footer:setPos(1, frame.ySize)
-	footer:setSize(frame.xSize, 1)
+	footer:setPos(1, frame.height)
+	footer:setSize(frame.width, 1)
 	
 	frame:applyTheme(default)
 	header:applyTheme(default)

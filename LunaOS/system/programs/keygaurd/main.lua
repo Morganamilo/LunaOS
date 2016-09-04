@@ -35,7 +35,7 @@ function initComponents()
 
 	restart:setText("Restart")
 	restart:setSize(#restart.text,1)
-	restart:setPos(frame.xSize - restart.width + 1, frame.ySize - 1)
+	restart:setPos(frame.width - restart.width + 1, frame.height - 1)
 	restart.backgroundColour = nil
 	restart.textColour = colourUtils.blits.cyan
 	restart.heldTextColour = colourUtils.blits.lightGrey
@@ -43,37 +43,37 @@ function initComponents()
 
 	shutdown:setText("Shutdown")
 	shutdown:setSize(#shutdown.text,1)
-	shutdown:setPos(frame.xSize - shutdown.width + 1, frame.ySize)
+	shutdown:setPos(frame.width - shutdown.width + 1, frame.height)
 	shutdown.backgroundColour = nil
 	shutdown.textColour = colourUtils.blits.cyan
 	shutdown.heldTextColour = colourUtils.blits.lightGrey
 	shutdown.onClick = os.shutdown
 
 	loginLabel:setSize(32, 1)
-	loginLabel:setPos(1+ math.floor(frame.xSize/2 - loginLabel.width/2), 11)
+	loginLabel:setPos(1+ math.floor(frame.width/2 - loginLabel.width/2), 11)
 	loginLabel.backgroundColour = nil
 	loginLabel:setText("Please Login")
 	loginLabel:setAlignment("center", "top")
 	loginLabel.textColour = colourUtils.blits.lightGrey
 
 	timeLabel:setSize(32, 2)
-	timeLabel:setPos(1+ math.floor(frame.xSize/2 - timeLabel.width/2), 4)
+	timeLabel:setPos(1+ math.floor(frame.width/2 - timeLabel.width/2), 4)
 	timeLabel.backgroundColour = nil
 	timeLabel:setText(time.timef("%a %B %d %X"))
 	timeLabel:setAlignment("center", "top")
 	timeLabel.textColour = colourUtils.blits.lightGrey
 
-	infoLabel:setSize(frame.xSize, 1)
+	infoLabel:setSize(frame.width, 1)
 	infoLabel:setPos(1,1)
 	infoLabel:setText("LunaOS: v" .. lunaOS.getProp("version"))
 	infoLabel.textColour = colourUtils.blits.grey
 	infoLabel:setAlignment("center", "top")
 
 	image:setImageFromFile(fs.combine(kernel.getCurrentPackagePath(), "logon.img"))
-	image:setPos(1 + math.floor(frame.xSize/2 - image.width/2), 7)
+	image:setPos(1 + math.floor(frame.width/2 - image.width/2), 7)
 
 	passwordField:setSize(32)
-	passwordField:setPos(1 + math.floor(frame.xSize/2 - passwordField.width/2), 13)
+	passwordField:setPos(1 + math.floor(frame.width/2 - passwordField.width/2), 13)
 	passwordField.hint = "Password:"
 	passwordField.mask = "*"
 	passwordField.onEnter = tryPassword
