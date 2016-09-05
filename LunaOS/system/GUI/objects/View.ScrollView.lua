@@ -1,14 +1,14 @@
 ScrollView = object.class(GUI.View)
 
-function ScrollView:init(xPos, yPos, width, height, virtualwidth, virtualheight)
+function ScrollView:init(xPos, yPos, width, height, virtualWidth, virtualHeight)
 	--self.super:init(xPos, yPos, width, height)
-	self.super:init(xPos or 1, yPos or 1, virtualwidth, virtualheight)
+	self.super:init(xPos or 1, yPos or 1, virtualWidth, virtualHeight)
 	
 	self.width = width or 1
 	self.height = height or 1
 	
-	self.virtualwidth = virtualwidth or 0
-	self.virtualheight = virtualheight or 0
+	self.virtualWidth = virtualWidth or 0
+	self.virtualHeight = virtualHeight or 0
 	
 	self.vBar = GUI.Scrollbar()
 	self.hBar = GUI.HorizontalScrollbar()
@@ -92,9 +92,12 @@ end
 function ScrollView:draw(buffer)
 	self:drawInternal()
 
+	buffer:drawBox(self.xPos, self.yPos, self.width, self.height, self.backgroundColour)
+	
 	self.hBar:onDraw(buffer)
 	self.vBar:onDraw(buffer)
 
+	
 	buffer:drawBuffer(self.buffer, self.hBar.scrollLevel, self.vBar.scrollLevel, self.bufferXLength, self.bufferYLength)
 end
 
@@ -109,28 +112,28 @@ function ScrollView:setSubComponentSize()
 end
 
 function ScrollView:setSubComponentSteps()
-	local showBoth = self.virtualwidth > self.width or self.virtualheight > self.height 
+	local showBoth = self.virtualWidth > self.width or self.virtualHeight > self.height 
 	
-	if self.virtualwidth >= self.width and showBoth  then
+	if self.virtualWidth >= self.width and showBoth  then
 		self.hBar.visible = true
 		self.bufferYLength = self.height -1
-		self.vBar.steps = self.virtualheight - self.height + 2
+		self.vBar.steps = self.virtualHeight - self.height + 2
 	else
 		self.hBar.visible = false
 		self.bufferYLength = self.height
-		self.vBar.steps = self.virtualheight - self.height + 1
+		self.vBar.steps = self.virtualHeight - self.height + 1
 	end
 	
-	if self.virtualheight >= self.height and showBoth then
+	if self.virtualHeight >= self.height and showBoth then
 		self.vBar.visible = true
 		self.hBar:setSize(self.width - 1, 1)
 		self.bufferXLength = self.width -1
-		self.hBar.steps = self.virtualwidth - self.width + 2
+		self.hBar.steps = self.virtualWidth - self.width + 2
 	else
 		self.vBar.visible = false
 		self.hBar:setSize(self.width, 1)
 		self.bufferXLength = self.width 
-		self.hBar.steps = self.virtualwidth - self.width + 1
+		self.hBar.steps = self.virtualWidth - self.width + 1
 	end
 end
 
@@ -142,7 +145,7 @@ end
 function ScrollView:setSize(width, height)
 	self.width = width
 	self.height = height
-	--self.buffer:resize(self.virtualwidth, self.virtualheight, self.backgroundColour)
+	--self.buffer:resize(self.virtualWidth, self.virtualHeight, self.backgroundColour)
 	
 	self:setSubComponentPos()
 	self:setSubComponentSize()
@@ -150,8 +153,8 @@ function ScrollView:setSize(width, height)
 end
 
 function ScrollView:setVirtualSize(width, height)
-	self.virtualwidth = width
-	self.virtualheight = height
+	self.virtualWidth = width
+	self.virtualHeight = height
 	
 	self.buffer:resize(width, height, "0")
 	self:setSubComponentSteps()
