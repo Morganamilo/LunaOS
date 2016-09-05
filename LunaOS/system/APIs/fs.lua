@@ -204,6 +204,7 @@ function combine(...)
 	local combinedString = ''
 
 	for _, v in ipairs(arg) do
+		errorUtils.expect(v, "string", true, 2)
 		combinedString = oldFs.combine(combinedString, v)
 	end
 	
