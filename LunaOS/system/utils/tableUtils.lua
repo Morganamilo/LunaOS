@@ -1,3 +1,7 @@
+local function swap(tbl, i, j, k)
+	tbl[i], tbl[j] = tbl[j], tbl[i]
+end
+
 function indexOf(tbl, value)
 	errorUtils.expect(tbl, "table", true)
 	
@@ -72,26 +76,6 @@ function copy(tbl)
 	return tempTbl
 end
 
--- local function deepCopyInternal(obj, seen)
-  -- --Handle non-tables and previously-seen tables.
-  -- if type(obj) ~= 'table' then return obj end
-  -- if seen and seen[obj] then return seen[obj] end
-
-  -- --New table; mark it as seen and copy recursively.
-  -- local s = seen or {}
-  -- local res = setmetatable({}, getmetatable(obj))
-  -- s[obj] = res
-  
- 
- -- for k, v in pairs(obj) do 
-	-- res[deepCopyInternal(k, s)] = deepCopyInternal(v, s)
- -- end
- 
-  -- return res
--- end
-
-
-
  function deepCopy(o, seen)
   seen = seen or {}
   if o == nil then return nil end
@@ -153,4 +137,59 @@ function printTable(tbl)
 	for k,v in pairs(tbl) do
 		print(k, v )
 	end
+end
+
+local function quickSort(tbl, comparator, low, high)
+	if low >= high then return end
+	
+	local i = low - 1
+	local j = high
+	local lowEqual = i
+	local highEqual = j
+	
+	local pivot = tbl[high]
+	
+	while true do
+		repeat
+			i = i + 1
+		until comparator(tbl[i], pivot) >= 0
+		
+		repeat
+			j = j- 1
+			if j == low then break end
+		until comparator(tbl[j], pivot) <= 0
+	
+		if i >= j then break end
+		swap(tbl, i, j)
+		
+		if comparator(tbl[i], pivot) == 0 then
+			lowEqual = lowEqual + 1
+			swap(tbl, i, lowEqual)
+		end
+		
+		if comparator(tbl[j], pivot) == 0 then
+			highEqual = highEqual - 1
+			swap(tbl, j, highEqual)
+		end
+	end
+	
+	swap(tbl, i, high)
+	j = i - 1; i = i + 1;
+	
+	for n = low, lowEqual - 1 do
+		swap(tbl, n, j)
+		j = j - 1
+	end
+	
+	for n = high - 1, highEqual + 1, -1 do
+		swap(tbl, n, i)
+		i = i + 1
+	end
+	
+	quickSort(tbl, comparator, low, j)
+	quickSort(tbl, comparator, i, high)
+end
+
+function sort(tbl, comparator)
+	quickSort(tbl, comparator, 1, #tbl)
 end
