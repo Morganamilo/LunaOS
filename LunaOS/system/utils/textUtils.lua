@@ -52,7 +52,7 @@ end
 --returns the trimmed string and the rest of the discarded string as seperate returns values
 function trim(str, length)
   local trimed = str:sub(1, length + 1) --create a substring from the start of the string to length + q characters long
-  local lastWord = trimed:find("[%w]+$") -- find the start of the last word
+  local lastWord = trimed:find("[%w%p]+$") -- find the start of the last word
   
   local nextStr
   local nextWord
@@ -68,7 +68,7 @@ function trim(str, length)
   end
   
   --remove leading spaces so that the next line does not begin with a space
-  nextWord = nextStr:find("%w")  or  1
+  nextWord = nextStr:find("[%w%p]")  or  1
   nextStr = nextStr:sub(nextWord)
   
   return (trimed), nextStr
