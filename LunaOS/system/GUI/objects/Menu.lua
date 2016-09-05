@@ -2,13 +2,38 @@ Menu = object.class()
 
 Menu.items = {}
 
-function Menu:addItem(text, name)
-	self.items[#self.items + 1] = {text = text, name = name, type = "button"}
+function Menu:addItem(text, name, enabled)
+	if enabled == nil then
+		enabled = true
+	end
+	
+	self.items[#self.items + 1] = {text = text, name = name, type = "button", enabled = enabled}
 	return #self.items
 end
 
-function Menu:addSeparator(char)
-	self.items[#self.items + 1] = {type = "separator", char = char}
+function Menu:addSeparator(char, name)
+	self.items[#self.items + 1] = {type = "separator", char = char, name = name}
+end
+
+function Menu:removeItem(name)
+	for n = 1, #self.items do
+		local item = self.items[n]
+		
+		if item.name == name then
+			table.remove(self.items, n)
+			return
+		end
+	end
+end
+
+function Menu:setEnabled(name, enabled)
+	for n = 1, #self.items do
+		local item = self.items[n]
+		
+		if item.name == name then
+			item.enabled = enabled
+		end
+	end
 end
 
 function Menu:setPos(frame, view, xPos, yPos)
@@ -75,6 +100,13 @@ function Menu:popup(v, xPos, yPos)
 			end
 			
 			button:applyTheme(theme)
+			
+			if not v.enabled then
+				button.textColour = self.separatorColour
+				button.heldBackgroundColour = button.backgroundColour
+				button.heldTextColour = button.textColour
+			end
+			
 			view:addComponent(button)
 		end
 		
