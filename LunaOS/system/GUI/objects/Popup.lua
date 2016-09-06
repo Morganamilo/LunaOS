@@ -1,38 +1,39 @@
 Popup = object.class()
 
-function Popup:init(xPos, yPos, width,  height)
-	self.xPos = xPos
-	self.yPos = yPos
-	self.width = width
-	self.height = height
-end
-
-function Popup.static.popup(frame, view)
+function Popup.static.popup(frame, view, closeAfterEvent)	
 	while view.active do
 		frame:drawInternal()
 		view:draw(frame.buffer)
 		
 		frame.buffer:drawLine(view.xPos + 1, view.yPos + view.height, view.width,  colourUtils.blits.grey)
 		frame.buffer:drawVLine(view.xPos + view.width, view.yPos + 1, view.height - 1, colourUtils.blits.grey)
-		
+	
 		frame.buffer:draw()
 	
 		local event = {coroutine.yield()}
 		view:handleEvent(event)
+		
+		if closeAfterEvent then
+			if (event[1] == "mouse_click" or event[1] == "mouse_scroll") and not view:isInBounds(event[3], event[4]) then
+				return nil
+			end
+		end
+	
 	end
 	
 	return view.result
 end
 
-function Popup.static.dialog(frame, title, text, ...)
+function Popup.static.dialog(v, title, text, ...)
+	local frame = v:getFrame()
 	local view = GUI.View()
 	local theme = GUI.Theme()
 	
-	local width = math.floor(frame.xSize / 1.5)
-	local lines = #textUtils.wrap(text, width, math.floor(frame.ySize / 2))
+	local width = math.floor(frame.width / 1.5)
+	local lines = #textUtils.wrap(text, width, math.floor(frame.height / 2))
 	
 	view:setSize(width, lines + 5)
-	view:setPos(math.floor(frame.xSize/2 - view.width/2), math.floor(frame.ySize/2 - view.height/2))
+	view:setPos(math.floor(frame.width/2 - view.width/2), math.floor(frame.height/2 - view.height/2))
 	
 	local topBar = GUI.Label(1,1, view.width - 1, 1)
 	local exitButton = GUI.Button(view.width, 1, 1, 1, "x")

@@ -192,7 +192,7 @@ function gui(a)
 	ls = GUI.Label(2,1,1,12,"123456789abc")
 	
 	v2 = GUI.View(2, 2, 49, 17) --1.1
-	v = GUI.ScrollView(1, 1, 51, 18, 70, 80)
+	v = GUI.ScrollView(4, 4, 44, 13, 70, 80)
 	v3 = GUI.View(28, 3, 6, 16)
 	
 	v2:addComponent(ls)
@@ -217,7 +217,7 @@ function gui(a)
 	vl:applyTheme(default)
 	v:addComponent(vl)
 	
-		--v.backgroundColour = "0"
+		v.backgroundColour = "0"
 		
 	oldf = f
 	f = v
@@ -264,8 +264,23 @@ function gui(a)
 	
 	b = GUI.Button(10,2,10,4,"this is a test")
 	
+	c = GUI.Menu()
+	c:applyTheme(default)
+	c:addItem("Copy")
+	c:addSeparator("-")
+	c:addItem("Cut")
+	c:addItem("Paste")
+	c:addItem("Paste")
+c:addItem("Paste")
+	c:addItem("Paste")
 	
-	function b:onClick() counter = counter + 1  self.text = "i have been pressed " .. counter   .. " times"  pb.progress = counter  GUI.Popup.dialog(f, "quit?", "text", "yes", "no", "maybe") end
+	function b:onRightClick(event, mouse, xPos, yPos) 
+		local realXPos, realYPos = self:getAbsolutePos()
+		counter = counter + 1 
+		self.text = "i have been pressed " .. counter   .. " times" 
+		pb.progress = counter
+		c:popup(b, xPos, yPos)
+	end
 	
 	
 	
@@ -277,6 +292,11 @@ function gui(a)
 	tf2:applyTheme(default)
 	tf1.mask = ""
 	tf1.hint = "Username:"
+	tf1.backgroundColour = "1"
+	
+	function tf1:onChange()
+		self.textColour = 2^(math.random(0,15))
+	end
 	
 	f:addComponent(sw1)
 	f:addComponent(sw2)

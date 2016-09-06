@@ -7,7 +7,8 @@ local fs = fs
 
 local loadfile = function( _sFile )
     local file = fs.open( _sFile, "r" )
-    if file then
+    
+	if file then
         local func, err = loadstring( file.readAll(), fs.getName( _sFile ) )
         file.close()
         return func, err
@@ -17,7 +18,7 @@ end
 
 local _private = {}
 local windowHandler = os.loadAPILocal("/LunaOS/system/kernel/windowHandler.lua")
-local focusEvents = {"mouse_click", "mouse_up", "mouse_drag", "mouse_scroll", "char", "key", "paste"}
+local focusEvents = {"mouse_click", "mouse_up", "mouse_drag", "mouse_scroll", "char", "key", "key_up", "paste", "terminate", "monitor_totch"}
 
 windowHandler.setPrivate(_private)
 
@@ -115,7 +116,7 @@ function _private.runProgramInternal(program, parent, su, args)
 	end
 	
 	local file, err = loadfile(fs.combine(root, name))
-	errorUtils.assert(file, err, 3)
+	if not file then return nil, err end
 	setfenv(file, getfenv(1)) 
 	
 	local PID = _private.newProcessInternal(
@@ -317,7 +318,6 @@ end
 
 function runFile(path, parent, name, desc, ...)
 	local file, err = loadfile(path)
-	errorUtils.assert(file, err, 2)
 	setfenv(file, _private.getEnv()) --sandBox
 	
 	return _private.newProcessInternal(function() file(unpack(arg)) end, parent, name or fs.getName(path), desc, false)
@@ -325,7 +325,7 @@ end
 
 function runRootFile(path, parent, name, desc, ...)
 	local file, err = loadfile(path)
-	errorUtils.assert(file, err, 2)
+	if not file then return nil, err end
 	setfenv(file, _private.getEnv()) --sandBox
 	
 	return _private.newProcessInternal(function() file(unpack(arg)) end, parent, fs.getName(path), desc, true)

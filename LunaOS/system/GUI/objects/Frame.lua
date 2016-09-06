@@ -3,6 +3,7 @@ Frame = object.class()
 Frame.running = false
 Frame.components = {}
 Frame.blink = false
+Frame.cursorColour = 1
 Frame.cursorXPos = nil
 Frame.cursorYPos = nil
 
@@ -13,11 +14,11 @@ function Frame:init(window)
 	
 	self.xPos = 1
 	self.yPos = 1
-	self.xSize = x
- 	self.ySize = y
+	self.width = x
+ 	self.height = y
 	self.backgroundColour =  "0"
 	
-	self.buffer = GUI.Buffer(self.window, self.xPos, self.yPos, self.xSize, self.ySize, self.backgroundColour)
+	self.buffer = GUI.Buffer(self.window, self.xPos, self.yPos, self.width, self.height, self.backgroundColour)
 end
 
 function Frame:getFrame()
@@ -38,8 +39,8 @@ function Frame:removeComponent(component)
 		local index = tableUtils.indexOf(self.components, component)
 		
 		if index then
+			self.components[index] = nils
 			table.remove(self.components, index)
-			component:setParentPane(nil)
 		end
 	end
 end
@@ -81,6 +82,8 @@ function Frame:draw()
 		term.setCursorBlink(self.blink)
 		term.setCursorPos(self.cursorXPos, self.cursorYPos)
 	end
+	
+	term.setTextColour(self.cursorColour)
 end
 
 function Frame:applyTheme(theme)
@@ -100,12 +103,16 @@ function Frame:setCursorPos(xPos, yPos)
 	self.cursorYPos = yPos
 end
 
-function Frame:getCursorPos()
-	return self.cursorXPos, self.cursorYPos
-end
-
 function Frame:setCursorBlink(blink)
 	self.blink = blink
+end
+
+function Frame:setCursorColour(colour)
+	colour = colourUtils.blitToColour(colour)
+	
+	if not colour then return end
+	
+	self.cursorColour = colour
 end
 
 function Frame:unFocus()
@@ -114,4 +121,8 @@ end
 
 function Frame:getFocus()
 	return self.focus
+end
+
+function Frame:getAbsolutePos()
+	return 1, 1
 end

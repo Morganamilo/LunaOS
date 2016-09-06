@@ -8,12 +8,9 @@ function Button:init(xPos, yPos, width, height, text)
 	
 	self:addEventListener("mouse_click", self. handleDown)
 	self:addEventListener("mouse_up",  self.handleUp)
-	self:addEventListener("mouse_drag", self.handleDrag)
 end
 
 function Button:handleDown(event, mouse, xPos, yPos)
-	if mouse == 2 then return end
-
 	if self:isInBounds(xPos, yPos) then
 		self.held = true
 		
@@ -26,7 +23,16 @@ end
 function Button:handleUp(event, mouse, xPos, yPos)
 	if self:isInBounds(xPos, yPos) and self.held and self.activateOnRelease then
 		self.held = false
-		self:onClick()
+		xPos = xPos - self.xPos + 1
+		yPos = yPos - self.yPos + 1
+		
+		if mouse == 1 and self.onClick then
+			self:onClick(event, mouse, xPos, yPos)
+		end
+		
+		if mouse == 2 and self.onRightClick then
+			self:onRightClick(event, mouse, xPos, yPos)
+		end
 	end
 	
 	self.held = false
@@ -36,17 +42,13 @@ function Button:handleDrag(event, mouse, xPos, yPos)
 
 end
 
-function Button:onClick()
-	--empty function so there is no error thrown when a button is pressed and there is no onClick function set 
-end
-
 function Button:draw(buffer)
 	local backColour = self.held and self.heldBackgroundColour or self.backgroundColour
 	local textColour = self.held and self.heldTextColour or self.textColour
 	
 	local x, y, width, height = self:getTextPos()
 	
-	if self.backgroundColour then
+	if backColour then
 		buffer:drawBox(self.xPos, self.yPos, self.width, self.height, backColour) 
 	end
 	

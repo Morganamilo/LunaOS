@@ -27,3 +27,9 @@ Theme.switchOffColour = colourUtils.blits.red
 
 Theme.highlightedTextColour = colourUtils.blits.lightGrey
 Theme.highlightedBackgroundColour = colourUtils.blits.blue
+
+Theme.menuTextColour = colourUtils.blits.grey
+Theme.menuHeldTextColour = colourUtils.blits.white
+Theme.menuBackgroundColour = colourUtils.blits.white
+Theme.menuHeldBackgroundColour = colourUtils.blits.blue
+Theme.menuSeparatorColour = colourUtils.blits.lightGrey

@@ -34,9 +34,7 @@ function Component:draw()
 end
 
 function Component:getFrame()
-	if self:getParentPane() and self:getParentPane():getFrame() then
 		return self:getParentPane():getFrame()
-	end
 end
 
 function Component:getParentPane()
@@ -61,12 +59,21 @@ function Component:setCursorBlink(blink)
 	end
 end
 
-function Component:setParentPane(pane)
-	if self.parentPane then
-		self.parentPane:removeComponent(self)
-	end
-	
+function Component:isInBounds()
+	return false
+end
+
+function Component:setParentPane(pane)	
 	self.parentPane = pane
+end
+
+function Component:setCursorColour(colour)
+	self:getFrame():setCursorColour(colour)
+end
+
+function Component:getAbsolutePos()
+	local xPos, yPos = self:getParentPane():getAbsolutePos()
+	return xPos + self.xPos - 1, yPos + self.yPos - 1 
 end
 
 function Component:requestFocus()

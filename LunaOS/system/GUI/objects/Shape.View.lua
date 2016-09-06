@@ -1,5 +1,6 @@
 View = object.class(GUI.Shape)
 View.components = {}
+View.held = false
 
 function View:init(xPos, yPos, width, height)
 	self.super:init(xPos, yPos, width, height)
@@ -81,38 +82,58 @@ function View:ajustEvent(event, xAjust, yAjust)
 	return event
 end
 
+function View:pushEvent(event)
+	for _, component in pairs(self.components) do
+		component:handleEvent(event)
+		
+		if event[1] == "mouse_up" and component:isInBounds(event[3], event[4]) then
+			self.held = false
+		end
+	end
+end
+
 function View:handleAny(...)
-	self:handleAnyInternal(false, ...)
-end
-
-function View:handleAnyForce(...)
-	self:handleAnyInternal(true, ...)
-end
-
-function View:handleAnyInternal(force, ...)
 	local event = arg
+	local inBounds 
 	
 	local xAjust, yAjust = self:getAjust()
+	local hit = false
+	
+	if event[1] == "mouse_click"  then
+		hit = true
+	end
 		
-	if not force then
-		if event[1] == "mouse_click" or event[1] == "mouse_up" or event[1] == "mouse_scroll" or event[1] == "mouse_drag" then
-			--if the event is out of the range of the view then dont process any further
-			if not self:isInBounds(event[3], event[4]) then
-				if event[1] == "mouse_up" then
-					event[3] = 0
-					event[4] = 0
-				else
-					return
-				end
-			end
+	if event[1] == "mouse_click" or event[1] == "mouse_up" or event[1] == "mouse_scroll" or event[1] == "mouse_drag" then
+		inBounds = self:isInBounds(event[3], event[4])
+		
+		if not inBounds then
+			event[3] = math.huge
+			event[4] = math.huge
+			hit  = false
+			self.held = false
 		end
 	end
 	
 	event = self:ajustEvent(event, -xAjust, -yAjust)
 	
+	self:pushEvent(event)
 	
-	for _, component in pairs(self.components) do
-		component:handleEvent(event)
+	if event[1] == "mouse_up" and self.held then
+		self.held = false
+		event[3] = event[3] - self.xPos + 1
+		event[4] = event[4]- self.yPos + 1
+				
+		if event[2] == 1 and self.onClick then
+			self:onClick(event[1], event[2], event[3], event[4])
+		end
+		
+		if event[2] == 2 and self.onRightClick then
+			self:onRightClick(event[1], event[2], event[3], event[4])
+		end
+	end
+	
+	if hit then
+		self.held = true
 	end
 end
 
@@ -121,8 +142,10 @@ function View:applyTheme(theme)
 end
 
 function View:setCursorPos(xPos, yPos)
-	xPos = xPos + self.xPos - 1
-	yPos = yPos + self.yPos - 1
+	local xAjust, yAjust = self:getAjust()
+	
+	xPos = xPos + xAjust
+	yPos = yPos +yAjust
 		
 	if self:isInBounds(xPos, yPos) then
 		self:getParentPane():setCursorPos(xPos, yPos)
@@ -131,12 +154,13 @@ function View:setCursorPos(xPos, yPos)
 	end
 end
 
-function View:getCursorPos()
-	xPos = xPos - self.xPos + 1
-	yPos = yPos - self.yPos + 1
-	return self:getParentPane():getCursorPos()
-end
-
 function View:setCursorBlink(blink)
 	self:getParentPane():setCursorBlink(blink)
+end
+
+function View:getAbsolutePos()
+	local xPos, yPos = self:getParentPane():getAbsolutePos()
+	local xAjust, yAjust = self:getAjust()
+	
+	return xPos + xAjust, yPos + yAjust
 end

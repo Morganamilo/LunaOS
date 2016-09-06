@@ -1,14 +1,14 @@
 ScrollView = object.class(GUI.View)
 
-function ScrollView:init(xPos, yPos, width, height, virtualwidth, virtualheight)
+function ScrollView:init(xPos, yPos, width, height, virtualWidth, virtualHeight)
 	--self.super:init(xPos, yPos, width, height)
-	self.super:init(xPos or 1, yPos or 1, virtualwidth, virtualheight)
+	self.super:init(xPos or 1, yPos or 1, virtualWidth, virtualHeight)
 	
 	self.width = width or 1
 	self.height = height or 1
 	
-	self.virtualwidth = virtualwidth or 0
-	self.virtualheight = virtualheight or 0
+	self.virtualWidth = virtualWidth or 0
+	self.virtualHeight = virtualHeight or 0
 	
 	self.vBar = GUI.Scrollbar()
 	self.hBar = GUI.HorizontalScrollbar()
@@ -82,7 +82,7 @@ function ScrollView:handleKey(event, key)
 end
 
 function ScrollView:getAjust()
-	return self.xPos  - self.hBar.scrollLevel, self.yPos - self.vBar.scrollLevel 
+	return self.xPos  - self.hBar.scrollLevel, self.yPos - self.vBar.scrollLevel
 end
 
 function ScrollView:clear()
@@ -92,9 +92,12 @@ end
 function ScrollView:draw(buffer)
 	self:drawInternal()
 
+	buffer:drawBox(self.xPos, self.yPos, self.width, self.height, self.backgroundColour)
+	
 	self.hBar:onDraw(buffer)
 	self.vBar:onDraw(buffer)
 
+	
 	buffer:drawBuffer(self.buffer, self.hBar.scrollLevel, self.vBar.scrollLevel, self.bufferXLength, self.bufferYLength)
 end
 
@@ -109,28 +112,28 @@ function ScrollView:setSubComponentSize()
 end
 
 function ScrollView:setSubComponentSteps()
-	local showBoth = self.virtualwidth > self.width or self.virtualheight > self.height 
+	local showBoth = self.virtualWidth > self.width or self.virtualHeight > self.height 
 	
-	if self.virtualwidth >= self.width and showBoth  then
+	if self.virtualWidth >= self.width and showBoth  then
 		self.hBar.visible = true
 		self.bufferYLength = self.height -1
-		self.vBar.steps = self.virtualheight - self.height + 2
+		self.vBar.steps = self.virtualHeight - self.height + 2
 	else
 		self.hBar.visible = false
 		self.bufferYLength = self.height
-		self.vBar.steps = self.virtualheight - self.height + 1
+		self.vBar.steps = self.virtualHeight - self.height + 1
 	end
 	
-	if self.virtualheight >= self.height and showBoth then
+	if self.virtualHeight >= self.height and showBoth then
 		self.vBar.visible = true
 		self.hBar:setSize(self.width - 1, 1)
 		self.bufferXLength = self.width -1
-		self.hBar.steps = self.virtualwidth - self.width + 2
+		self.hBar.steps = self.virtualWidth - self.width + 2
 	else
 		self.vBar.visible = false
 		self.hBar:setSize(self.width, 1)
 		self.bufferXLength = self.width 
-		self.hBar.steps = self.virtualwidth - self.width + 1
+		self.hBar.steps = self.virtualWidth - self.width + 1
 	end
 end
 
@@ -142,7 +145,7 @@ end
 function ScrollView:setSize(width, height)
 	self.width = width
 	self.height = height
-	--self.buffer:resize(self.virtualwidth, self.virtualheight, self.backgroundColour)
+	--self.buffer:resize(self.virtualWidth, self.virtualHeight, self.backgroundColour)
 	
 	self:setSubComponentPos()
 	self:setSubComponentSize()
@@ -150,8 +153,8 @@ function ScrollView:setSize(width, height)
 end
 
 function ScrollView:setVirtualSize(width, height)
-	self.virtualwidth = width
-	self.virtualheight = height
+	self.virtualWidth = width
+	self.virtualHeight = height
 	
 	self.buffer:resize(width, height, "0")
 	self:setSubComponentSteps()
@@ -170,68 +173,74 @@ end
 
 function ScrollView:handleAny(...)
 	local event = arg
+	local xAjust, yAjust = self:getAjust()
+	
+	local inBounds
+	local hit = false
 	
 	self.vBar:handleEvent(event)
 	self.hBar:handleEvent(event)
 	
-	if not force then
-		if event[1] == "mouse_click" or event[1] == "mouse_up" or event[1] == "mouse_scroll" or event[1] == "mouse_drag" then
-			--if the event is out of the range of the view then dont process any further
-			if not self:isInBounds(event[3], event[4]) then
-				if event[1] == "mouse_up" then
-					event[3] = 0
-					event[4] = 0
-				else
-					return
-				end
-			elseif event[1] == "mouse_scroll" then
-				local bar
+	if event[1] == "mouse_click"  then
+		hit = true
+	end
 	
-				if keyHandler.isKeyDown(42) then
-					bar = self.hBar
-				else
-					bar = self.vBar
-				end
-				
-				if event[2] < 0 and bar.scrollLevel > 1 then
-					self:requestFocus()
-				elseif event[2] > 0 and bar.scrollLevel < bar.steps then
-					self:requestFocus()
-				end
-			elseif event[1] ~= "mouse_up" then
-				--self:requestFocus()
-			end
+	if event[1] == "mouse_click" or event[1] == "mouse_up" or event[1] == "mouse_scroll" or event[1] == "mouse_drag" then
+		inBounds = self:isInBounds(event[3], event[4])
+		
+		if not inBounds then
+			event[3] = math.huge
+			event[4] = math.huge
+			hit  = false
+			self.held = false
 		end
 	end
 	
-	local xAjust = self.hBar.scrollLevel - 1
-	local yAjust = self.vBar.scrollLevel - 1
+	if event[1] == "mouse_scroll" then
+		if inBounds then
+			local bar
+
+			if keyHandler.isKeyDown(42) then
+				bar = self.hBar
+			else
+				bar = self.vBar
+			end
+			
+			if event[2] < 0 and bar.scrollLevel > 1 then
+				self:requestFocus()
+			elseif event[2] > 0 and bar.scrollLevel < bar.steps then
+				self:requestFocus()
+			end
+		
+		end
+	end
 	
-	self:ajustEvent(event, xAjust, yAjust)
-	self.super:handleAnyForce(unpack(event))
+	event = self:ajustEvent(event, -xAjust, -yAjust)
+	
+	self:pushEvent(event)
 	
 	if event[1] == "key" then
 		self:handleKey(unpack(event))
 	end
 	
-	if event[1] == "mouse_scroll" then
+	if event[1] == "mouse_scroll" and inBounds then
 		self:handleScroll(unpack(event))
 	end
-end
-
-function ScrollView:setCursorPos(xPos, yPos)
-	xPos = xPos + self.xPos - self.hBar.scrollLevel
-	yPos = yPos + self.yPos - self.vBar.scrollLevel
 	
-	if self:isInBounds(xPos, yPos) then
-		self:getParentPane():setCursorPos(xPos, yPos)
-	else
-		self:getParentPane():setCursorPos(nil, nil)
+	if event[1] == "mouse_up" and self.held then
+		self.held = false
+		self:requestFocus()
+		
+		if event[2] == 1 and self.onClick then
+			self:onClick(event[1], event[2], event[3], event[4])
+		end
+		
+		if event[2] == 2 and self.onRightClick then
+			self:onRightClick(event[1], event[2], event[3], event[4])
+		end
 	end
-end
-
-function ScrollView:getCursorPos()
-	xPos = xPos - self.xPos + self.hBar.scrollLevel
-	yPos = yPos - self.yPos + self.vBar.scrollLevel
-	return self:getParentPane():getCursorPos(xPos, yPos)
+	
+	if hit then
+		self.held = true
+	end
 end
