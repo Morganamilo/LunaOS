@@ -192,7 +192,7 @@ function gui(a)
 	ls = GUI.Label(2,1,1,12,"123456789abc")
 	
 	v2 = GUI.View(2, 2, 49, 17) --1.1
-	v = GUI.ScrollView(4, 14, 44, 13, 70, 80)
+	v = GUI.ScrollView(4, 4, 44, 13, 70, 80)
 	v3 = GUI.View(28, 3, 6, 16)
 	
 	v2:addComponent(ls)
