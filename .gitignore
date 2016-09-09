@@ -1,2 +1,5 @@
 *.log
 LunaOS/programs/test
+html
+doc
+doc.bat
