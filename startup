@@ -1,2 +1,14 @@
+--fix dofile for version 1.79 and above
+function _G.dofile(file)
+	local func, e = loadfile(file)
+	
+	if func then
+		setfenv(func, getfenv(2) )
+		return func()
+	else
+		error(e, 2)
+	end
+end
+
 term.clear()
 dofile("bootloader/bootloader")
