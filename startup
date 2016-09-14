@@ -1,8 +1,8 @@
 ---Initial startup file that is called at boot.
 --It overides the default dofile then calls the bootloader.
 --This program is designed to run on Computercratft version 1.75+ (1.79 most recent)
---@script startup
 --@author Morganamilo
+--@script startup
 
 
 ---Fix dofile for version 1.79 and above.
