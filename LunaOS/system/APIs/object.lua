@@ -1,45 +1,90 @@
---metamethods that a class can overide
+---The object module allows the creations of classes, objects and interfaces.
+--An object my have both static and non static varibles.
+--Static varibles are accessed by classname.varible while non static varibles
+--are accessed by instance.varible.
+--Static varibles are the same for all instances, if one chances for one instance
+--it changes for all.
+--An object may also overide meta @{events} so that instances of the same class or
+--inherit the same class may overide operators such as "+", "-" or "%".
+--Object may also inherit from a parent class, attaining all of its static and non
+--static varibles.
+--When a class or objct tries to look up a value it starts at its own class and works
+--its way up throgh its parents.
+--Classes may overide varibles which applies to itself and all sub classes.
+--Interfaces are a list of varibles that a class must contain in order to initalize.
+--@author Morganamilo
+--@copyright Morganamilo 2016
+--@module object
+
+
+---Metamethods that a class can overide
 local events = {
 	"__mode","__tostring","__len","__unm","__add","__sub", "__mul",
 	"__div","__mod","__pow","__concat","__eq","__lt","__le"
 }
 
---Object class. all other classes are derived from this
+---Object class. all other classes are derived from this
 local Object = {}
 
+---Static varibles.
 Object.static = {}
+
+---Non static varibles.
 Object.nonStatic = {}
+
+---Interfaces
 Object.interfaces = {}
 
---empty constructor so that init can still be called without error
+---Empty constructor so that init can still be called without error.
 Object.init = function()  end
 
---default method instanceOf: return true if 
---the object's class or superclasses are equal to the class parameter
+---Default method instanceOf.
+--Check whether an object is an instance of a class.
+--Or if the object is an instance of any child class of the given class.
+--@param object The object we want to see if its an instance of a class.
+--@param class The class we check to see if its the class of an object.
+--@return true if the class is an instance of the class or a parent of the class.
+--@usage local instance = object:instanceOf(animal)
 local function instanceOfClass(object, class)
+	--the class of the given object
 	local objectClass = object.class
 		
+	--go through all of the classes parents to see if we get a match
 	while objectClass ~= class do
-		if not objectClass.super then return false end
+		--if the class has no parent return false
+		if not objectClass.super then
+			return false
+		end
+		
+		--set the objectClass to its parent and loop again
 		objectClass = objectClass.super
 	end
 	
 	return true
 end
 
---makes sure that the given class has all of its fields defined in its intefaces defined
+---Makes sure that the given class has all of its fields defined that are required by the interfaces
+--@param class The class to check.
+--@return true if the class implements all of its classes fields. false otherwise.
+--@usage local isValid = checkInterfaces(class)
 local function checkInterfaces(class)
+	--loop through all interfaces
 	for _, interface in pairs(class.interfaces) do
 		local fields = interface:getFields()
 		local staticFields = interface:getStaticFields()
 		
+		
+		--loop throgh fields
 		for _, field in pairs(fields) do
+			--if its missing a field return false
 			if class.nonStatic[field] == nil then
 				return false
 			end
 		end
 		
+		--loop through static fields
 		for _, field in pairs(staticFields) do
+			--if its missing a field return false
 			if class.static[field] == nil then
 				return false
 			end

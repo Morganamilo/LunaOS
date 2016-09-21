@@ -11,20 +11,33 @@
 --Information onscreen is displayed using a menu driven interface.
 --The interface is navigated using the arrow keys and enter.
 --@author Morganamilo
+--@copyright Morganamilo 2016
 --@script recovery
 
 
---colours
+---The primary colour used.
 local _primaryTextColour = colours.blue
+
+---The secondary colour used.
 local _secondaryTextColour = colours.lightBlue
+
+---The background colour used.
 local _backColour = colours.grey
+
+---The colour of the selected option.
 local _selectedColour = colours.cyan
 
---size of the terminal in pixels
+
+---Size of the terminal in characters.
+--@field _xSize Width of the terminal.
+--@field _ySize height of the terminal.
 local _xSize, _ySize = term.getSize()
+
+---Currently selected option.
 local selected = 1
 
-local desc = "test"
+---Decription of the selected option
+local desc = nil
 
 ---Options table, containing each option the recovery can select
 --@table options
@@ -70,7 +83,7 @@ local options = {
 ---Writes a string to the center of the screen on a given line with a given colour and text colour.
 --The text is centered while the background colour of the text spans the entire line.
 --@param str The string that is written to the screen.
---@param line The string is written to. 1 is the top of the terminal n is the bottom where n >= 1.
+--@param line The lime that the string is written to. 1 is the top of the terminal n is the bottom where n >= 1.
 --@param colour The colour of the string using ComputerCraft's colours API.
 --@param backColour The background colour of the string using ComputerCraft's colours API.
 --@usage writeCenter("Hello World", 5, colours.white, colours.blue)
@@ -204,4 +217,6 @@ local function main()
 	end
 end
 
+
+--call the main function
 main()

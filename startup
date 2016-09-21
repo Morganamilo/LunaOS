@@ -2,6 +2,7 @@
 --It overides the default dofile then calls the bootloader.
 --This program is designed to run on Computercratft version 1.75+ (1.79 most recent)
 --@author Morganamilo
+--@copyright Morganamilo 2016
 --@script startup
 
 
@@ -10,9 +11,7 @@
 --@param path The path to the file that is to be run.
 --@return The return value of the file ran.
 --@usage dofile("/rom/programs/shell")
---@raise The compilation error - if the file can not be compiled.
---<br>The runtime error - if file specified raises an error
---<br>"File not found" - if the path specified is not a file.
+--@raise Error returned by loadstirng - if loadstring did not succeed.
 function _G.dofile(path)
 	local func, e = loadfile(path)
 	

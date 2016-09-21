@@ -1,19 +1,21 @@
 ---The bootloader is called after the inital startup file.
 --It allows the user to choose between the normal os and recovery.
---Once the pc is turned on, the user has 0.3 seconcs so press shift.
+--Once the pc is turned on, the user has @{time} seconds so press shift.
 --If they hit shift in time then the computer will boot into recovery.
 --If not the computer will continue and boot like notmal
 --@author Morganamilo
+--@copyright Morganamilo 2016
 --@script bootloader
 
---time given to press shift
+---The timer the user has to enter recovery.
+--@field time 0.3
 local time = 0.3
 
 ---Starts a timer, and waits for an Event.
 --if the event is the timer then it boots LunaOS normaly.
 --if the event is the key shift then reovery is booted.
 --otherise it loops and waits for the next event
---@usage main
+--@usage main()
 function main()
 	local timer = os.startTimer(time)
 	

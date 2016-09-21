@@ -1,0 +1,14 @@
+---Unintalls the OS completely by deleteing ALL files on the computer apart form "/rom".
+--This includes non OS files so this script should only be used if there is no data
+--on the computer that the user wishes to keep
+--@author Morganamilo
+--@copyright Morganamilo 2016
+--@script uninstall
+
+
+--deletes all files on the computer
+for _, file in pairs(fs.list("/")) do
+	if file ~= "rom" then
+		fs.delete(file)
+	end
+end
