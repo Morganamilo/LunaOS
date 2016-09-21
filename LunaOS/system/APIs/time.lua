@@ -22,7 +22,12 @@ local function initTime()
 		return 0, 0 --if we cant get the real time just use 0
 	end
 	
-	local response = jsonUtils.decode(request.readLine())
+	--ensure we get a valid json response
+	local success, response = pcall(jsonUtils.decode, request.readLine())
+
+	if not success then
+		return 0, 0 --if we cant get the real time just use 0
+	end
 	
 	local returnedTime = tonumber(response[1])
 	local offset = tonumber(response[2])
