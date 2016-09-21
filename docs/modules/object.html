@@ -1,0 +1,363 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>ldoc</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+<li><a href="#Tables">Tables</a></li>
+<li><a href="#Local_Functions">Local Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><strong>object</strong></li>
+  <li><a href="../modules/kernel.html">kernel</a></li>
+  <li><a href="../modules/windowHandler.html">windowHandler</a></li>
+</ul>
+<h2>Scripts</h2>
+<ul class="nowrap">
+  <li><a href="../scripts/bootloader.html">bootloader</a></li>
+  <li><a href="../scripts/craftos.html">craftos</a></li>
+  <li><a href="../scripts/fixperms.html">fixperms</a></li>
+  <li><a href="../scripts/recovery.html">recovery</a></li>
+  <li><a href="../scripts/uninstall.html">uninstall</a></li>
+  <li><a href="../scripts/wipedata.html">wipedata</a></li>
+  <li><a href="../scripts/startup.html">startup</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>object</code></h1>
+<p>The object module allows the creations of classes, objects and interfaces.</p>
+<p>
+An object my have both static and non static varibles.
+Static varibles are accessed by classname.varible while non static varibles
+are accessed by instance.varible.
+Static varibles are the same for all instances, if one chances for one instance
+it changes for all.
+An object may also overide meta <a href="../modules/object.html#events">events</a> so that instances of the same class or
+inherit the same class may overide operators such as "+", "-" or "%".
+Object may also inherit from a parent class, attaining all of its static and non
+static varibles.
+When a class or objct tries to look up a value it starts at its own class and works
+its way up throgh its parents.
+Classes may overide varibles which applies to itself and all sub classes.
+Interfaces are a list of varibles that a class must contain in order to initalize.</p>
+    <h3>Info:</h3>
+    <ul>
+        <li><strong>Copyright</strong>: Morganamilo 2016</li>
+        <li><strong>Author</strong>: Morganamilo</li>
+    </ul>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#Object.init">Object.init ()</a></td>
+	<td class="summary">Empty constructor so that init can still be called without error.</td>
+	</tr>
+</table>
+<h2><a href="#Tables">Tables</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#events">events</a></td>
+	<td class="summary">Metamethods that a class can overide</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Object">Object</a></td>
+	<td class="summary">Object class.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Object.static">Object.static</a></td>
+	<td class="summary">Static varibles.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Object.nonStatic">Object.nonStatic</a></td>
+	<td class="summary">Non static varibles.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Object.interfaces">Object.interfaces</a></td>
+	<td class="summary">Interfaces</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Interface">Interface</a></td>
+	<td class="summary">interfaces</td>
+	</tr>
+</table>
+<h2><a href="#Local_Functions">Local Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#instanceOfClass">instanceOfClass (object, class)</a></td>
+	<td class="summary">Default method instanceOf.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#checkInterfaces">checkInterfaces (class)</a></td>
+	<td class="summary">Makes sure that the given class has all of its fields defined that are required by the interfaces</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "Object.init"></a>
+    <strong>Object.init ()</strong>
+    </dt>
+    <dd>
+    Empty constructor so that init can still be called without error.
+
+
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Tables"></a>Tables</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "events"></a>
+    <strong>events</strong>
+    </dt>
+    <dd>
+    Metamethods that a class can overide
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">__mode</span>
+
+        </li>
+        <li><span class="parameter">__tostring</span>
+
+        </li>
+        <li><span class="parameter">__len</span>
+
+        </li>
+        <li><span class="parameter">__unm</span>
+
+        </li>
+        <li><span class="parameter">__add</span>
+
+        </li>
+        <li><span class="parameter">__sub</span>
+
+        </li>
+        <li><span class="parameter">__mul</span>
+
+        </li>
+        <li><span class="parameter">__div</span>
+
+        </li>
+        <li><span class="parameter">__mod</span>
+
+        </li>
+        <li><span class="parameter">__pow</span>
+
+        </li>
+        <li><span class="parameter">__concat</span>
+
+        </li>
+        <li><span class="parameter">__eq</span>
+
+        </li>
+        <li><span class="parameter">__lt</span>
+
+        </li>
+        <li><span class="parameter">__le</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Object"></a>
+    <strong>Object</strong>
+    </dt>
+    <dd>
+    Object class.  all other classes are derived from this
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Object.static"></a>
+    <strong>Object.static</strong>
+    </dt>
+    <dd>
+    Static varibles.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Object.nonStatic"></a>
+    <strong>Object.nonStatic</strong>
+    </dt>
+    <dd>
+    Non static varibles.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Object.interfaces"></a>
+    <strong>Object.interfaces</strong>
+    </dt>
+    <dd>
+    Interfaces
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Interface"></a>
+    <strong>Interface</strong>
+    </dt>
+    <dd>
+    interfaces
+
+
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Local_Functions"></a>Local Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "instanceOfClass"></a>
+    <strong>instanceOfClass (object, class)</strong>
+    </dt>
+    <dd>
+    Default method instanceOf.
+Check whether an object is an instance of a class.
+Or if the object is an instance of any child class of the given class.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">object</span>
+         The object we want to see if its an instance of a class.
+        </li>
+        <li><span class="parameter">class</span>
+         The class we check to see if its the class of an object.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        true if the class is an instance of the class or a parent of the class.
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> instance = object:instanceOf(animal)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "checkInterfaces"></a>
+    <strong>checkInterfaces (class)</strong>
+    </dt>
+    <dd>
+    Makes sure that the given class has all of its fields defined that are required by the interfaces
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">class</span>
+         The class to check.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        true if the class implements all of its classes fields. false otherwise.
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> isValid = checkInterfaces(class)</pre>
+    </ul>
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.5</a></i>
+<i style="float:right;">Last updated 2016-09-21 10:04:48 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

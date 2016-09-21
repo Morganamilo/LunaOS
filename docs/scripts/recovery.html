@@ -1,0 +1,519 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>ldoc</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Tables">Tables</a></li>
+<li><a href="#Fields">Fields</a></li>
+<li><a href="#Local_Functions">Local Functions</a></li>
+</ul>
+
+
+<h2>Scripts</h2>
+<ul class="nowrap">
+  <li><a href="../scripts/bootloader.html">bootloader</a></li>
+  <li><a href="../scripts/craftos.html">craftos</a></li>
+  <li><a href="../scripts/fixperms.html">fixperms</a></li>
+  <li><strong>recovery</strong></li>
+  <li><a href="../scripts/uninstall.html">uninstall</a></li>
+  <li><a href="../scripts/wipedata.html">wipedata</a></li>
+  <li><a href="../scripts/startup.html">startup</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/object.html">object</a></li>
+  <li><a href="../modules/kernel.html">kernel</a></li>
+  <li><a href="../modules/windowHandler.html">windowHandler</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Script <code>recovery</code></h1>
+<p>The LunaOS recovery provides some features outside of the actual OS.</p>
+<p>
+LunaOS recovery supports the following features:
+	<ul>
+		<li><b>Reboot System</b>:	Reboots the computer</li>
+		<li><b>Use Craft OS</b>:	Instead of booting LunaOS the default OS it ran instead</li>
+		<li><b>Fix permisions</b>:	Set file Permision back to their default</li>
+		<li><b>Wipe Data</b>:	Wipes all the program dada inside of LunaOS</li>
+		<li><b>Uninstall</b>:	Uninstall the OS completley</li>
+	</ul>
+<p>Information onscreen is displayed using a menu driven interface.
+The interface is navigated using the arrow keys and enter.</p>
+    <h3>Info:</h3>
+    <ul>
+        <li><strong>Copyright</strong>: Morganamilo 2016</li>
+        <li><strong>Author</strong>: Morganamilo</li>
+    </ul>
+
+
+<h2><a href="#Tables">Tables</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#options">options</a></td>
+	<td class="summary">Options table, containing each option the recovery can select</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#option">option</a></td>
+	<td class="summary">Option table, an option that can be read and processed by the recovery.</td>
+	</tr>
+</table>
+<h2><a href="#Fields">Fields</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#_primaryTextColour">_primaryTextColour</a></td>
+	<td class="summary">The primary colour used.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#_secondaryTextColour">_secondaryTextColour</a></td>
+	<td class="summary">The secondary colour used.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#_backColour">_backColour</a></td>
+	<td class="summary">The background colour used.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#_selectedColour">_selectedColour</a></td>
+	<td class="summary">The colour of the selected option.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#_xSize">_xSize</a></td>
+	<td class="summary">Size of the terminal in characters.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#selected">selected</a></td>
+	<td class="summary">Currently selected option.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#desc">desc</a></td>
+	<td class="summary">Decription of the selected option</td>
+	</tr>
+</table>
+<h2><a href="#Local_Functions">Local Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#writeCenter">writeCenter (str, line, colour, backColour)</a></td>
+	<td class="summary">Writes a string to the center of the screen on a given line with a given colour and text colour.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#writeDivider">writeDivider (line, colour)</a></td>
+	<td class="summary">Draws a horizontal divider across the sreen on a given line and in given colour.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#writeDesc">writeDesc ()</a></td>
+	<td class="summary">Writes the current description to the screen.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#writeOptions">writeOptions ()</a></td>
+	<td class="summary">Writes all the options to the screen.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#updateDisplay">updateDisplay ()</a></td>
+	<td class="summary">Updates the display, drawring all aspects which are:
+<br>	The header
+<br>	Dividers
+<br>	Options
+<br>	the description
+<br></td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#handleOption">handleOption ()</a></td>
+	<td class="summary">Executes the currently selected option.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#main">main ()</a></td>
+	<td class="summary">The main loop that polls for input and act accordingly.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Tables"></a>Tables</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "options"></a>
+    <strong>options</strong>
+    </dt>
+    <dd>
+    Options table, containing each option the recovery can select
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">table</span>
+         option
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "option"></a>
+    <strong>option</strong>
+    </dt>
+    <dd>
+    Option table, an option that can be read and processed by the recovery.
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">name</span>
+         Name of the option
+        </li>
+        <li><span class="parameter">desc</span>
+         Description of the option
+        </li>
+        <li><span class="parameter">action</span>
+         The action the options performes, can either be a function to be called or a file to be ran
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Fields"></a>Fields</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "_primaryTextColour"></a>
+    <strong>_primaryTextColour</strong>
+    </dt>
+    <dd>
+    The primary colour used.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "_secondaryTextColour"></a>
+    <strong>_secondaryTextColour</strong>
+    </dt>
+    <dd>
+    The secondary colour used.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "_backColour"></a>
+    <strong>_backColour</strong>
+    </dt>
+    <dd>
+    The background colour used.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "_selectedColour"></a>
+    <strong>_selectedColour</strong>
+    </dt>
+    <dd>
+    The colour of the selected option.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "_xSize"></a>
+    <strong>_xSize</strong>
+    </dt>
+    <dd>
+    Size of the terminal in characters.
+
+
+    <ul>
+        <li><span class="parameter">_xSize</span>
+         Width of the terminal.
+        </li>
+        <li><span class="parameter">_ySize</span>
+         height of the terminal.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "selected"></a>
+    <strong>selected</strong>
+    </dt>
+    <dd>
+    Currently selected option.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "desc"></a>
+    <strong>desc</strong>
+    </dt>
+    <dd>
+    Decription of the selected option
+
+
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Local_Functions"></a>Local Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "writeCenter"></a>
+    <strong>writeCenter (str, line, colour, backColour)</strong>
+    </dt>
+    <dd>
+    Writes a string to the center of the screen on a given line with a given colour and text colour.
+The text is centered while the background colour of the text spans the entire line.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">str</span>
+         The string that is written to the screen.
+        </li>
+        <li><span class="parameter">line</span>
+         The lime that the string is written to. 1 is the top of the terminal n is the bottom where n >= 1.
+        </li>
+        <li><span class="parameter">colour</span>
+         The colour of the string using ComputerCraft's colours API.
+        </li>
+        <li><span class="parameter">backColour</span>
+         The background colour of the string using ComputerCraft's colours API.
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">writeCenter(<span class="string">"Hello World"</span>, <span class="number">5</span>, colours.white, colours.blue)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "writeDivider"></a>
+    <strong>writeDivider (line, colour)</strong>
+    </dt>
+    <dd>
+    Draws a horizontal divider across the sreen on a given line and in given colour.
+The divider is made up of a repitition of the character "-" and is in the colour specified.
+The background colour remains unchanged.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">line</span>
+         The line that the divider is drawn to.
+        </li>
+        <li><span class="parameter">colour</span>
+         The colour that the divider is drawn in using ComputerCrafts colours API.
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">writeDivider(<span class="number">5</span>, colours.white)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "writeDesc"></a>
+    <strong>writeDesc ()</strong>
+    </dt>
+    <dd>
+    Writes the current description to the screen.
+_secondaryTextColour is used for the textColour.
+
+
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">updateDesc()</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "writeOptions"></a>
+    <strong>writeOptions ()</strong>
+    </dt>
+    <dd>
+    Writes all the options to the screen.
+The first option is written on line 3, each following option is written on the following line downward.
+_secondaryTextColour is used for the text colour.
+if the option it is writing is selected _selectedColour is used as the backgroundColour.
+otherwise _backColour is used instead effecivley making it invisable.
+
+
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">writeOptions()</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "updateDisplay"></a>
+    <strong>updateDisplay ()</strong>
+    </dt>
+    <dd>
+    Updates the display, drawring all aspects which are:
+<br>	The header
+<br>	Dividers
+<br>	Options
+<br>	the description
+<br>
+
+
+
+
+
+    <h3>See also:</h3>
+    <ul>
+         <li><a href="../scripts/recovery.html#writeCenter">writeCenter</a></li>
+         <li><a href="../scripts/recovery.html#writeDivider">writeDivider</a></li>
+         <li><a href="../scripts/recovery.html#writeDesc">writeDesc</a></li>
+         <li><a href="../scripts/recovery.html#writeOptions">writeOptions</a></li>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">updateDisplay()</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "handleOption"></a>
+    <strong>handleOption ()</strong>
+    </dt>
+    <dd>
+    Executes the currently selected option.
+Sets the decription to "Completed" if the option completed successfully
+Otherwise the description is set to the error that occured.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        true if the currently selected options name was "craftos", false otherwise.
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">handleOption()</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "main"></a>
+    <strong>main ()</strong>
+    </dt>
+    <dd>
+    The main loop that polls for input and act accordingly.
+Initially sets the description.
+Moves the selected option up and down using arrow key input.
+Executes the currently selected option when enter is pressed.
+
+
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">main()</pre>
+    </ul>
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.5</a></i>
+<i style="float:right;">Last updated 2016-09-21 10:04:48 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

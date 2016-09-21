@@ -1,0 +1,804 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>ldoc</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+<li><a href="#Tables">Tables</a></li>
+<li><a href="#Fields">Fields</a></li>
+<li><a href="#Local_Functions">Local Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/object.html">object</a></li>
+  <li><a href="../modules/kernel.html">kernel</a></li>
+  <li><strong>windowHandler</strong></li>
+</ul>
+<h2>Scripts</h2>
+<ul class="nowrap">
+  <li><a href="../scripts/bootloader.html">bootloader</a></li>
+  <li><a href="../scripts/craftos.html">craftos</a></li>
+  <li><a href="../scripts/fixperms.html">fixperms</a></li>
+  <li><a href="../scripts/recovery.html">recovery</a></li>
+  <li><a href="../scripts/uninstall.html">uninstall</a></li>
+  <li><a href="../scripts/wipedata.html">wipedata</a></li>
+  <li><a href="../scripts/startup.html">startup</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>windowHandler</code></h1>
+<p>The windowHandler is responsable for managing the window each process draws to.</p>
+<p>
+It handles where each processe's window is and what its size is
+It handles when a process ends or errors.
+It also provides an banner that can be used be the user to change or kill processes.</p>
+    <h3>Info:</h3>
+    <ul>
+        <li><strong>Copyright</strong>: Morganamilo 2016</li>
+        <li><strong>Author</strong>: Morganamilo</li>
+    </ul>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#setPrivate">setPrivate (p)</a></td>
+	<td class="summary">Allows the kernel to its private table to the window handler to give
+the window handler direct access to the kernels functions.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#setCurrentWindow">setCurrentWindow (PID, window)</a></td>
+	<td class="summary">Set the current window of a process.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#updateBanner">updateBanner ()</a></td>
+	<td class="summary">Redraws the banner and all the components in the banner.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#setHidden">setHidden (state)</a></td>
+	<td class="summary">Makes the banner visable or invisable
+If invisable also moved the working area up and extends it to the full screen size.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#newWindow">newWindow (PID)</a></td>
+	<td class="summary">Creates a new window for a given process.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#gotoWindow">gotoWindow (old, new)</a></td>
+	<td class="summary">Goes to a window by setting the new window visable and the old one invisable.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#redirect">redirect (PID)</a></td>
+	<td class="summary">Redirects to a window just like term.redirect except only the PID of the
+process is needed.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#handleEvent">handleEvent (event)</a></td>
+	<td class="summary">Handles any incoming event.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#handleError">handleError (proc, data)</a></td>
+	<td class="summary">Shows an error screen for when a process errors.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#handleDeath">handleDeath (The)</a></td>
+	<td class="summary">Hanles the death of a process.</td>
+	</tr>
+</table>
+<h2><a href="#Tables">Tables</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#windowOrder">windowOrder</a></td>
+	<td class="summary">Ordered list of open processes.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#currentWindow">currentWindow</a></td>
+	<td class="summary">The current window each process is redirected to.</td>
+	</tr>
+</table>
+<h2><a href="#Fields">Fields</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#xSize">xSize</a></td>
+	<td class="summary">Size of the terminal in charachters.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#native">native</a></td>
+	<td class="summary">The native terminal.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#downArrow">downArrow</a></td>
+	<td class="summary">Down arrow character.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#upArrow">upArrow</a></td>
+	<td class="summary">UP arrow character.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#x">x</a></td>
+	<td class="summary">x character with a space.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#banner">banner</a></td>
+	<td class="summary">The banner that is placed outside of the process windows.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#workingArea">workingArea</a></td>
+	<td class="summary">The area in which the process windows are placed.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#buffer">buffer</a></td>
+	<td class="summary">Buffer which we draw the banner to before drawing it to the screen.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#backgroundColour">backgroundColour</a></td>
+	<td class="summary">Background colour.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#textColour">textColour</a></td>
+	<td class="summary">Text colour.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#xColour">xColour</a></td>
+	<td class="summary">Colour of the x character used to close programs.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#selectedColour">selectedColour</a></td>
+	<td class="summary">Background colour of the selected process.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#errorBackgroundColour">errorBackgroundColour</a></td>
+	<td class="summary">Background colour of the error screen.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#errorValuesColour">errorValuesColour</a></td>
+	<td class="summary">Text colour of the line number and error text of the error screen</td>
+	</tr>
+</table>
+<h2><a href="#Local_Functions">Local Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#getLabelAt">getLabelAt (xPos, yPos)</a></td>
+	<td class="summary">Gets the banner label at a given point and return the PID
+of the label we hit.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#handleBannerEvent">handleBannerEvent (event)</a></td>
+	<td class="summary">Handles a mouse event when clicked on the banner
+Allows the banner to react to being clicked on.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "setPrivate"></a>
+    <strong>setPrivate (p)</strong>
+    </dt>
+    <dd>
+    Allows the kernel to its private table to the window handler to give
+the window handler direct access to the kernels functions.
+We then combine the global kernel and the private table in a metatable so
+that we can access both from one kernel varible.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">p</span>
+         the private table of the kernel.
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">windowHandler.setPrivate(_private)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "setCurrentWindow"></a>
+    <strong>setCurrentWindow (PID, window)</strong>
+    </dt>
+    <dd>
+    Set the current window of a process.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">PID</span>
+         The PID of the process.
+        </li>
+        <li><span class="parameter">window</span>
+         The current window the process is using.
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">windowHandler.setCurrentWindow(<span class="number">3</span>, window)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "updateBanner"></a>
+    <strong>updateBanner ()</strong>
+    </dt>
+    <dd>
+    Redraws the banner and all the components in the banner.
+Start by clearing the banner then redraw each label in order.
+If the label we are drawing is the selected one use the appropriate colours.
+Wont draw if the banner is hidden.
+Endures the cursor is restored afterwards.
+
+
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">windowHandler.updateBanner()</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "setHidden"></a>
+    <strong>setHidden (state)</strong>
+    </dt>
+    <dd>
+    Makes the banner visable or invisable
+If invisable also moved the working area up and extends it to the full screen size.
+Banner can not be set to visable if the OS is locked.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">state</span>
+         true to hide the banner false to show it.
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">windowHandler.setHidden(<span class="keyword">true</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "newWindow"></a>
+    <strong>newWindow (PID)</strong>
+    </dt>
+    <dd>
+    Creates a new window for a given process.
+the window is added to the workingArea and starts off invisable.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">PID</span>
+         The PID of the process the window is to belong to.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The window that was creted.
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> window = windowHandler.newWindow(<span class="number">3</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "gotoWindow"></a>
+    <strong>gotoWindow (old, new)</strong>
+    </dt>
+    <dd>
+    Goes to a window by setting the new window visable and the old one invisable.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">old</span>
+         The PID of the process currently running or nil if there is none.
+        </li>
+        <li><span class="parameter">new</span>
+         the PID of the new running process.
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">windowHandler.gotoWindow(<span class="number">3</span>,<span class="number">4</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "redirect"></a>
+    <strong>redirect (PID)</strong>
+    </dt>
+    <dd>
+    Redirects to a window just like term.redirect except only the PID of the
+process is needed.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">PID</span>
+         The pid of the process to redirect to.
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">windowHandler.redirect(<span class="number">3</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "handleEvent"></a>
+    <strong>handleEvent (event)</strong>
+    </dt>
+    <dd>
+    Handles any incoming event.
+The kernel will pass all events to this function where it may be modified
+then passed to each process.
+If we hit the banner then send the event to the handleBannerEvent function and return an empty event.
+This function will ajust events to that mouse clicks so that they align with the working area.
+For example if the working area is at 5,5 and we get a mouse click at 2,2 the event will be ajusted to 2+5,2+5 = 7,7.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">event</span>
+         The event we are handling.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+        The ajusted event.</li>
+        <li>
+        An empty event if we hit the banner.</li>
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">windowHandler.handleEvent({<span class="string">"mouse_click"</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">4</span>})</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "handleError"></a>
+    <strong>handleError (proc, data)</strong>
+    </dt>
+    <dd>
+    Shows an error screen for when a process errors.
+Gives the user information about the crash including process
+name and PID, error reaso and error line.
+If it was a terminate error then dont show the error screen.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">proc</span>
+         The process that has errored.
+        </li>
+        <li><span class="parameter">data</span>
+         the reason the procces errored, default is empty string.
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">windowHandler.handleError(proc, data)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "handleDeath"></a>
+    <strong>handleDeath (The)</strong>
+    </dt>
+    <dd>
+    Hanles the death of a process.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">The</span>
+         PID of the process that has died.
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">windowHandler.handleDeath(<span class="number">3</span>)</pre>
+    </ul>
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Tables"></a>Tables</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "windowOrder"></a>
+    <strong>windowOrder</strong>
+    </dt>
+    <dd>
+    Ordered list of open processes.
+The list is sorted by age in ascending order.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "currentWindow"></a>
+    <strong>currentWindow</strong>
+    </dt>
+    <dd>
+    The current window each process is redirected to.
+When we switch to a process we redirect back to the winow the process was using last.
+
+
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Fields"></a>Fields</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "xSize"></a>
+    <strong>xSize</strong>
+    </dt>
+    <dd>
+    Size of the terminal in charachters.
+
+
+    <ul>
+        <li><span class="parameter">xSize</span>
+         width of the ternminal.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "native"></a>
+    <strong>native</strong>
+    </dt>
+    <dd>
+    The native terminal.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "downArrow"></a>
+    <strong>downArrow</strong>
+    </dt>
+    <dd>
+    Down arrow character.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "upArrow"></a>
+    <strong>upArrow</strong>
+    </dt>
+    <dd>
+    UP arrow character.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "x"></a>
+    <strong>x</strong>
+    </dt>
+    <dd>
+    x character with a space.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "banner"></a>
+    <strong>banner</strong>
+    </dt>
+    <dd>
+    The banner that is placed outside of the process windows.
+It allows switching and killing processes.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "workingArea"></a>
+    <strong>workingArea</strong>
+    </dt>
+    <dd>
+    The area in which the process windows are placed.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "buffer"></a>
+    <strong>buffer</strong>
+    </dt>
+    <dd>
+    Buffer which we draw the banner to before drawing it to the screen.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "backgroundColour"></a>
+    <strong>backgroundColour</strong>
+    </dt>
+    <dd>
+    Background colour.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "textColour"></a>
+    <strong>textColour</strong>
+    </dt>
+    <dd>
+    Text colour.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "xColour"></a>
+    <strong>xColour</strong>
+    </dt>
+    <dd>
+    Colour of the x character used to close programs.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "selectedColour"></a>
+    <strong>selectedColour</strong>
+    </dt>
+    <dd>
+    Background colour of the selected process.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "errorBackgroundColour"></a>
+    <strong>errorBackgroundColour</strong>
+    </dt>
+    <dd>
+    Background colour of the error screen.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "errorValuesColour"></a>
+    <strong>errorValuesColour</strong>
+    </dt>
+    <dd>
+    Text colour of the line number and error text of the error screen
+
+
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Local_Functions"></a>Local Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "getLabelAt"></a>
+    <strong>getLabelAt (xPos, yPos)</strong>
+    </dt>
+    <dd>
+    Gets the banner label at a given point and return the PID
+of the label we hit.
+If we hit the x then return -1.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">xPos</span>
+         the x position we want to find a label at
+        </li>
+        <li><span class="parameter">yPos</span>
+         the x position we want to find a label at
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+        The PID of the process belonging to the label at the given point.</li>
+        <li>
+        -1 if the point we where given is the x.</li>
+        <li>
+        nil if we did not hit a label.</li>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "handleBannerEvent"></a>
+    <strong>handleBannerEvent (event)</strong>
+    </dt>
+    <dd>
+    Handles a mouse event when clicked on the banner
+Allows the banner to react to being clicked on.
+If we left click a process we go to it.
+If we right click a process we close it.
+If we hit the x on a process we close it.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">event</span>
+         The event we are handling.
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">windowHandler.handleBannerEvent({<span class="string">"mouse_click"</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>})</pre>
+    </ul>
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.5</a></i>
+<i style="float:right;">Last updated 2016-09-21 10:04:48 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

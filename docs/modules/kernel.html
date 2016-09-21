@@ -1,0 +1,1377 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>ldoc</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+<li><a href="#Tables">Tables</a></li>
+<li><a href="#Fields">Fields</a></li>
+<li><a href="#Local_Functions">Local Functions</a></li>
+<li><a href="#Issues">Issues</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/object.html">object</a></li>
+  <li><strong>kernel</strong></li>
+  <li><a href="../modules/windowHandler.html">windowHandler</a></li>
+</ul>
+<h2>Scripts</h2>
+<ul class="nowrap">
+  <li><a href="../scripts/bootloader.html">bootloader</a></li>
+  <li><a href="../scripts/craftos.html">craftos</a></li>
+  <li><a href="../scripts/fixperms.html">fixperms</a></li>
+  <li><a href="../scripts/recovery.html">recovery</a></li>
+  <li><a href="../scripts/uninstall.html">uninstall</a></li>
+  <li><a href="../scripts/wipedata.html">wipedata</a></li>
+  <li><a href="../scripts/startup.html">startup</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>kernel</code></h1>
+<p>The kernel allows multiple processes to be created from either functions, files or programs
+Only one process can run at a time so each process runs then pauses to let another process run.</p>
+<p>
+Processes have two permission levels superuser and non superuser.
+Superuser process have full rights to running things as root, killing other processes
+and acessing the file system.
+System programs may choose to gain superser rights whenever they choose.
+Process choose when they pause, the kernel had no control over this.
+If a Process runs for 10 seconds without pauseing it will error.
+When a process errors the process is killed and the error is shown to the user.
+Processes have:
+	<ul>
+		<li>a thread</li>
+		<li>a PID</li>
+		<li>a parent</li>
+		<li>a name</li>
+		<li>a description</li>
+		<li>a superuser value</li>
+		<li>a package</li>
+	</ul></p>
+    <h3>Info:</h3>
+    <ul>
+        <li><strong>Copyright</strong>: Morganamilo 2016</li>
+        <li><strong>Author</strong>: Morganamilo</li>
+    </ul>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#setBarVisable">setBarVisable (visable)</a></td>
+	<td class="summary">Sets the visability of the top bar.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#die">die ()</a></td>
+	<td class="summary">Kill the currently running process.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#getProgramDataPath">getProgramDataPath ()</a></td>
+	<td class="summary">Gets the program data path.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#newProcess">newProcess (func, parent, name, desc)</a></td>
+	<td class="summary">Creates a new process with a given function, parent, name and description.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#newRootProcess">newRootProcess (func, parent, name, desc)</a></td>
+	<td class="summary">Creates a new process as root with a given function, parent, name and description.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#runFile">runFile (path, parent, name, desc)</a></td>
+	<td class="summary">Creates a new process from a file.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#runRootFile">runRootFile (path, parent, name, desc)</a></td>
+	<td class="summary">Creates a new process from a file.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#runProgram">runProgram (program, parent, ...)</a></td>
+	<td class="summary">Creates a new process from a program.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#runRootProgram">runRootProgram (program, parent, ...)</a></td>
+	<td class="summary">Creates a new root process from a program.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#getProcessCount">getProcessCount ()</a></td>
+	<td class="summary">Gets the total amout of alive processes.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#getProcess">getProcess (PID)</a></td>
+	<td class="summary">Gets a specified process.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#getProcesses">getProcesses ()</a></td>
+	<td class="summary">Gets a list of all processes.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#getRunning">getRunning ()</a></td>
+	<td class="summary">Gets the currently running process.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#getCurrentPackage">getCurrentPackage ()</a></td>
+	<td class="summary">Gets the package of the currently running process.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#getCurrentPackagePath">getCurrentPackagePath ()</a></td>
+	<td class="summary">Gets the package path of the currently running process.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#getCurrentDataPath">getCurrentDataPath ()</a></td>
+	<td class="summary">Gets the package data path of the currently running process.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#requestSU">requestSU ()</a></td>
+	<td class="summary">Requets for the running process to gain superuser permissions.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#isSU">isSU ()</a></td>
+	<td class="summary">Returns whether the currently running process has superuser permissions.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#gotoPID">gotoPID (PID)</a></td>
+	<td class="summary">Changes the currently focused process to a given process.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#killProcess">killProcess (PID)</a></td>
+	<td class="summary">Kills a specified Process.</td>
+	</tr>
+</table>
+<h2><a href="#Tables">Tables</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#focusEvents">focusEvents</a></td>
+	<td class="summary">A list of event thats should only be passed the the processed currently focused.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#_pivate">_pivate</a></td>
+	<td class="summary">Holds all private varibles and functions allowing them to be passed to the windowHandler
+without the functions being accessble to the user.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#_private._processes">_private._processes</a></td>
+	<td class="summary">A list of All currently alive processes.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#_private._focus">_private._focus</a></td>
+	<td class="summary">The process curently in focus.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#_private._runningHistory">_private._runningHistory</a></td>
+	<td class="summary">Keeps a history of all process that have run and the order that they were run in</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#_private._waitingFor">_private._waitingFor</a></td>
+	<td class="summary">Tracks what event each process is waiting for</td>
+	</tr>
+</table>
+<h2><a href="#Fields">Fields</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#fs">fs</a></td>
+	<td class="summary">Save the old file system so we can bypass the file permissions.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#_running">_running</a></td>
+	<td class="summary">Whether the main process loop is running.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#windowHandler">windowHandler</a></td>
+	<td class="summary">The windowHandler is an API for managing the window each process exists in
+and how each window should be placed, drawn ect.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#_private.programDataPath">_private.programDataPath</a></td>
+	<td class="summary">Path to program data</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#_private.programPath">_private.programPath</a></td>
+	<td class="summary">Path to programs</td>
+	</tr>
+</table>
+<h2><a href="#Local_Functions">Local Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#loadfile">loadfile (path)</a></td>
+	<td class="summary">Overide the default loadString function so that it uses the old fileSystem.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#_private.cirticalError">_private.cirticalError (msg)</a></td>
+	<td class="summary">Displays a an error message then shuts down the computer.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#_private.newProcessInternal">_private.newProcessInternal (func, parent, name, desc, SU, package)</a></td>
+	<td class="summary">Creates a new process that can be run by the kernel.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#_private.runProgramInternal">_private.runProgramInternal (program, parent, SU, args)</a></td>
+	<td class="summary">Similar to <a href="../modules/kernel.html#_private.newProcessInternal">_private.newProcessInternal</a> except runs
+a program instead of a function.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#_private.killProcessInternal">_private.killProcessInternal (PID)</a></td>
+	<td class="summary">Kills the given process and all its children recursivley.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#_private.getEvent">_private.getEvent ()</a></td>
+	<td class="summary">Gets the next event and passes it to windowHandler and keyHandler.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#_private.pushEvent">_private.pushEvent (PID, event)</a></td>
+	<td class="summary">Pushes a given event to a given PID.</td>
+	</tr>
+</table>
+<h2><a href="#Issues">Issues</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#_private.newProcessInternal-warning1">_private.newProcessInternal-warning1</a></td>
+	<td class="summary">Using the same function for multiple processes breaks sandboxing because they share local varibles.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#gotoPID-warning2">gotoPID-warning2</a></td>
+	<td class="summary">When this function is called mid thread a goto event is pushed globally.
+This is not intentional and may be changed.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "setBarVisable"></a>
+    <strong>setBarVisable (visable)</strong>
+    </dt>
+    <dd>
+    Sets the visability of the top bar.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">visable</span>
+         The visablility of the top bar.
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">kernel.setBarVisable(<span class="keyword">true</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "die"></a>
+    <strong>die ()</strong>
+    </dt>
+    <dd>
+    Kill the currently running process.
+
+
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">kernel.die()</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "getProgramDataPath"></a>
+    <strong>getProgramDataPath ()</strong>
+    </dt>
+    <dd>
+    Gets the program data path.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The program data path.
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> dataPath = kernel.getProgramDataPath()</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "newProcess"></a>
+    <strong>newProcess (func, parent, name, desc)</strong>
+    </dt>
+    <dd>
+    Creates a new process with a given function, parent, name and description.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">func</span>
+         The function that the process runs.
+        </li>
+        <li><span class="parameter">parent</span>
+         The parent PID of the new process.
+        </li>
+        <li><span class="parameter">name</span>
+         The name of the new process.
+        </li>
+        <li><span class="parameter">desc</span>
+         The description of the new process.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The PID of the new process.
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../modules/kernel.html#_private.newProcessInternal">_private.newProcessInternal</a>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">kernel.newProcess(func, <span class="number">1</span>, <span class="string">"new process"</span>, <span class="string">"this is a new process"</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "newRootProcess"></a>
+    <strong>newRootProcess (func, parent, name, desc)</strong>
+    </dt>
+    <dd>
+    Creates a new process as root with a given function, parent, name and description.
+Must have root to call this funtion
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">func</span>
+         The function that the process runs.
+        </li>
+        <li><span class="parameter">parent</span>
+         The parent PID of the new process.
+        </li>
+        <li><span class="parameter">name</span>
+         The name of the new process.
+        </li>
+        <li><span class="parameter">desc</span>
+         The description of the new process.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The PID of the new process.
+    </ol>
+
+    <h3>Raises:</h3>
+    permission error - if current process is not root.
+
+    <h3>See also:</h3>
+    <ul>
+         <li><a href="../modules/kernel.html#_private.newProcessInternal">_private.newProcessInternal</a></li>
+         <li><a href="../modules/kernel.html#newProcess">newProcess</a></li>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">kernel.newRootProcess(func, <span class="number">1</span>, <span class="string">"new process"</span>, <span class="string">"this is a new process"</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "runFile"></a>
+    <strong>runFile (path, parent, name, desc)</strong>
+    </dt>
+    <dd>
+    Creates a new process from a file.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">path</span>
+         Path to the file.
+        </li>
+        <li><span class="parameter">parent</span>
+         The parent PID of the new process.
+        </li>
+        <li><span class="parameter">name</span>
+         The name of the new process, default is the file name.
+        </li>
+        <li><span class="parameter">desc</span>
+         The description of the new process, default is '',
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The PID of the new process.
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <li><a href="../modules/kernel.html#_private.newProcessInternal">_private.newProcessInternal</a></li>
+         <li><a href="../modules/kernel.html#newProcess">newProcess</a></li>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">kernel.runFile(<span class="string">"/rom/startup"</span>, <span class="number">1</span>, <span class="string">"new process"</span>, <span class="string">"this is a new process"</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "runRootFile"></a>
+    <strong>runRootFile (path, parent, name, desc)</strong>
+    </dt>
+    <dd>
+    Creates a new process from a file.
+Must have root to call this funtion.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">path</span>
+         Path to the file.
+        </li>
+        <li><span class="parameter">parent</span>
+         The parent PID of the new process.
+        </li>
+        <li><span class="parameter">name</span>
+         The name of the new process, default is the file name.
+        </li>
+        <li><span class="parameter">desc</span>
+         The description of the new process, default is '',
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The PID of the new process.
+    </ol>
+
+    <h3>Raises:</h3>
+    permission error - if current process is not root.
+
+    <h3>See also:</h3>
+    <ul>
+         <li><a href="../modules/kernel.html#_private.newProcessInternal">_private.newProcessInternal</a></li>
+         <li><a href="../modules/kernel.html#newProcess">newProcess</a></li>
+         <li><a href="../modules/kernel.html#runFile">runFile</a></li>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">kernel.runFile(<span class="string">"/rom/startup"</span>, <span class="number">1</span>, <span class="string">"new process"</span>, <span class="string">"this is a new process"</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "runProgram"></a>
+    <strong>runProgram (program, parent, ...)</strong>
+    </dt>
+    <dd>
+    Creates a new process from a program.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">program</span>
+         the program to run.
+        </li>
+        <li><span class="parameter">parent</span>
+         The parent PID of the new process.
+        </li>
+        <li><span class="parameter">...</span>
+         Argumrnts to be passed to the program.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The PID of the new process.
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <li><a href="../modules/kernel.html#_private.runProgramInternal">_private.runProgramInternal</a></li>
+         <li><a href="../modules/kernel.html#newProcess">newProcess</a></li>
+         <li><a href="../modules/kernel.html#runFile">runFile</a></li>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">kernel.runProgram(<span class="string">"Explorer"</span>, <span class="keyword">nil</span>, <span class="string">"/rom"</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "runRootProgram"></a>
+    <strong>runRootProgram (program, parent, ...)</strong>
+    </dt>
+    <dd>
+    Creates a new root process from a program.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">program</span>
+         the program to run.
+        </li>
+        <li><span class="parameter">parent</span>
+         The parent PID of the new process.
+        </li>
+        <li><span class="parameter">...</span>
+         Argumrnts to be passed to the program.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The PID of the new process.
+    </ol>
+
+    <h3>Raises:</h3>
+    permission error - if current process is not root.
+
+    <h3>See also:</h3>
+    <ul>
+         <li><a href="../modules/kernel.html#_private.runProgramInternal">_private.runProgramInternal</a></li>
+         <li><a href="../modules/kernel.html#newProcess">newProcess</a></li>
+         <li><a href="../modules/kernel.html#runFile">runFile</a></li>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">kernel.runRootProgram(<span class="string">"Explorer"</span>, <span class="keyword">nil</span>, <span class="string">"/rom"</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "getProcessCount"></a>
+    <strong>getProcessCount ()</strong>
+    </dt>
+    <dd>
+    Gets the total amout of alive processes.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The total amout of alive processes.
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> count = kernel.getProcessCount()</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "getProcess"></a>
+    <strong>getProcess (PID)</strong>
+    </dt>
+    <dd>
+    Gets a specified process.
+Only a copy of the process is returned, not the table itself.
+The fields of the process returned are:
+	<ul>
+		<li>co</li>
+		<li>parent</li>
+		<li>children</li>
+		<li>name</li>
+		<li>desc</li>
+		<li>PID</li>
+		<li>SU</li>
+		<li>package</li>
+		<li>window</li>
+	</ul>
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">PID</span>
+         The PID of the process.
+        </li>
+    </ul>
+
+
+    <h3>Raises:</h3>
+    bad argument error - if an argument is mismatched or missing.
+
+
+
+</dd>
+    <dt>
+    <a name = "getProcesses"></a>
+    <strong>getProcesses ()</strong>
+    </dt>
+    <dd>
+    Gets a list of all processes.
+Iterates through all process using <a href="../modules/kernel.html#getProcess">getProcess</a>[PID] and adds it to a table.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        A table of all processes.
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> processes == kernel.getProcesses()</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "getRunning"></a>
+    <strong>getRunning ()</strong>
+    </dt>
+    <dd>
+    Gets the currently running process.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The currently running process.
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> running = kernel.getRunning()</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "getCurrentPackage"></a>
+    <strong>getCurrentPackage ()</strong>
+    </dt>
+    <dd>
+    Gets the package of the currently running process.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The package of the currently running procces. nil if the process does not have a package
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> <span class="global">package</span> = kernel.getCurrentPackage()</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "getCurrentPackagePath"></a>
+    <strong>getCurrentPackagePath ()</strong>
+    </dt>
+    <dd>
+    Gets the package path of the currently running process.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The package path of the currently running procces. nil if the process does not have a package
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> <span class="global">package</span> = kernel.getCurrentPackagePath()</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "getCurrentDataPath"></a>
+    <strong>getCurrentDataPath ()</strong>
+    </dt>
+    <dd>
+    Gets the package data path of the currently running process.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The package data path of the currently running procces. nil if the process does not have a package
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> dataPath = kernel.getCurrentDataPath()</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "requestSU"></a>
+    <strong>requestSU ()</strong>
+    </dt>
+    <dd>
+    Requets for the running process to gain superuser permissions.
+A process is only granted superuser permissions if it a package in the system package directory.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        true if superuser permissions were granted, false otherwise
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">kernel.requestSU()</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "isSU"></a>
+    <strong>isSU ()</strong>
+    </dt>
+    <dd>
+    Returns whether the currently running process has superuser permissions.
+If the kernel is not running then return true no matter what.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        true if currently running process has superuser permissions, false otherwise.
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> SU = kernel.isSU()</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "gotoPID"></a>
+    <strong>gotoPID (PID)</strong>
+    </dt>
+    <dd>
+    Changes the currently focused process to a given process.
+A yield is forced so that the focus changes straight away.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">PID</span>
+         The PID of the process to switch to.
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">kernel.gotoPID(<span class="number">4</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "killProcess"></a>
+    <strong>killProcess (PID)</strong>
+    </dt>
+    <dd>
+    Kills a specified Process.
+The proces may only kill another if it has superuser permissions or it attempts to kill itself.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">PID</span>
+         the PID of the process to be killed
+        </li>
+    </ul>
+
+
+    <h3>Raises:</h3>
+    bad argument error - if an argument is mismatched or missing. invalid PID error - if PID does not exist. permissions error - if the process lacks permission to kill the process.
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">kernel.killProcess(<span class="number">1</span>)</pre>
+    </ul>
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Tables"></a>Tables</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "focusEvents"></a>
+    <strong>focusEvents</strong>
+    </dt>
+    <dd>
+    A list of event thats should only be passed the the processed currently focused.
+This stops typing and other such actions being handled by all processes thinking the user
+is typing to them.
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">mouse_click</span>
+
+        </li>
+        <li><span class="parameter">mouse_up</span>
+
+        </li>
+        <li><span class="parameter">mouse_drag</span>
+
+        </li>
+        <li><span class="parameter">mouse_scroll</span>
+
+        </li>
+        <li><span class="parameter">char</span>
+
+        </li>
+        <li><span class="parameter">key</span>
+
+        </li>
+        <li><span class="parameter">key_up</span>
+
+        </li>
+        <li><span class="parameter">paste</span>
+
+        </li>
+        <li><span class="parameter">terminate</span>
+
+        </li>
+        <li><span class="parameter">monitor_totch</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "_pivate"></a>
+    <strong>_pivate</strong>
+    </dt>
+    <dd>
+    Holds all private varibles and functions allowing them to be passed to the windowHandler
+without the functions being accessble to the user.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "_private._processes"></a>
+    <strong>_private._processes</strong>
+    </dt>
+    <dd>
+    A list of All currently alive processes.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "_private._focus"></a>
+    <strong>_private._focus</strong>
+    </dt>
+    <dd>
+    The process curently in focus.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "_private._runningHistory"></a>
+    <strong>_private._runningHistory</strong>
+    </dt>
+    <dd>
+    Keeps a history of all process that have run and the order that they were run in
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "_private._waitingFor"></a>
+    <strong>_private._waitingFor</strong>
+    </dt>
+    <dd>
+    Tracks what event each process is waiting for
+
+
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Fields"></a>Fields</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "fs"></a>
+    <strong>fs</strong>
+    </dt>
+    <dd>
+    Save the old file system so we can bypass the file permissions.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "_running"></a>
+    <strong>_running</strong>
+    </dt>
+    <dd>
+    Whether the main process loop is running.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "windowHandler"></a>
+    <strong>windowHandler</strong>
+    </dt>
+    <dd>
+    The windowHandler is an API for managing the window each process exists in
+and how each window should be placed, drawn ect.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "_private.programDataPath"></a>
+    <strong>_private.programDataPath</strong>
+    </dt>
+    <dd>
+    Path to program data
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "_private.programPath"></a>
+    <strong>_private.programPath</strong>
+    </dt>
+    <dd>
+    Path to programs
+
+
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Local_Functions"></a>Local Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "loadfile"></a>
+    <strong>loadfile (path)</strong>
+    </dt>
+    <dd>
+    Overide the default loadString function so that it uses the old fileSystem.
+This allows the kernel to load any files whether ot not the user currently has
+acess to that file.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">path</span>
+         The path to the file that is to be loaded.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        Function generated from the file.
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+           <span class="types"><span class="type">nil</span></span>
+        </li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        "File not found"</li>
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> <span class="keyword">function</span>, err = <span class="global">loadfile</span>(<span class="string">"/rom/programs/shell"</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "_private.cirticalError"></a>
+    <strong>_private.cirticalError (msg)</strong>
+    </dt>
+    <dd>
+    Displays a an error message then shuts down the computer.
+This function should be used for when the kernel errors in such
+a way that the safest option is to stop and shutdown.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">msg</span>
+         The error string to be displayed
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">_private.ciritalError(<span class="string">"oh no there was an error"</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "_private.newProcessInternal"></a>
+    <strong>_private.newProcessInternal (func, parent, name, desc, SU, package)</strong>
+    </dt>
+    <dd>
+    Creates a new process that can be run by the kernel.
+The process is added to <a href="../modules/kernel.html#_private._processes">_private._processes</a>
+The process is a table with fields
+	<ul>
+		<li>co</li>
+		<li>parent</li>
+		<li>children</li>
+		<li>name</li>
+		<li>desc</li>
+		<li>PID</li>
+		<li>SU</li>
+		<li>package</li>
+		<li>window</li>
+	</ul>
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">func</span>
+         The function that is becomes the processes thread
+        </li>
+        <li><span class="parameter">parent</span>
+         The processes parent, can be nil.
+        </li>
+        <li><span class="parameter">name</span>
+         The name of the process, can be nil.
+        </li>
+        <li><span class="parameter">desc</span>
+         The description of the process, can be nil,
+        </li>
+        <li><span class="parameter">SU</span>
+         Whether or not the process has superuser rights.
+        </li>
+        <li><span class="parameter">package</span>
+         The package the process belongs to, can be nil.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The PID of the newley created process.
+    </ol>
+
+    <h3>Raises:</h3>
+    bad argument error - if an argument is mismatched or missing. invalid PID error - if parent does not exits.
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">_private.newProcessInternal(func, <span class="keyword">nil</span>, <span class="string">"a process"</span>, <span class="string">"this process is amazing"</span>, <span class="keyword">true</span>, <span class="keyword">nil</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "_private.runProgramInternal"></a>
+    <strong>_private.runProgramInternal (program, parent, SU, args)</strong>
+    </dt>
+    <dd>
+    Similar to <a href="../modules/kernel.html#_private.newProcessInternal">_private.newProcessInternal</a> except runs
+a program instead of a function.
+Processes created with this function are given a package field.
+This allows the process to access protected files that belong to its Package.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">program</span>
+         The program to be ran.
+        </li>
+        <li><span class="parameter">parent</span>
+         The processes parent, can be nil.
+        </li>
+        <li><span class="parameter">SU</span>
+         Whether or not the process has superuser rights.
+        </li>
+        <li><span class="parameter">args</span>
+         The arguments passed to the program.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The PID of the newley created process.
+    </ol>
+
+    <h3>Raises:</h3>
+    bad argument error - if an argument is mismatched or missing. program does not exit error - if the program does not exist.
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">_private.newProgramInternal(<span class="string">"Explorer"</span>, <span class="keyword">nil</span>, <span class="keyword">true</span>, <span class="string">"/rom"</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "_private.killProcessInternal"></a>
+    <strong>_private.killProcessInternal (PID)</strong>
+    </dt>
+    <dd>
+    Kills the given process and all its children recursivley.
+Also removes the given process from the parents children.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">PID</span>
+         The PID of the process to be killed.
+        </li>
+    </ul>
+
+
+    <h3>Raises:</h3>
+    bad argument error - if an argument is mismatched or missing. invalid PID error - if PID does not exist.
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">_private.killProcessInternal(<span class="number">3</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "_private.getEvent"></a>
+    <strong>_private.getEvent ()</strong>
+    </dt>
+    <dd>
+    Gets the next event and passes it to windowHandler and keyHandler.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The event that was yielded using coroutine.yield.
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> event = _private.getEvent()</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "_private.pushEvent"></a>
+    <strong>_private.pushEvent (PID, event)</strong>
+    </dt>
+    <dd>
+    Pushes a given event to a given PID.
+Only push the event to the process if the process is not waiting for any specific event.
+or the event is one of the events the process is waiting for.
+This function ensures the process writes to its own window.
+It then sets <a href="../modules/kernel.html#_private._waitingFor">_private._waitingFor</a>[PID] to the events the process yielded.
+Kills the process if it dies.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">PID</span>
+         the PID of the process to push an event to.
+        </li>
+        <li><span class="parameter">event</span>
+         The event to push.
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">_private._pushEvent(<span class="number">2</span>, {<span class="string">"key"</span>, <span class="number">5</span>, <span class="keyword">false</span>})</pre>
+    </ul>
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Issues"></a>Issues</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "_private.newProcessInternal-warning1"></a>
+    <strong>_private.newProcessInternal-warning1</strong>
+    </dt>
+    <dd>
+    Using the same function for multiple processes breaks sandboxing because they share local varibles.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "gotoPID-warning2"></a>
+    <strong>gotoPID-warning2</strong>
+    </dt>
+    <dd>
+    When this function is called mid thread a goto event is pushed globally.
+This is not intentional and may be changed.
+
+
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.5</a></i>
+<i style="float:right;">Last updated 2016-09-21 10:04:48 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
