@@ -37,6 +37,7 @@ function initComponents()
 	restart:setSize(#restart.text,1)
 	restart:setPos(frame.width - restart.width + 1, frame.height - 1)
 	restart.backgroundColour = nil
+	restart.heldBackgroundColour = nil
 	restart.textColour = colourUtils.blits.cyan
 	restart.heldTextColour = colourUtils.blits.lightGrey
 	restart.onClick = os.reboot
@@ -45,6 +46,7 @@ function initComponents()
 	shutdown:setSize(#shutdown.text,1)
 	shutdown:setPos(frame.width - shutdown.width + 1, frame.height)
 	shutdown.backgroundColour = nil
+	shutdown.heldBackgroundColour = nil
 	shutdown.textColour = colourUtils.blits.cyan
 	shutdown.heldTextColour = colourUtils.blits.lightGrey
 	shutdown.onClick = os.shutdown
