@@ -174,12 +174,11 @@ function gui(a)
 	f:applyTheme(default)
 	
 	function setText(lbl, a,b,c,d,e)
-		a = a or ""
-		b = b or ""
-		c = c or ""
-		d = d or ""
-		e = e or ""
-		f = f or ""
+		a = tostring(a) or ""
+		b = tostring(b) or ""
+		c = tostring(c) or ""
+		d = tostring(d) or ""
+		e = tostring(e) or ""
 		
 		lbl.text = a..' '..b..' '..c..' '..d..' '..e .. "\n".. (tostring(f.focus) or "")
 	end
