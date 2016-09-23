@@ -24,7 +24,7 @@
 
 <div id="navigation">
 <br/>
-<h1>ldoc</h1>
+<h1>LunaOS</h1>
 
 <ul>
   <li><a href="../index.html">Index</a></li>
@@ -53,6 +53,10 @@
   <li><a href="../scripts/uninstall.html">uninstall</a></li>
   <li><a href="../scripts/wipedata.html">wipedata</a></li>
   <li><a href="../scripts/startup.html">startup</a></li>
+</ul>
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/Component.html">Component</a></li>
 </ul>
 
 </div>
@@ -88,6 +92,38 @@ Interfaces are a list of varibles that a class must contain in order to initaliz
 	<td class="name" nowrap><a href="#Object.init">Object.init ()</a></td>
 	<td class="summary">Empty constructor so that init can still be called without error.</td>
 	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Object.nonStatic.instanceOf">Object.nonStatic.instanceOf (self, class)</a></td>
+	<td class="summary">Default method instance of, avalible to all objects.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Object.static.implement">Object.static.implement (self, ...)</a></td>
+	<td class="summary">States that an object is implementing an interface or many interfaces.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#class">class (parent)</a></td>
+	<td class="summary">Creats a new class, parent can optonally be set to create a subclass.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Interface:addFields">Interface:addFields (...)</a></td>
+	<td class="summary">Adds non static fields to the interface.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Interface:addStaticFields">Interface:addStaticFields (...)</a></td>
+	<td class="summary">Adds static fields to the interface.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Interface:getFields">Interface:getFields ()</a></td>
+	<td class="summary">Gets all non static fields from the interfaces.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Interface:getStaticFields">Interface:getStaticFields ()</a></td>
+	<td class="summary">Gets all static fields from the interfaces.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#interface">interface ()</a></td>
+	<td class="summary">Cretes a new interface.</td>
+	</tr>
 </table>
 <h2><a href="#Tables">Tables</a></h2>
 <table class="function_list">
@@ -109,22 +145,26 @@ Interfaces are a list of varibles that a class must contain in order to initaliz
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#Object.interfaces">Object.interfaces</a></td>
-	<td class="summary">Interfaces</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#Interface">Interface</a></td>
-	<td class="summary">interfaces</td>
+	<td class="summary">Interfaces that the object implements.</td>
 	</tr>
 </table>
 <h2><a href="#Local_Functions">Local Functions</a></h2>
 <table class="function_list">
 	<tr>
 	<td class="name" nowrap><a href="#instanceOfClass">instanceOfClass (object, class)</a></td>
-	<td class="summary">Default method instanceOf.</td>
+	<td class="summary">Check whether an object is an instance of a class.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#checkInterfaces">checkInterfaces (class)</a></td>
-	<td class="summary">Makes sure that the given class has all of its fields defined that are required by the interfaces</td>
+	<td class="summary">Makes sure that the given class has all of its fields defined that are required by its interfaces.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#instanceOfInterface">instanceOfInterface (object, interface)</a></td>
+	<td class="summary">Checks whether or not an object is an instance of an interface.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#new">new (class, ...)</a></td>
+	<td class="summary">Create a new instance of class, further arguments are passed to the constructor (init).</td>
 	</tr>
 </table>
 
@@ -147,6 +187,222 @@ Interfaces are a list of varibles that a class must contain in order to initaliz
 
 
 
+
+</dd>
+    <dt>
+    <a name = "Object.nonStatic.instanceOf"></a>
+    <strong>Object.nonStatic.instanceOf (self, class)</strong>
+    </dt>
+    <dd>
+    Default method instance of, avalible to all objects.
+It checks whether the object calling the method is an instance of a given class or interface.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">self</span>
+         The object calling the method.
+        </li>
+        <li><span class="parameter">class</span>
+         A class or interface.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        true if the object is an instance of the given class or interface.
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <li><a href="../modules/object.html#instanceOfClass">instanceOfClass</a></li>
+         <li><a href="../modules/object.html#instanceOfInterface">instanceOfInterface</a></li>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> isInstance object:instanceOf(class)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "Object.static.implement"></a>
+    <strong>Object.static.implement (self, ...)</strong>
+    </dt>
+    <dd>
+    States that an object is implementing an interface or many interfaces.
+This method can be called once with many interfaces or many times with one interface, the result is the same.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">self</span>
+         The object calling the method.
+        </li>
+        <li><span class="parameter">...</span>
+         The interfaces to implement.
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">object:implement(interface1, interface2, interfaceN)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "class"></a>
+    <strong>class (parent)</strong>
+    </dt>
+    <dd>
+    Creats a new class, parent can optonally be set to create a subclass.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">parent</span>
+         The parent of the new class, default is Object.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The new class.
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> Class = object.class()</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "Interface:addFields"></a>
+    <strong>Interface:addFields (...)</strong>
+    </dt>
+    <dd>
+    Adds non static fields to the interface.
+One or many fields can be added at once.
+any fields passed are just appended to the interfaces field table.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">...</span>
+         The fields to add.
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">Interface:AddField(<span class="string">"getHeight"</span>, <span class="string">"setHeight"</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "Interface:addStaticFields"></a>
+    <strong>Interface:addStaticFields (...)</strong>
+    </dt>
+    <dd>
+    Adds static fields to the interface.
+One or many fields can be added at once.
+any fields passed are just appended to the interfaces field table.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">...</span>
+         The fields to add.
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">Interface:AddField(<span class="string">"getHeight"</span>, <span class="string">"setHeight"</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "Interface:getFields"></a>
+    <strong>Interface:getFields ()</strong>
+    </dt>
+    <dd>
+    Gets all non static fields from the interfaces.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        All non static fields belonging to the interface
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> fields = Interface:getFields()</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "Interface:getStaticFields"></a>
+    <strong>Interface:getStaticFields ()</strong>
+    </dt>
+    <dd>
+    Gets all static fields from the interfaces.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        All static fields belonging to the interface
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> fields = Interface:getFields()</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "interface"></a>
+    <strong>interface ()</strong>
+    </dt>
+    <dd>
+    Cretes a new interface.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The new interface.
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">Interface = object.interface()</pre>
+    </ul>
 
 </dd>
 </dl>
@@ -259,21 +515,7 @@ Interfaces are a list of varibles that a class must contain in order to initaliz
     <strong>Object.interfaces</strong>
     </dt>
     <dd>
-    Interfaces
-
-
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "Interface"></a>
-    <strong>Interface</strong>
-    </dt>
-    <dd>
-    interfaces
+    Interfaces that the object implements.
 
 
 
@@ -291,9 +533,8 @@ Interfaces are a list of varibles that a class must contain in order to initaliz
     <strong>instanceOfClass (object, class)</strong>
     </dt>
     <dd>
-    Default method instanceOf.
-Check whether an object is an instance of a class.
-Or if the object is an instance of any child class of the given class.
+    Check whether an object is an instance of a class.
+Or if the object is an instance of any super class of the given class.
 
 
     <h3>Parameters:</h3>
@@ -316,7 +557,7 @@ Or if the object is an instance of any child class of the given class.
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example"><span class="keyword">local</span> instance = object:instanceOf(animal)</pre>
+        <pre class="example"><span class="keyword">local</span> isInstance = object:instanceOf(class)</pre>
     </ul>
 
 </dd>
@@ -325,7 +566,7 @@ Or if the object is an instance of any child class of the given class.
     <strong>checkInterfaces (class)</strong>
     </dt>
     <dd>
-    Makes sure that the given class has all of its fields defined that are required by the interfaces
+    Makes sure that the given class has all of its fields defined that are required by its interfaces.
 
 
     <h3>Parameters:</h3>
@@ -349,6 +590,70 @@ Or if the object is an instance of any child class of the given class.
     </ul>
 
 </dd>
+    <dt>
+    <a name = "instanceOfInterface"></a>
+    <strong>instanceOfInterface (object, interface)</strong>
+    </dt>
+    <dd>
+    Checks whether or not an object is an instance of an interface.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">object</span>
+         An object.
+        </li>
+        <li><span class="parameter">interface</span>
+         An interface.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        true if the object implements the interface.
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> isInstance = instanceOfInterface(object, interface)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "new"></a>
+    <strong>new (class, ...)</strong>
+    </dt>
+    <dd>
+    Create a new instance of class, further arguments are passed to the constructor (init).
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">class</span>
+         The class that is made into an instance.
+        </li>
+        <li><span class="parameter">...</span>
+         All aother values that are passed to the constructor.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The instance of the class.
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> instance = Class()</pre>
+    </ul>
+
+</dd>
 </dl>
 
 
@@ -356,7 +661,7 @@ Or if the object is an instance of any child class of the given class.
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.5</a></i>
-<i style="float:right;">Last updated 2016-09-21 10:04:48 </i>
+<i style="float:right;">Last updated 2016-09-23 10:22:15 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

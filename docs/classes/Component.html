@@ -1,0 +1,647 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>LunaOS</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Tables">Tables</a></li>
+<li><a href="#Fields">Fields</a></li>
+<li><a href="#Methods">Methods</a></li>
+</ul>
+
+
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><strong>Component</strong></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/object.html">object</a></li>
+  <li><a href="../modules/kernel.html">kernel</a></li>
+  <li><a href="../modules/windowHandler.html">windowHandler</a></li>
+</ul>
+<h2>Scripts</h2>
+<ul class="nowrap">
+  <li><a href="../scripts/bootloader.html">bootloader</a></li>
+  <li><a href="../scripts/craftos.html">craftos</a></li>
+  <li><a href="../scripts/fixperms.html">fixperms</a></li>
+  <li><a href="../scripts/recovery.html">recovery</a></li>
+  <li><a href="../scripts/uninstall.html">uninstall</a></li>
+  <li><a href="../scripts/wipedata.html">wipedata</a></li>
+  <li><a href="../scripts/startup.html">startup</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Class <code>Component</code></h1>
+<p>Component is the base to all GUI components that can be added to a frame/view.</p>
+<p>
+It implements the drawable and eventHandler</p>
+    <h3>Info:</h3>
+    <ul>
+        <li><strong>Copyright</strong>: Morganamilo 2016</li>
+        <li><strong>Author</strong>: Morganamilo</li>
+    </ul>
+
+
+<h2><a href="#Tables">Tables</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#Component.listeners">Component.listeners</a></td>
+	<td class="summary">The events that the Component is listening for.</td>
+	</tr>
+</table>
+<h2><a href="#Fields">Fields</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#Component.active">Component.active</a></td>
+	<td class="summary">Whether the component is active.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Component.visible">Component.visible</a></td>
+	<td class="summary">Whether the component can be seen.</td>
+	</tr>
+</table>
+<h2><a href="#Methods">Methods</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#Component:handleEvent">Component:handleEvent (data)</a></td>
+	<td class="summary">Hanles an incoming event.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Component:addEventListener">Component:addEventListener (event, func)</a></td>
+	<td class="summary">Adds an event listner to the listeners tables along with the function to call when the event happens.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Component:removeEventListener">Component:removeEventListener (event)</a></td>
+	<td class="summary">Removes an event from the listeners table.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Component:onDraw">Component:onDraw (buffer)</a></td>
+	<td class="summary">Calls the <a href="../classes/Component.html#Component:draw">Component:draw</a> method but only if the component is visable.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Component:draw">Component:draw (buffer)</a></td>
+	<td class="summary">Draws the component to a buffer.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Component:getFrame">Component:getFrame ()</a></td>
+	<td class="summary">Gets the frame the component is placed on.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Component:getParentPane">Component:getParentPane ()</a></td>
+	<td class="summary">Gets the pane that the component is placed on.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Component:setCursorPos">Component:setCursorPos (xPos, yPos)</a></td>
+	<td class="summary">Sets the cursorPos of the frame</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Component:getCursorPos">Component:getCursorPos ()</a></td>
+	<td class="summary">Gets the cursorPos of the frame</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Component:setCursorBlink">Component:setCursorBlink (blink)</a></td>
+	<td class="summary">Sets the cursor blink of the frame.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Component:isInBounds">Component:isInBounds (xPos, yPos)</a></td>
+	<td class="summary">Gets whether an x and y coordinate is inside the bounds of the component.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Component:setParentPane">Component:setParentPane (pane)</a></td>
+	<td class="summary">Sets the parent pane of the component.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Component:setCursorColour">Component:setCursorColour (colour)</a></td>
+	<td class="summary">Sets the cursorColour of the frame.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Component:getAbsolutePos">Component:getAbsolutePos ()</a></td>
+	<td class="summary">Gets the absolute position of the component.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Component:requestFocus">Component:requestFocus ()</a></td>
+	<td class="summary">Requests focus from the frame.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Component:unFocus">Component:unFocus ()</a></td>
+	<td class="summary">Unfocuses the component.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Component:isFocus">Component:isFocus ()</a></td>
+	<td class="summary">Gets whether or not the comonent is focued.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Tables"></a>Tables</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "Component.listeners"></a>
+    <strong>Component.listeners</strong>
+    </dt>
+    <dd>
+    The events that the Component is listening for.
+It hold the event name as its key and the function to be called when that event happens as its value.
+
+
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Fields"></a>Fields</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "Component.active"></a>
+    <strong>Component.active</strong>
+    </dt>
+    <dd>
+    Whether the component is active.  If a component is not active it can not recive events.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Component.visible"></a>
+    <strong>Component.visible</strong>
+    </dt>
+    <dd>
+    Whether the component can be seen.  If a component is not visable it will not be drawn and can not recive events.
+
+
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Methods"></a>Methods</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "Component:handleEvent"></a>
+    <strong>Component:handleEvent (data)</strong>
+    </dt>
+    <dd>
+    Hanles an incoming event.
+Only handls the event if the component is both visable and active.
+It calls its lisreners and passes itself and the unpacked event through as an argument.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">data</span>
+         an event.
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">component:handleEvent(event)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "Component:addEventListener"></a>
+    <strong>Component:addEventListener (event, func)</strong>
+    </dt>
+    <dd>
+    Adds an event listner to the listeners tables along with the function to call when the event happens.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">event</span>
+         The event to listen for.
+        </li>
+        <li><span class="parameter">func</span>
+         The function to be called when the event fires.
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">component:addEventListener(<span class="string">"key"</span>, <span class="keyword">function</span>(event, key, held) <span class="global">print</span>(key .. <span class="string">" is pressed"</span>))</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "Component:removeEventListener"></a>
+    <strong>Component:removeEventListener (event)</strong>
+    </dt>
+    <dd>
+    Removes an event from the listeners table.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">event</span>
+         The event to remove.
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">component:removeEventListener(<span class="string">"key"</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "Component:onDraw"></a>
+    <strong>Component:onDraw (buffer)</strong>
+    </dt>
+    <dd>
+    Calls the <a href="../classes/Component.html#Component:draw">Component:draw</a> method but only if the component is visable.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">buffer</span>
+         The buffer passed to <a href="../classes/Component.html#Component:draw">Component:draw</a>
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">component:onDraw(buffer)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "Component:draw"></a>
+    <strong>Component:draw (buffer)</strong>
+    </dt>
+    <dd>
+    Draws the component to a buffer.
+This method is empty and is desinged to be overriden by subclasses.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">buffer</span>
+
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">component:draw(buffer)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "Component:getFrame"></a>
+    <strong>Component:getFrame ()</strong>
+    </dt>
+    <dd>
+    Gets the frame the component is placed on.
+Will fail if the comonent is not placed on a view/frame
+
+
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> frame = component:getFrame()</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "Component:getParentPane"></a>
+    <strong>Component:getParentPane ()</strong>
+    </dt>
+    <dd>
+    Gets the pane that the component is placed on.
+Will fail if the comonent is not placed on a view/frame
+
+
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> parentPane = component:getParentPane()</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "Component:setCursorPos"></a>
+    <strong>Component:setCursorPos (xPos, yPos)</strong>
+    </dt>
+    <dd>
+    Sets the cursorPos of the frame
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">xPos</span>
+
+        </li>
+        <li><span class="parameter">yPos</span>
+
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">component:setCursorPos(<span class="number">3</span>, <span class="number">4</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "Component:getCursorPos"></a>
+    <strong>Component:getCursorPos ()</strong>
+    </dt>
+    <dd>
+    Gets the cursorPos of the frame
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        x and y coordinates of the parent pane.
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> x, y = components:getCursorPos()</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "Component:setCursorBlink"></a>
+    <strong>Component:setCursorBlink (blink)</strong>
+    </dt>
+    <dd>
+    Sets the cursor blink of the frame.
+The cursor either blinks is either enabled or disabled there is no inbetween.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">blink</span>
+         true for the cursor to blink, false to make it not blink.
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">component:setCursorBlink(<span class="keyword">true</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "Component:isInBounds"></a>
+    <strong>Component:isInBounds (xPos, yPos)</strong>
+    </dt>
+    <dd>
+    Gets whether an x and y coordinate is inside the bounds of the component.
+this method is empty and is designed to be overriden by subclasses.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">xPos</span>
+         The x position of the coordinate.
+        </li>
+        <li><span class="parameter">yPos</span>
+         The y position of the coordinate.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        true if the xPos and yPos are inside the component.
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> inBounds = component:isInBounds(<span class="number">5</span>, <span class="number">7</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "Component:setParentPane"></a>
+    <strong>Component:setParentPane (pane)</strong>
+    </dt>
+    <dd>
+    Sets the parent pane of the component.
+The parent pane will usually be a frame/view.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">pane</span>
+         The pane to set as the components parent pane.
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">= component:setParentPane(frame)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "Component:setCursorColour"></a>
+    <strong>Component:setCursorColour (colour)</strong>
+    </dt>
+    <dd>
+    Sets the cursorColour of the frame.
+Will fail if the component is not placed on a pane.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">colour</span>
+         The colour to set the cursor
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">component:setCursorColour(colourUtils.blits.blue)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "Component:getAbsolutePos"></a>
+    <strong>Component:getAbsolutePos ()</strong>
+    </dt>
+    <dd>
+    Gets the absolute position of the component.
+Normaly the x and y position stored in a compoenent is relative to its pane.
+This method will always get the position relative to the frame insead of the parentPane.
+This method will fail if it is not placed on a pane.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        x coordinate relative to the frame, y coordinate relative to the frame
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> xPos, yPos = component:getAbsolutePos()</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "Component:requestFocus"></a>
+    <strong>Component:requestFocus ()</strong>
+    </dt>
+    <dd>
+    Requests focus from the frame.
+This will cause every other component to lose focus.
+This method will fail if the component is not placed on a pane.
+
+
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">component:requestFocus()</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "Component:unFocus"></a>
+    <strong>Component:unFocus ()</strong>
+    </dt>
+    <dd>
+    Unfocuses the component.
+Will only unfocus itslef and do nothing if another component is focused.
+This method will fail if it is not placed on a pane.
+
+
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">component:unFocus()</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "Component:isFocus"></a>
+    <strong>Component:isFocus ()</strong>
+    </dt>
+    <dd>
+    Gets whether or not the comonent is focued.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        true if the component is focued.
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> isFocused = component:isFocus()</pre>
+    </ul>
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.5</a></i>
+<i style="float:right;">Last updated 2016-09-23 10:22:15 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

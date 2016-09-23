@@ -7,9 +7,9 @@
 --@module windowHandler
 
 
----Size of the terminal in charachters.
+---Size of the terminal in characters.
 --@field xSize width of the ternminal.
---@filed ySize height of the terminal.
+--@field ySize height of the terminal.
 local xSize, ySize = term.getSize()
 
 ---The native terminal.
@@ -399,12 +399,15 @@ function handleError(proc, data)
 		term.write(lines[n])
 	end
 	
+	--wait for .5 seconds so that the user does not accidenly close the error
+	sleep(.5)
+	
 	--wait for the user to press a key to they can read the error message before killing the process.
 	coroutine.yield("key")
 end
 
 ---Hanles the death of a process.
---@param The PID of the process that has died.
+--@param PID The PID of the process that has died.
 --@usage windowHandler.handleDeath(3)
 function handleDeath(PID)
 	tableUtils.removeValue(windowOrder, PID)

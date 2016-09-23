@@ -203,7 +203,7 @@ end
 --This allows the process to access protected files that belong to its Package.
 --@param program The program to be ran.
 --@param parent The processes parent, can be nil.
---@param SU Whether or not the process has superuser rights.
+--@param su Whether or not the process has superuser rights.
 --@param args The arguments passed to the program.
 --@return The PID of the newley created process.
 --@raise bad argument error - if an argument is mismatched or missing. program does not exit error - if the program does not exist.
@@ -462,7 +462,7 @@ end
 --	return event
 --end
 
-----------------------------------------------------------------------------------------------------------------
+--_-------------------------------------------------------------------------------------------------------------
 --Public
 ----------------------------------------------------------------------------------------------------------------
 
@@ -601,8 +601,8 @@ end
 --	</ul>
 --@param PID The PID of the process.
 --@raise bad argument error - if an argument is mismatched or missing.
---@retun The copy of the process.
---@usgae local proc = kernel.getProcess(4)
+--@return The copy of the process.
+--@usage local proc = kernel.getProcess(4)
 function getProcess(PID)
 	errorUtils.expect(PID, 'number', true, 2)
 	

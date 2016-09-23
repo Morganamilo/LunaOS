@@ -32,19 +32,27 @@ Object.static = {}
 ---Non static varibles.
 Object.nonStatic = {}
 
----Interfaces
+---Interfaces that the object implements.
 Object.interfaces = {}
 
 ---Empty constructor so that init can still be called without error.
 Object.init = function()  end
 
----Default method instanceOf.
---Check whether an object is an instance of a class.
---Or if the object is an instance of any child class of the given class.
+--creates all the default functions for setting metamethods 
+for _, v in ipairs(events) do
+	Object.static[v] = function(class, value)
+		local mt = getmetatable()
+		class.events[v] = value 
+	end
+	
+end
+
+---Check whether an object is an instance of a class.
+--Or if the object is an instance of any super class of the given class.
 --@param object The object we want to see if its an instance of a class.
 --@param class The class we check to see if its the class of an object.
 --@return true if the class is an instance of the class or a parent of the class.
---@usage local instance = object:instanceOf(animal)
+--@usage local isInstance = object:instanceOf(class)
 local function instanceOfClass(object, class)
 	--the class of the given object
 	local objectClass = object.class
@@ -63,7 +71,7 @@ local function instanceOfClass(object, class)
 	return true
 end
 
----Makes sure that the given class has all of its fields defined that are required by the interfaces
+---Makes sure that the given class has all of its fields defined that are required by its interfaces.
 --@param class The class to check.
 --@return true if the class implements all of its classes fields. false otherwise.
 --@usage local isValid = checkInterfaces(class)
@@ -94,41 +102,33 @@ local function checkInterfaces(class)
 	return true
 end
 
---return true if the object is an instance of the given interface or any of its super interfaces
+---Checks whether or not an object is an instance of an interface.
+--@param object An object.
+--@param interface An interface.
+--@return true if the object implements the interface.
+--@usage local isInstance = instanceOfInterface(object, interface)
 local function instanceOfInterface(object, interface)
-	--for _, classInterface in pairs(object.class.interfaces) do
-		--if tableUtils.indexOf(interface:getTypes(), classInterface) then
-			--return true
-		--end
-	--end
-	
-	--return false
-	
-	
-	--this is the best i can do currently
-	--the above code does not work because some wierdness with the function envioments
-	--so this just checks it has all the functions that fields that the interface wants and if so counts it as an instance
-	
-	local fields = interface:getFields()
-	local staticFields = interface:getStaticFields()
-	
-	for _, field in pairs(fields) do
-		if object.class.nonStatic[field] == nil then
-			return false
+	--for each interface
+	for _, classInterface in pairs(object.class.interfaces) do
+		if interface == classInterface then
+			return true
 		end
 	end
 	
-	for _, field in pairs(staticFields) do
-		if object.static[field] == nil then
-			return false
-		end
-	end
-	
-	return true
+	return false
 end
 
---return true if the object is an instance of the given class or any of its super classes
+---Default method instance of, avalible to all objects.
+--It checks whether the object calling the method is an instance of a given class or interface.
+--@param self The object calling the method.
+--@param class A class or interface.
+--@return true if the object is an instance of the given class or interface.
+--@usage local isInstance object:instanceOf(class)
+--@see instanceOfClass
+--@see instanceOfInterface
 function Object.nonStatic.instanceOf(self, class)
+	--if an it has a implement method it must be a class
+	--otherwise its an interface
 	if class.implement then
 		return instanceOfClass(self, class)
 	else
@@ -137,8 +137,11 @@ function Object.nonStatic.instanceOf(self, class)
 end
 
 
---allows classes to implement interface
---an interface has a list of fields that the class must define before it is can be instantiated
+---States that an object is implementing an interface or many interfaces.
+--This method can be called once with many interfaces or many times with one interface, the result is the same.
+--@param self The object calling the method.
+--@param ... The interfaces to implement.
+--@usage object:implement(interface1, interface2, interfaceN)
 function Object.static.implement(self, ...)
 	for _, interface in ipairs(arg) do
 		self.interfaces[#self.interfaces + 1] = interface
@@ -150,24 +153,16 @@ for _, v in ipairs(events) do
 	Object.static[v] = function(class, value) class.events[v] = value  end
 end
 
-----------------------------------------------------------------------------------------------
 
---if an object tries to change a value
---if the value already exists in super set the value there
---otherwise set the value in object.self
-local function changeObjectValue(tbl, k, v)
-	if tbl.super[k] then
-		tbl.super[k] = v
-	else
-		tbl.self[k]  = v
-	end
-end
-
---create a new instance of class, further arguments are passed to the constructor (init)
+---Create a new instance of class, further arguments are passed to the constructor (init).
+--@param class The class that is made into an instance.
+--@param ... All aother values that are passed to the constructor.
+--@return The instance of the class.
+--@usage local instance = Class()
 local function new(class, ...)
-	errorUtils.assert(checkInterfaces(class), "Error: Class does not implement all fields", 0)
+	errorUtils.assert(checkInterfaces(class), "Error: Class does not implement all fields", 2)
 	
-	--define the actual instance
+	--define the actual instance and its meta table
 	local instance = {self = {}, class = class}
 	local instanceMt = {__index = instance.self, __newindex = instance.self}
 	
@@ -191,6 +186,7 @@ local function new(class, ...)
 		end
 	end
 	
+	--copy nonstatic varibles over to the instance
 	for k, v in pairs(class.nonStatic) do
 		self[k] = deepCopy(v)
 	end
@@ -223,20 +219,20 @@ local function new(class, ...)
 	return instance
 end
 
---creats a new class, parent can optonally be set to create a subclass
---if parent in not set, the class' parent well become Object
---
---when the created class is index (Class.something) only static methods and varibles well be avalible
---if the value is not found it well look at the static values of its superclass
---non static values can be fount by explicitly indexing Class.nonStatic.something
+---Creats a new class, parent can optonally be set to create a subclass.
+--@param parent The parent of the new class, default is Object.
+--@return The new class.
+--@usage local Class = object.class()
 function class(parent)
 	parent = parent or Object
 	
 	local subclass = {
 		events = setmetatable({}, {__index = parent.events}),
 		static = setmetatable({}, {__index = parent.static}), --static methods and varibles
+		
 		--interfaces = setmetatable({}, {__index = parent.interfaces}),
 		interfaces = tableUtils.copy(parent.interfaces),
+		
 		--create an empty constructor so that when init is called an no constructor in specifried super.init doen not get called instead
 		nonStatic = setmetatable({init = function() end}, {__index = parent.nonStatic}), --non static methods and varibles
 		super = parent
@@ -246,76 +242,63 @@ function class(parent)
 end
 
 
-
-
------------------------------------------------------------------------------------------------------------------------------------
---interfaces
------------------------------------------------------------------------------------------------------------------------------------
-
+--Default interface class.
 local Interface = {}
 
 
---adds non static fields to the interface 
+---Adds non static fields to the interface.
+--One or many fields can be added at once.
+--any fields passed are just appended to the interfaces field table.
+--@param ... The fields to add.
+--@usage Interface:AddField("getHeight", "setHeight")
 function Interface:addFields(...)
 	for _, field in ipairs(arg) do
 			self.nonStatic[#self.nonStatic + 1] = field
 	end
 end
 
---adds static fields to the interface 
+---Adds static fields to the interface.
+--One or many fields can be added at once.
+--any fields passed are just appended to the interfaces field table.
+--@param ... The fields to add.
+--@usage Interface:AddField("getHeight", "setHeight")
 function Interface:addStaticFields(...)
 	for _, field in ipairs(arg) do
 			self.static[#self.static + 1] = field
 	end
 end
 
---returns a table of itself and all its super intefaces
-function Interface:getTypes()
-	local types = {self}
-	
-	for _, parent in pairs(self.super) do
-			types = tableUtils.combine(types, parent:getTypes())
-	end
-	
-	return types
-end
 
---returns all the noncstatic fields of itself and all its super intefaces
+---Gets all non static fields from the interfaces.
+--@return All non static fields belonging to the interface
+--@usage local fields = Interface:getFields()
 function Interface:getFields()
-	local interfaces = self:getTypes()
 	local fields = {}
 	
-	for _, interface in pairs(interfaces) do
-		fields = tableUtils.combine(fields, interface.nonStatic)
-	end
+	tableUtils.combine(fields, self.nonStatic)
 	
 	return fields
 end
 
---returns all the static fields of itself and all its super intefaces
+---Gets all static fields from the interfaces.
+--@return All static fields belonging to the interface
+--@usage local fields = Interface:getFields()
 function Interface:getStaticFields()
-	local interfaces = self:getTypes()
 	local fields = {}
 	
-	for _, interface in pairs(interfaces) do
-		fields = tableUtils.combine(fields, interface.static)
-	end
+	tableUtils.combine(fields, self.static)
 	
 	return fields
 end
 
---cretes a new interface, many intefaces can be passed as super interfaces
-function interface(...)
-	arg.n = nil
-	--if #arg ==  0 then arg = nil end
-	
+---Cretes a new interface.
+--@return The new interface.
+--@usage Interface = object.interface()
+function interface()	
 	local instance = {}
 	
 	instance.static = {}
 	instance.nonStatic = {}
-	instance.super = arg
-	instance.addFields = addFields
-	instance.addStaticFields = addStaticFields
-
+	
 	return setmetatable(instance, {__index = Interface})
 end
