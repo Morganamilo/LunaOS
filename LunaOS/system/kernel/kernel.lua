@@ -321,6 +321,7 @@ function _private.killProcessInternal(PID)
 	end
 end
 
+
 ---Gets the next event and passes it to windowHandler and keyHandler.
 --@return The event that was yielded using coroutine.yield.
 --@usage local event = _private.getEvent()
@@ -395,9 +396,10 @@ function _private.tick(event)
 	
 	--if its a focus event then push it to the focused process
 	if isFocusEvent then
-		if processes[_private._focus] then
+		if _private._processes[_private._focus] then
 			_private.pushEvent(_private._focus, event)
 		end
+		
 	--otherwise push it to all processes
 	else
 		for _, PID in pairs(processes) do
