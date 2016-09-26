@@ -20,7 +20,7 @@ function Buffer:init(term, xPos, yPos, xSize, ySize, colour)
 		
 	self.size = xSize * ySize
 	
-	if colour then self:clear(colour) end
+	self:clear(colour)
 end
 
 ---------------------------------------------------------------------------------------------------
@@ -226,7 +226,7 @@ function Buffer:drawBuffer(buffer, xPos, yPos, width, height)
 			local isText = isPixel or text ~= " "
 			local isTextColour = isText and textColour ~= "-"
 			
-			if isPixel then selfPixel[selfBufferPos] = pixelBuffer end
+			if isPixel then selfPixel[selfBufferPos] = pixel end
 			if isText then selfText[selfBufferPos] = text end
 			if isTextColour then selfTextColour[selfBufferPos] = textColour end 
 			
