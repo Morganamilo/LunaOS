@@ -48,7 +48,9 @@ function Button:draw(buffer)
 	
 	local x, y, width, height = self:getTextPos()
 	
-	buffer:drawBox(self.xPos, self.yPos, self.width, self.height, backColour)
+	if backColour then
+		buffer:drawBox(self.xPos, self.yPos, self.width, self.height, backColour) 
+	end
 	
 	buffer:writeTextBox(x, y, width, height, self.text, textColour, nil, self.xAlignment, self.yAlignment)
 end
