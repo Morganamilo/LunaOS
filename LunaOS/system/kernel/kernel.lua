@@ -21,6 +21,8 @@
 --@copyright Morganamilo 2016
 --@module kernel
 
+---Save the term.native function.
+local oldNative = term.native
 
 ---Save the old file system so we can bypass the file permissions.
 local fs = fs
@@ -800,4 +802,12 @@ function startProcesses(PID)
 	
 	--shutdown so that the user does not gain control of the computer, bypassing security
 	os.shutdown()
+end
+
+function term.native()
+	if not _private._focus then
+		return oldNative()
+	end
+
+	return _private._processes[_private._runningPID].window
 end
