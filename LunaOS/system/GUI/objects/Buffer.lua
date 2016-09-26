@@ -1,3 +1,4 @@
+--0.65 / 0.7
 Buffer = object.class()
 
 local toBlit = colourUtils.colourToBlit
@@ -26,15 +27,16 @@ end
 --drawing
 ---------------------------------------------------------------------------------------------------
 
---draws a pixel using a given table index
-function Buffer:drawPixelIndexRaw(pos, colour)
-	self.pixelBuffer[pos] = colour
-	self.textBuffer[pos] = " "
-end
 
 function Buffer:drawPixelIndex(pos, colour)
 	if pos < 1 or pos > self.size then return end
 	colour = toBlit(colour)
+	
+	if not colour then return end
+	
+	self.pixelBuffer[pos] = colour
+	self.textBuffer[pos] = " "
+	
 end
 
 --draws a pixel given an X, Y coord
@@ -43,7 +45,12 @@ function Buffer:drawPixel(xPos, yPos, colour)
 	if not self:isInBounds(xPos, yPos) then return end
 	local pos = self:XYToIndex(xPos, yPos)
 
-	self:drawPixelIndexRaw(pos, colour)
+	colour = toBlit(colour)
+	
+	if not colour then return end
+	
+	self.pixelBuffer[pos] = colour
+	self.textBuffer[pos] = " "
 	self.changed[yPos] = true
 end
 
@@ -52,6 +59,8 @@ function Buffer:drawLine(xPos, yPos, width, colour)
 	--only draw if the position is in the range
 	if yPos < 1 or yPos > self.ySize or xPos > self.xSize then return end
 	colour = toBlit(colour)
+	
+	if not colour then return end
 	
 	--ajust the line so that if part off the buffer then only draw the part that is on the buffer
 	if xPos < 1 then
@@ -63,7 +72,8 @@ function Buffer:drawLine(xPos, yPos, width, colour)
 	local endPos = math.min(width - 1, self.xSize - xPos) + startPos
 	
 	for n = startPos, endPos do
-		self:drawPixelIndexRaw(n, colour)
+		self.pixelBuffer[n] = colour
+		self.textBuffer[n] = " "
 	end
 	
 	self.changed[yPos] = true
@@ -73,6 +83,8 @@ function Buffer:drawVLine(xPos, yPos, width, colour)
 --only draw if the position is in the range
 	if xPos < 1 or xPos > self.xSize or yPos > self.ySize then return end
 	colour = toBlit(colour)
+		
+	if not colour then return end
 	
 	--ajust the line so that if part off the buffer then only draw the part that is on the buffer
 	if yPos < 1 then
@@ -84,7 +96,8 @@ function Buffer:drawVLine(xPos, yPos, width, colour)
 	local endPos =  math.min(startPos + (width - 1)* self.xSize, self.size)
 	
 	for n = startPos, endPos, self.xSize do
-		self:drawPixelIndexRaw(n, colour)
+		self.pixelBuffer[n] = colour
+		self.textBuffer[n] = " "
 	end
 	
 	self.changed[yPos] = true
@@ -205,13 +218,17 @@ function Buffer:drawBuffer(buffer, xPos, yPos, width, height)
 		local bufferPos = buffer:XYToIndex(xPos, yPos + y)
 		
 		for x = 0, xEnd do
-			local t =  text[bufferPos]
-			local p = pixel[bufferPos]
-			local tc = textColour[bufferPos]
+			local pixel = pixel[bufferPos]
+			local text =  text[bufferPos]
+			local textColour = textColour[bufferPos]
 		
-			if t ~= " "  or p ~= "-" then selfText[selfBufferPos] =  t end
-			if p ~= "-" then selfPixel[selfBufferPos] = p end
-			if  (t ~= " "  or p ~= "-")  and tc ~= "-" then selfTextColour[selfBufferPos] = tc end 
+			local isPixel = (pixel ~= "-")
+			local isText = isPixel or text ~= " "
+			local isTextColour = isText and textColour ~= "-"
+			
+			if isPixel then selfPixel[selfBufferPos] = pixelBuffer end
+			if isText then selfText[selfBufferPos] = text end
+			if isTextColour then selfTextColour[selfBufferPos] = textColour end 
 			
 			selfBufferPos = selfBufferPos + 1
 			bufferPos = bufferPos + 1
@@ -263,21 +280,29 @@ function Buffer:draw(ignoreChanged)
 	local textColourBuffer = self.textColourBuffer
 	local textBuffer = self.textBuffer
 	
+	local start = 1
 	local term = self.term
-	local whitespace = string.rep(" ", self.xSize)
+	
+	local xSize = self.xSize
+	local ySize = self.ySize
+	local xPos = self.xPos
+	local yPos = self.yPos
+	local concat = table.concat
 	
 	for y = 1, self.ySize do
 		if ignoreChanged or self.changed[y] then
 			--get the start and end index of each line 
-			local start = self:XYToIndex(1, y)
-			local finish = start + self.xSize - 1
 			
-			local pixelColours = table.concat({unpack(buffer, start, finish)})
-			local textColours =  table.concat({unpack(textColourBuffer, start, finish)})
-			local text = table.concat({unpack(textBuffer, start, finish)})
+			local finish = start + xSize - 1
+			
+			local pixelColours = concat(buffer, nil, start, finish)
+			local textColours =  concat(textColourBuffer, nil, start, finish)
+			local text = concat(textBuffer, nil, start, finish)
 		
-			term.setCursorPos(self.xPos, y + self.yPos - 1)
-			term.blit(text, textColours, pixelColours) 
+			term.setCursorPos(xPos, y + yPos - 1)
+			term.blit(text, textColours, pixelColours)
+			
+			start = start + xSize
 		end
 	end
 	
@@ -285,7 +310,7 @@ function Buffer:draw(ignoreChanged)
 end
 
 function Buffer:clear(colour)
-	colour = toBlit(colour)
+	colour = toBlit(colour) or "-"
 	
 	local selfText = self.textBuffer
 	local selfPixel = self.pixelBuffer
@@ -345,24 +370,26 @@ end
 --text
 ---------------------------------------------------------------------------------------------------
 
-function Buffer:writeCharRaw(pos, c, textColour, textBackgroundColour)
-	if pos < 1 or pos > self.size then return end
-	textColour = toBlit(textColour)
-	textBackgroundColour = toBlit(textBackgroundColour)
-	
-	self.textBuffer[pos] = c
-	if textColour then self.textColourBuffer[pos] = textColour end
-	if textBackgroundColour then self.pixelBuffer[pos] = textBackgroundColour end
-end
 
 --draws a char to the buffer at a given X, Y coord
 --can optionally give a background colour to the text
 function Buffer:writeChar(xPos, yPos, c, textColour, textBackgroundColour)
 	if not self:isInBounds(xPos, yPos) then return end
 	
+	textColour = toBlit(textColour)
+	textBackgroundColour = toBlit(textBackgroundColour)
+	
 	local pos = self:XYToIndex(xPos, yPos)
 	
-	self:writeCharRaw(pos, c, textColour, textBackgroundColour)
+	local pixelBuffer = self.pixelBuffer
+	local textBuffer = self.textBuffer
+	local textColourBuffer = self.textColourBuffer
+	
+	textBuffer[n] = c
+	textColourBuffer[n] = textColour or pixelBuffer[n]
+
+	if textBackgroundColour then pixelBuffer[n] = textBackgroundColour end
+	
 	self.changed[yPos] = true
 end
 
@@ -371,6 +398,9 @@ end
 function Buffer:writeStr(xPos, yPos, str, textColour, textBackgroundColour)
 	if yPos < 1 or yPos > self.ySize or xPos > self.xSize then return end
 	
+	textColour = toBlit(textColour)
+	textBackgroundColour = toBlit(textBackgroundColour)
+	
 	if xPos < 1 then
 		xPos = 1
 		str = str:sub(-xPos + 2)
@@ -378,8 +408,17 @@ function Buffer:writeStr(xPos, yPos, str, textColour, textBackgroundColour)
 	
 	local start = self:XYToIndex(xPos, yPos)
 	
+	local pixelBuffer = self.pixelBuffer
+	local textBuffer = self.textBuffer
+	local textColourBuffer = self.textColourBuffer
+	
 	for n = start, math.min(#str -1, self.xSize - xPos) + start do 
-		self:writeCharRaw(n, str:sub(n - start + 1, n - start + 1), textColour, textBackgroundColour)
+		--self:writeCharRaw(n, str:sub(n - start + 1, n - start + 1), textColour, textBackgroundColour)
+		
+		textBuffer[n] = str:sub(n - start + 1, n - start + 1)
+		textColourBuffer[n] = textColour or pixelBuffer[n]
+	
+		if textBackgroundColour then pixelBuffer[n] = textBackgroundColour end
 	end
 	
 	self.changed[yPos] = true
