@@ -15,14 +15,8 @@ function ProgressBar:draw(buffer)
 	local progress = mathUtils.round(self.progress / self.maxProgress * self.width)
 	progress = math.min(progress, self.width)
 	
-	if self.backgroundColour then
-		buffer:drawBox(self.xPos + progress, self.yPos, self.width - progress, self.height, self.backgroundColour) 
-	end
-	
-	if self.highlightedBackgroundColour then
-		buffer:drawBox(self.xPos, self.yPos, progress, self.height, self.highlightedBackgroundColour) 
-	end
-	
+	buffer:drawBox(self.xPos + progress, self.yPos, self.width - progress, self.height, self.backgroundColour)
+	buffer:drawBox(self.xPos, self.yPos, progress, self.height, self.highlightedBackgroundColour)
 	buffer:writeTextBox(x, y, width, height, self.text, self.textColour, nil, self.xAlignment, self.yAlignment)
 end
 
