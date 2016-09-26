@@ -391,7 +391,7 @@ kernel.newProcess(function() gui()  end , nil, "GUI Shell")
 kernel.newProcess(function() gui(true) end , nil, "GUI")
 kernel.runProgram("Explorer")
 
-
+t = function() print(mathUtils.time(function() f:draw(true) end, 60)) end
 os.pullEvent = oldPullEvent
 
 local a,b =pcall(kernel.startProcesses, pid)--]]
