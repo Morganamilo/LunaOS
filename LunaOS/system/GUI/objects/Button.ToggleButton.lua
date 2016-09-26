@@ -44,9 +44,7 @@ function ToggleButton:draw(buffer)
 		textColour = self.textColour
 	end
 	
-	if self.backgroundColour then
-		buffer:drawBox(self.xPos, self.yPos, self.width, self.height, backColour) 
-	end
+	buffer:drawBox(self.xPos, self.yPos, self.width, self.height, backColour)
 	
 	buffer:writeTextBox(x,  y, width, height, self.text, textColour, backColour, self.xAlignment, self.yAlignment)
 end
