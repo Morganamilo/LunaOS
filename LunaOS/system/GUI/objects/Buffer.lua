@@ -7,9 +7,9 @@ local div = mathUtils.div
 function Buffer:init(term, xPos, yPos, xSize, ySize, colour)
 	self.term = term
 	
-	self.pixelBuffer = {}
-	self.textBuffer = {}
-	self.textColourBuffer = {}
+	self.pixelBuffer = setmetatable({}, {__index = function() return "-" end})
+	self.textBuffer = setmetatable({}, {__index = function() return " " end})
+	self.textColourBuffer = setmetatable({}, {__index = function() return "-" end})
 	self.changed = {}
 	
 	self.xSize = xSize
@@ -326,6 +326,7 @@ function Buffer:clear(colour)
 end
 
 function Buffer:clearArea(colour, xPos, yPos, xSize, ySize)
+	if 1 then return end
 	if xPos > self.xSize or yPos  > self.ySize then return end
 	
 	self.pixelBuffer = {}
