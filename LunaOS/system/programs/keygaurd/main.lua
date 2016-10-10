@@ -61,7 +61,7 @@ function initComponents()
 	timeLabel:setSize(32, 2)
 	timeLabel:setPos(1+ math.floor(frame.width/2 - timeLabel.width/2), 4)
 	timeLabel.backgroundColour = nil
-	timeLabel:setText(time.timef("%a %B %d %X"))
+	timeLabel:setText(time.timef("%a %B %d  %I:%M %P"))
 	timeLabel:setAlignment("center", "top")
 	timeLabel.textColour = colourUtils.blits.lightGrey
 

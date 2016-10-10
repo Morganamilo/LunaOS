@@ -99,10 +99,11 @@ function timef(s, t)
 		M = string.format("%02d", minutes),
 		m = string.format("%02d", month),
 		S = string.format("%02d", seconds),
-		p = (hours <= 12 and "AM" or "PM")
+		p = (hours <= 12 and "am" or "pm"),
+		P = (hours <= 12 and "AM" or "PM")
 	}
 	
-	characterClasses.X = characterClasses.I .. ":" .. characterClasses.M .. ":" .. characterClasses.p
+	characterClasses.X = characterClasses.I .. ":" .. characterClasses.M .. ":" .. characterClasses.S
 	characterClasses.x = characterClasses.d .. "/" .. characterClasses.m .. "/" .. characterClasses.y
 	characterClasses.c = characterClasses.x .. ", " .. characterClasses.X
 	
