@@ -1,41 +1,40 @@
-local sizeX, sizeY = term.getSize()
-local str = "Press Shift To Enter Recovery"
-local booting = "Booting..."
--- term.setBackgroundColor(128)
--- term.clear()
--- term.setTextColor(2048)
--- term.setCursorPos(1,1)
+---The bootloader is called after the inital startup file.
+--It allows the user to choose between the normal os and recovery.
+--Once the pc is turned on, the user has @{time} seconds so press shift.
+--If they hit shift in time then the computer will boot into recovery.
+--If not the computer will continue and boot like notmal
+--@author Morganamilo
+--@copyright Morganamilo 2016
+--@script bootloader
 
--- local img = fs.open("/bootloader/bootimage", 'r')
+---The timer the user has to enter recovery.
+--@field time 0.3
+local time = 0.3
 
--- repeat
-	-- local line = img.readLine()
-	-- local _, pos = term.getCursorPos()
+---Starts a timer, and waits for an Event.
+--if the event is the timer then it boots LunaOS normaly.
+--if the event is the key shift then reovery is booted.
+--otherise it loops and waits for the next event
+--@usage main()
+function main()
+	local timer = os.startTimer(time)
 	
-	-- term.write(line)
-	-- term.setCursorPos(1, pos+1)
--- until not line
+	while true do
+		--wait for an event
+		local event, key = coroutine.yield()
 
--- img.close()
-
--- term.setCursorPos(1, sizeY)
--- term.setTextColor(1)
---term.write(string.rep(" ", sizeX - #str) .. str)
-
-local timer = os.startTimer(0.5)
-
-while true do
-	local event, key = coroutine.yield()
-	if event == 'key' and key == 42 then
-		os.cancelTimer(timer)
-		dofile("bootloader/recovery")
-		break
-	elseif event == 'timer' and key == timer then
-		term.clearLine()
-		term.setCursorPos(sizeX - #booting + 1, sizeY)
-		term.write(booting)
-		dofile("LunaOS/system/boot/boot.lua")
-		break
+		--if shift was hit in time go to recovery
+		if event == 'key' and key == 42 then
+			os.cancelTimer(timer)
+			dofile("bootloader/recovery")
+			break
+		elseif event == 'timer' and key == timer then
+			--otherwise boot the normal boot file
+			dofile("LunaOS/system/boot/boot.lua")
+			break
+		end
 	end
 end
+
+main()
 

@@ -85,14 +85,12 @@ function ScrollView:getAjust()
 	return self.xPos  - self.hBar.scrollLevel, self.yPos - self.vBar.scrollLevel
 end
 
-function ScrollView:clear()
-	self.buffer:clearArea(self.backgroundColour, self.hBar.scrollLevel, self.vBar.scrollLevel, self.width, self.height)
-end
 
 function ScrollView:draw(buffer)
+	self.buffer:drawBox(self.hBar.scrollLevel, self.vBar.scrollLevel, self.width, self.height, self.backgroundColour)
+	
 	self:drawInternal()
 
-	buffer:drawBox(self.xPos, self.yPos, self.width, self.height, self.backgroundColour)
 	
 	self.hBar:onDraw(buffer)
 	self.vBar:onDraw(buffer)

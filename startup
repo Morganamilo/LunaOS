@@ -1,2 +1,31 @@
+---Initial startup file that is called at boot.
+--It overides the default dofile then calls the bootloader.
+--This program is designed to run on Computercratft version 1.75+ (1.79 most recent)
+--@author Morganamilo
+--@copyright Morganamilo 2016
+--@script startup
+
+
+---Fix dofile for version 1.79 and above.
+--@function dofile
+--@param path The path to the file that is to be run.
+--@return The return value of the file ran.
+--@usage dofile("/rom/programs/shell")
+--@raise Error returned by loadstirng - if loadstring did not succeed.
+function _G.dofile(path)
+	local func, e = loadfile(path)
+	
+	if func then
+		setfenv(func, getfenv(2) )
+		return func()
+	else
+		--loadfile failed so raise an error.
+		error(e, 2)
+	end
+end
+
+--clear screen
 term.clear()
+
+--start the bootloader
 dofile("bootloader/bootloader")

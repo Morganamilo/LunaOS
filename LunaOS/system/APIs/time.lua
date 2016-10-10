@@ -22,7 +22,12 @@ local function initTime()
 		return 0, 0 --if we cant get the real time just use 0
 	end
 	
-	local response = jsonUtils.decode(request.readLine())
+	--ensure we get a valid json response
+	local success, response = pcall(jsonUtils.decode, request.readLine())
+
+	if not success then
+		return 0, 0 --if we cant get the real time just use 0
+	end
 	
 	local returnedTime = tonumber(response[1])
 	local offset = tonumber(response[2])
@@ -94,10 +99,11 @@ function timef(s, t)
 		M = string.format("%02d", minutes),
 		m = string.format("%02d", month),
 		S = string.format("%02d", seconds),
-		p = (hours <= 12 and "AM" or "PM")
+		p = (hours <= 12 and "am" or "pm"),
+		P = (hours <= 12 and "AM" or "PM")
 	}
 	
-	characterClasses.X = characterClasses.I .. ":" .. characterClasses.M .. ":" .. characterClasses.p
+	characterClasses.X = characterClasses.I .. ":" .. characterClasses.M .. ":" .. characterClasses.S
 	characterClasses.x = characterClasses.d .. "/" .. characterClasses.m .. "/" .. characterClasses.y
 	characterClasses.c = characterClasses.x .. ", " .. characterClasses.X
 	

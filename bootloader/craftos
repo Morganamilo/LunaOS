@@ -1,6 +1,18 @@
+---This option clears the screen and prints the OS Version
+--just like the deafault shell will at Boot.
+--The bootloader is hardcoded so that the option 'craftos' will
+--automaticly exit the recovery and not boot LunaOS.
+--@author Morganamilo
+--@copyright Morganamilo 2016
+--@script craftos
+
+
 term.setBackgroundColour(colours.black)
 term.setCursorPos(1, 1)
 term.clear()
 term.setTextColour(colours.yellow)
+
+--print the OS version just like the default shell
 print(os.version())
+
 term.setTextColour(colours.white)

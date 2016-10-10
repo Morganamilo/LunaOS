@@ -1,11 +1,53 @@
-local sizeX, sizeY = term.getSize()
-local primaryColour = 2048
-local secondaryColour = 8
-local backColour = 128
-local selectedColour = 512
+---The LunaOS recovery provides some features outside of the actual OS.
+--LunaOS recovery supports the following features:
+--	<ul>
+--		<li><b>Reboot System</b>:	Reboots the computer</li>
+--		<li><b>Use Craft OS</b>:	Instead of booting LunaOS the default OS it ran instead</li>
+--		<li><b>Fix permisions</b>:	Set file Permision back to their default</li>
+--		<li><b>Wipe Data</b>:	Wipes all the program dada inside of LunaOS</li>
+--		<li><b>Uninstall</b>:	Uninstall the OS completley</li>
+--	</ul>
+--
+--Information onscreen is displayed using a menu driven interface.
+--The interface is navigated using the arrow keys and enter.
+--@author Morganamilo
+--@copyright Morganamilo 2016
+--@script recovery
+
+
+---The primary colour used.
+local _primaryTextColour = colours.blue
+
+---The secondary colour used.
+local _secondaryTextColour = colours.lightBlue
+
+---The background colour used.
+local _backColour = colours.grey
+
+---The colour of the selected option.
+local _selectedColour = colours.cyan
+
+
+---Size of the terminal in characters.
+--@field _xSize Width of the terminal.
+--@field _ySize height of the terminal.
+local _xSize, _ySize = term.getSize()
+
+---Currently selected option.
 local selected = 1
 
+---Decription of the selected option
+local desc = nil
+
+---Options table, containing each option the recovery can select
+--@table options
+--@field table option
 local options = {
+	---Option table, an option that can be read and processed by the recovery.
+	--@table option
+	--@field name Name of the option
+	--@field desc Description of the option
+	--@field action The action the options performes, can either be a function to be called or a file to be ran
 	{
 		name = "Reboot System",
 		desc = "Reboots the system",
@@ -37,69 +79,144 @@ local options = {
 	}
 }
 
-local desc = options[selected].desc
 
+---Writes a string to the center of the screen on a given line with a given colour and text colour.
+--The text is centered while the background colour of the text spans the entire line.
+--@param str The string that is written to the screen.
+--@param line The lime that the string is written to. 1 is the top of the terminal n is the bottom where n >= 1.
+--@param colour The colour of the string using ComputerCraft's colours API.
+--@param backColour The background colour of the string using ComputerCraft's colours API.
+--@usage writeCenter("Hello World", 5, colours.white, colours.blue)
 local function writeCenter(str, line , colour, backColour)
+	--set the cursor to the line
 	term.setCursorPos(1 ,line)
 	
 	if colour then term.setTextColor(colour) end
 	if backColour then term.setBackgroundColor(backColour) end
-	term.write(string.rep(" ", sizeX/2 - #str/2) .. str .. string.rep(" ", sizeX/2 - #str/2  + 1))
+	term.write(string.rep(" ", _xSize/2 - #str/2) .. str .. string.rep(" ", _xSize/2 - #str/2  + 1))
 end
 
-local function writeLine(y, colour)
-	term.setCursorPos(1,y)
+---Draws a horizontal divider across the sreen on a given line and in given colour.
+--The divider is made up of a repitition of the character "-" and is in the colour specified.
+--The background colour remains unchanged.
+--@param line The line that the divider is drawn to.
+--@param colour The colour that the divider is drawn in using ComputerCrafts colours API.
+--@usage writeDivider(5, colours.white)
+local function writeDivider(line, colour)
+	term.setCursorPos(1, line)
 	if colour then term.setTextColor(colour) end
-	term.write(string.rep("-", sizeX))
+	term.write(string.rep("-", _xSize))
 end
 
-local function updateDesc()
-	term.setCursorPos(1, sizeY)
-	term.setTextColor(secondaryColour)
+
+---Writes the current description to the screen.
+--_secondaryTextColour is used for the textColour.
+--@usage updateDesc()
+local function writeDesc()
+	term.setCursorPos(1, _ySize)
+	term.setTextColor(_secondaryTextColour)
 	term.write(desc)
 end
 
-local function updateDisplay()
-	term.setBackgroundColor(backColour)
-	term.clear()
-
-	writeLine(2, primaryColour)
-	writeLine(sizeY - 1, primaryColour)
-	
-	writeCenter("LunaOS Recovery", 1,  2048)
-	
-	updateDesc()
-	
-	for k,v in pairs(options) do
-		local backColour = k == selected and selectedColour or backColour
-		writeCenter(v.name, k + 3, secondaryColour, backColour)
+---Writes all the options to the screen.
+--The first option is written on line 3, each following option is written on the following line downward.
+--_secondaryTextColour is used for the text colour.
+--if the option it is writing is selected _selectedColour is used as the backgroundColour.
+--otherwise _backColour is used instead effecivley making it invisable.
+--@usage writeOptions()
+local function writeOptions()
+	for k, option in pairs(options) do
+		local backColour
+		
+		if k == selected then
+			backColour = _selectedColour
+		else
+			backColour = _backColour
+		end
+		
+		writeCenter(option.name, k + 3, _secondaryTextColour, backColour)
 	end
-	
 end
 
-while true do
-	updateDisplay()
-	local event, key = coroutine.yield("key")
+---Updates the display, drawring all aspects which are:
+--<br>	The header
+--<br>	Dividers
+--<br>	Options
+--<br>	the description
+--<br>
+--@see writeCenter
+--@see writeDivider
+--@see writeDesc
+--@see writeOptions
+--@usage updateDisplay()
+local function updateDisplay()
+	term.setBackgroundColor(_backColour)
+	term.clear()
+
+	writeDivider(2, _primaryTextColour)
+	writeDivider(_ySize - 1, primaryColour)
 	
-	if key == 200 then --up
-		selected = ((selected - 2) % #options) +1 
-		desc = options[selected].desc
-	elseif key == 208 then --down
-		selected = (selected % #options) + 1
-		desc = options[selected].desc
-	elseif key == 28 then --enter
-		if options[selected].action == "craftos" then
-			desc = "Running..."
-			local sucess, res = pcall(dofile, fs.combine("/bootloader", options[selected].action))
-			desc = res or "Completed"
-			break
-		elseif type(options[selected].action) == "function" then
-			options[selected].action()
-		elseif type(options[selected].action) == "string" then
-			desc = "Running..."
-			local sucess, res = pcall(dofile, fs.combine("/bootloader", options[selected].action))
-			desc = res or "Completed"
+	writeCenter("LunaOS Recovery", 1,  _prmaryColour)
+	
+	writeDesc()
+	
+	writeOptions()
+end
+
+---Executes the currently selected option.
+--Sets the decription to "Completed" if the option completed successfully
+--Otherwise the description is set to the error that occured.
+--@return true if the currently selected options name was "craftos", false otherwise.
+--@usage handleOption()
+local function handleOption()
+	local _, res
+	
+	if type(options[selected].action) == "function" then
+		_, res = pcall(options[selected].action)
+	elseif type(options[selected].action) == "string" then
+		_, res = pcall(dofile, fs.combine("/bootloader", options[selected].action))
+	end
+	
+	desc = res or "Completed"
+	
+	if options[selected].action == "craftos" then
+		return true
+	end
+	
+	return false
+end
+
+
+---The main loop that polls for input and act accordingly.
+--Initially sets the description.
+--Moves the selected option up and down using arrow key input.
+--Executes the currently selected option when enter is pressed.
+--@usage main()
+local function main()
+	--initalise the description
+	desc = options[selected].desc
+	
+	while true do
+		updateDisplay()
+		local _, key = coroutine.yield("key")
+
+		if key == keys.up then
+			selected = ((selected - 2) % #options) +1 
+			desc = options[selected].desc
+		elseif key == keys.down then
+			selected = (selected % #options) + 1
+			desc = options[selected].desc
+		elseif key == keys.enter then
+			local shouldBreak = handleOption()
+			
+			--special case, beak when the option is "craftos"
+			if shouldBreak then
+				break
+			end
 		end
 	end
 end
-	
+
+
+--call the main function
+main()

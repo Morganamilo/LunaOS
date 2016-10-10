@@ -25,9 +25,7 @@ function Shape:transform(xDifference, yDifference)
 end
 
 function Shape:draw(buffer)
-	if self.backgroundColour then
-		buffer:drawBox(self.xPos, self.yPos, self.width, self.height, self.backgroundColour) 
-	end
+		buffer:drawBox(self.xPos, self.yPos, self.width, self.height, self.backgroundColour)
 end
 
 function Shape:applyTheme(theme)

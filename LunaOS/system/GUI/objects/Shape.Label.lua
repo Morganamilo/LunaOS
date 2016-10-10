@@ -32,9 +32,8 @@ end
 function Label:draw(buffer)
 	local x, y, width, height = self:getTextPos()
 	
-	if self.backgroundColour then
-		buffer:drawBox(self.xPos, self.yPos, self.width, self.height, self.backgroundColour) 
-	end
+	buffer:drawBox(self.xPos, self.yPos, self.width, self.height, self.backgroundColour) 
+
 	
 	buffer:writeTextBox(x, y, width, height, self.text, self.textColour, nil, self.xAlignment, self.yAlignment)
 end

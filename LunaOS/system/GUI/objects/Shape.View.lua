@@ -40,15 +40,11 @@ function View:getAjust()
 end
 
 function View:drawInternal()
-	self:clear() 
+	self.buffer:clear(self.backgroundColour)
 	
 	for _, component in pairs(self.components) do  
 		component:onDraw(self.buffer)
 	end
-end
-
-function View:clear()
-	self.buffer:clear(self.backgroundColour)
 end
 
 function View:draw(buffer)

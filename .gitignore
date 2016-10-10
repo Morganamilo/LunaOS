@@ -1,2 +1,6 @@
 *.log
 LunaOS/programs/test
+html
+doc.bat
+*.luadoc
+.rom

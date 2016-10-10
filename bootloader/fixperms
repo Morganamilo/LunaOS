@@ -1,0 +1,11 @@
+---This option clears fixes the permissions incase the permissions are corupt
+--breaking some parts of the OS or making it unbootable.
+--This script just deletes the permision file and lets the filesystem regenrate
+--a new one.
+--This means any permissions set by the user or programs will be deleted.
+--@author Morganamilo
+--@copyright Morganamilo 2016
+--@script fixperms
+
+--just delete the permission file
+fs.delete("LunaOS/data/system/perms.json")
