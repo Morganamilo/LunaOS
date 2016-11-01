@@ -3,5 +3,6 @@
 	"dataPath":"LunaOS/data/data",
  	"permPath":"LunaOS/data/system/perms.json",
  	"systemProgramPath":"LunaOS/system/programs",
- 	"version":"0.3"
+ 	"version":"0.3",
+	"debug":true
 }
