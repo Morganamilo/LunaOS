@@ -24,6 +24,9 @@
 ---Save the term.native function.
 local oldNative = term.native
 
+---Save the old loadfile function
+local oldLoadfile = loadfile
+
 ---Save the old file system so we can bypass the file permissions.
 local fs = fs
 
@@ -126,6 +129,20 @@ function _private.getEnv()
 	return env
 end
 
+function _private.sandbox(func)
+	local env = _private.getEnv()
+	local isLoading = {}
+	local toInit = {}
+	
+	setfenv(func, env)
+	
+	local osOveride = loadfile("/LunaOS/system/APIs/os.lua")
+	setfenv(osOveride, env)
+	osOveride()
+	
+	env.os.loadAPIDir("LunaOS/data/APIS")
+end
+
 ---Creates a new process that can be run by the kernel.
 --The process is added to @{_private._processes}
 --The process is a table with fields
@@ -176,7 +193,7 @@ function _private.newProcessInternal(func, parent, name, desc, SU, package)
 	--or errors
 	local wrappedFunc = function()
 		local success, res = pcall(func) 
-		
+	
 		if not success then
 			windowHandler.handleError(_private._processes[_private._runningPID], res)
 		else
@@ -250,7 +267,7 @@ function _private.runProgramInternal(program, parent, su, args)
 	
 	--if we didnt get a file so error
 	errorUtils.assert(file, err, 2)
-	setfenv(file, getfenv(1)) 
+	_private.sandbox(file)
 	
 	--make the process
 	local PID = _private.newProcessInternal(
@@ -529,7 +546,7 @@ end
 --@usage kernel.runFile("/rom/startup", 1, "new process", "this is a new process")
 function runFile(path, parent, name, desc, ...)
 	local file = loadfile(path)
-	setfenv(file, _private.getEnv()) --sandBox
+	_private.sandbox(file)
 	
 	return _private.newProcessInternal(function() file(unpack(arg)) end, parent, name or fs.getName(path), desc, false)
 end
@@ -549,7 +566,7 @@ end
 function runRootFile(path, parent, name, desc, ...)
 	local file, err = loadfile(path)
 	if not file then return nil, err end
-	setfenv(file, _private.getEnv()) --sandBox
+	_private.sandbox(file)
 	
 	return _private.newProcessInternal(function() file(unpack(arg)) end, parent, name or fs.getName(path), desc, true)
 end
@@ -810,4 +827,14 @@ function term.native()
 	end
 
 	return _private._processes[_private._runningPID].window
+end
+
+if lunaOS.isDebug() then
+	function real_G()
+		return _G
+	end
+	
+	function real_ENV()
+		return _ENV
+	end
 end

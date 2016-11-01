@@ -9,7 +9,7 @@ numToHex[0] = "0"
 numToHex[16] = "-"
 
 local xSize, ySize = term.getSize()
-local filesToLoad = 14
+local filesToLoad = 15
 local loaded = 0
 local imagePath = "LunaOS/system/boot/boot.img"
 local image
@@ -76,7 +76,8 @@ local function loadAPIs()
 	newDofile("/LunaOS/system/APIs/override.lua")
 	newDofile("/LunaOS/system/APIs/log.lua")
 	newDofile("/LunaOS/system/APIs/multishell.lua")
-	  
+	newDofile("/LunaOS/system/APIs/os.lua")
+	
 	newLoadAPI("/LunaOS/system/APIs/object.lua")
 	newLoadAPIDir("LunaOS/system/utils/")
 
