@@ -5,6 +5,10 @@ function getProp(prop)
 	return properties[prop]
 end
 
+function isDebug()
+	return properties["debug"]
+end
+
 function isLocked()
 	return locked
 end
