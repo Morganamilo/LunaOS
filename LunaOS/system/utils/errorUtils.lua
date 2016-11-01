@@ -21,6 +21,8 @@ end
 function expect(var, typ, required, code)
 	if var == nil and not required then return end
 	
+	if not (type(typ) == "string") then error("idk",2) end
+	
 	local errorMsg = "Error: " .. typ
 	if not required then errorMsg = errorMsg .. " or nil" end
 	errorMsg = errorMsg .. " expected, got " .. type(var)
