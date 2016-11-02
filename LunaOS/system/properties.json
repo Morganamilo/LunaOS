@@ -3,6 +3,7 @@
 	"dataPath":"LunaOS/data/data",
  	"permPath":"LunaOS/data/system/perms.json",
  	"systemProgramPath":"LunaOS/system/programs",
+	"serverURL":"http://LunaDB.ddns.net",
  	"version":"0.3",
 	"debug":true
 }
