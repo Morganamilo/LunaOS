@@ -108,14 +108,37 @@ end
 --@return true if the object implements the interface.
 --@usage local isInstance = instanceOfInterface(object, interface)
 local function instanceOfInterface(object, interface)
-	--for each interface
-	for _, classInterface in pairs(object.class.interfaces) do
-		if interface == classInterface then
-			return true
+--	--for each interface
+--	for _, classInterface in pairs(object.class.interfaces) do
+--		if interface == classInterface then
+--			return true
+--		end
+--	end
+--	
+--	return false
+	
+	
+local fields = interface:getFields()
+	local staticFields = interface:getStaticFields()
+
+
+	--loop throgh fields
+	for _, field in pairs(fields) do
+		--if its missing a field return false
+		if object.class.nonStatic[field] == nil then
+			return false
+		end
+	end
+
+	--loop through static fields
+	for _, field in pairs(staticFields) do
+		--if its missing a field return false
+		if object.class.static[field] == nil then
+			return false
 		end
 	end
 	
-	return false
+	return true
 end
 
 ---Default method instance of, avalible to all objects.
@@ -132,6 +155,7 @@ function Object.nonStatic.instanceOf(self, class)
 	if class.implement then
 		return instanceOfClass(self, class)
 	else
+		--return instanceOfInterface(self, class)
 		return instanceOfInterface(self, class)
 	end
 end
