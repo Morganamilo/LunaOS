@@ -25,8 +25,8 @@ function Frame:getFrame()
 	return self
 end
 
-function Frame:addComponent(component)
-	errorUtils.assert(component:instanceOf(GUI.Drawable), "Error: Component must implement the Viewable interface")
+function Frame:addComponent(component)	
+	errorUtils.assert(component:instanceOf(GUI.Drawable), "Error: Component must implement the Drawable interface")
 	errorUtils.assert(component:instanceOf(GUI.EventHandler), "Error: Component must implement the EventHandler interface")
 	table.insert(self.components, component)
 	
