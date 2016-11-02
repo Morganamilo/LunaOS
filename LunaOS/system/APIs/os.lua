@@ -45,7 +45,7 @@ local function loadAPIInternal(path, locally, req)
 		for k, v in pairs(APITable) do
 			_G[k] = v
 		end
-	else	
+	elseif not locally then
 		_G[name] = APITable
 	end
 	
