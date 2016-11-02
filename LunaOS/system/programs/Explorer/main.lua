@@ -30,6 +30,7 @@ local handleFile
 local initComponents
 local formatBytes
 local fixPath
+local default
 
 local buttonPos = 1
 
@@ -232,6 +233,7 @@ end
 
 function initComponents()
 	local HeaderTheme = object.class(GUI.Theme)
+	default = GUI.Theme()
 	
 	HeaderTheme.textColour = mainColour
 	HeaderTheme.backgroundColour = secondaryColour
@@ -309,7 +311,7 @@ function initComponents()
 	fileMenu:addItem("Paste", "paste")
 	fileMenu:addItem("Delete", "delete")
 	fileMenu:setEnabled("paste", false)
-
+	
 	frame:addComponent(header)
 	frame:addComponent(adressBar)
 	frame:addComponent(rootButton)
