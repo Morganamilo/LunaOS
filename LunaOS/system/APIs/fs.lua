@@ -60,7 +60,7 @@ end
 function setPerm(path, perm)
 	errorUtils.expect(path, "string", true, 2)
 	errorUtils.expect(perm, "number", true, 2)
-	errorUtils.assert(kernel.isSU(), "Error: permission denied", 2)
+	errorUtils.assert(kernel.isSU(), "error: permission denied for " .. path, 2)
 	errorUtils.assert(oldFs.exists(path), "Error: File does not exist", 2)
 	errorUtils.assert(perm >= 0 and perm <= 3, "Error: Invalid permission", 2)
 	
@@ -71,7 +71,7 @@ end
 function setPermTree(path, perm)
 	errorUtils.expect(path, "string", true, 2)
 	errorUtils.expect(perm, "number", true, 2)
-	errorUtils.assert(kernel.isSU(), "Error: permission denied", 2)
+	errorUtils.assert(kernel.isSU(), "error: permission denied for " .. path, 2)
 	errorUtils.assert(oldFs.isDir(path), "Error: Not a directory", 2)
 	errorUtils.assert(perm >= 0 and perm <= 3, "Error: Invalid permission", 2)
 	
@@ -218,7 +218,7 @@ end
 
 function list(path)
 	errorUtils.expect(path, "string", true, 2)
-	errorUtils.assert(hasReadPerm(path), "Error: permission denied", 2)
+	errorUtils.assert(hasReadPerm(path), "error: permission denied for " .. path, 2)
 	errorUtils.assert(oldFs.isDir(path), "Error: Not a directory", 2)
 	
 	return oldFs.list(path)
@@ -226,7 +226,7 @@ end
 
 function listDirs(path)
 	errorUtils.expect(path, "string", true, 2)
-	errorUtils.assert(hasReadPerm(path), "Error: permission denied", 2)
+	errorUtils.assert(hasReadPerm(path), "error: permission denied for " .. path, 2)
 	errorUtils.assert(oldFs.isDir(path), "Error: Not a directory", 2)
 	
 	local list = oldFs.list(path)
@@ -241,7 +241,7 @@ end
 
 function listFiles(path)
 	errorUtils.expect(path, "string", true, 2)
-	errorUtils.assert(hasReadPerm(path), "Error: permission denied", 2)
+	errorUtils.assert(hasReadPerm(path), "error: permission denied for " .. path, 2)
 	errorUtils.assert(oldFs.isDir(path), "Error: Not a directory", 2)
 	
 	local list = oldFs.list(path)
@@ -258,7 +258,7 @@ end
 function listAllSubObjects(path, includePath)
 	errorUtils.expect(includePath, "number", false, 2)
 	errorUtils.expect(path, "string", true, 2)
-	errorUtils.assert(hasReadPerm(path), "Error: permission denied", 2)
+	errorUtils.assert(hasReadPerm(path), "error: permission denied for " .. path, 2)
 	errorUtils.assert(oldFs.isDir(path), "Error: Not a directory", 2)
 	
 	includePath = includePath or 2
@@ -302,7 +302,7 @@ end
 function listAllSubFiles(path, includePath)
 	errorUtils.expect(path, "string", true, 2)
 	errorUtils.expect(includePath, "number", false, 2)
-	errorUtils.assert(hasReadPerm(path), "Error: permission denied", 2)
+	errorUtils.assert(hasReadPerm(path), "error: permission denied for " .. path, 2)
 	errorUtils.assert(oldFs.isDir(path), "Error: Not a directory", 2)
 	
 	path = combine(path)
@@ -324,7 +324,7 @@ end
 function listAllSubDirs(path, includePath)
 	errorUtils.expect(path, "string", true, 2)
 	errorUtils.expect(includePath, "number", false, 2)
-	errorUtils.assert(hasReadPerm(path), "Error: permission denied", 2)
+	errorUtils.assert(hasReadPerm(path), "error: permission denied for " .. path, 2)
 	errorUtils.assert(oldFs.isDir(path), "Error: Not a directory", 2)
 	
 	path = combine(path)
@@ -388,8 +388,8 @@ end
 function move(scr, dest)
 	errorUtils.expect(scr, "string", true, 2)
 	errorUtils.expect(dest, "string", true, 2)
-	errorUtils.assert(hasWritePermTree(scr), "Error: permission denied", 2)
-	errorUtils.assert(hasWritePermTree(dest), "Error: permission denied", 2)
+	errorUtils.assert(hasWritePermTree(scr), "error: permission denied for " .. path, 2)
+	errorUtils.assert(hasWritePermTree(dest), "error: permission denied for " .. path, 2)
 	errorUtils.assert(fs.exists(scr), "Error: Source does not exist", 2)
 	errorUtils.assert(not fs.exists(dest), "Error: Destination exists", 2)
 	
@@ -401,8 +401,8 @@ end
 function copy(scr, dest)
 	errorUtils.expect(scr, "string", true, 2)
 	errorUtils.expect(dest, "string", true, 2)
-	errorUtils.assert(hasReadPermTree(scr), "Error: permission denied", 2)
-	errorUtils.assert(hasWritePermTree(dest), "Error: permission denied", 2)
+	errorUtils.assert(hasReadPermTree(scr), "error: permission denied for " .. scr, 2)
+	errorUtils.assert(hasWritePermTree(dest), "error: permission denied for " .. dest, 2)
 	errorUtils.assert(oldFs.exists(scr), "Error: Source does not exist", 2)
 	errorUtils.assert(not oldFs.exists(dest), "Error: Destination exists", 2)
 	
@@ -412,7 +412,7 @@ end
 
 function delete(path)
 	errorUtils.expect(path, "string", true, 2)
-	errorUtils.assert(hasWritePermTree(path), "Error: permission denied", 2)
+	errorUtils.assert(hasWritePermTree(path), "error: permission denied for " .. path, 2)
 	
 	deletePerm(path)
 	oldFs.delete(path)
@@ -424,9 +424,9 @@ function open(path, mode)
 	errorUtils.expect(mode, 'string', true, 2)
 	
 	if mode == 'r' or mode == 'rb' then
-		errorUtils.assert(hasReadPerm(path), "Error: permission denied", 2)
+		errorUtils.assert(hasReadPerm(path), "error: permission denied for " .. path, 2)
 	elseif mode == 'w' or mode == 'wb' or mode == 'a' or mode == 'ab' then
-		errorUtils.assert(hasWritePerm(path), "Error: permission denied", 2)
+		errorUtils.assert(hasWritePerm(path), "error: permission denied for " .. path, 2)
 		permData[combine(path):lower()] = getPerm(path)
 	else
 		error("Error: Unsupported mode")
@@ -468,7 +468,7 @@ if not oldFs.exists("LunaOS/data/system/perms.json") then
 	setPermTree("bootloader", 1)
 	setPerm("startup", 1)
 	setPermTree("/LunaOS/data", 0)
-	setPermTree("/rom", 0)
+	setPermTree("/rom", 1)
 	setPermTree("/LunaOS/home", 3)
 end
 
