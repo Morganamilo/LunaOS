@@ -1,4 +1,12 @@
- local blitConversions = {
+---The colourUtils API provides function to manipulate both colours and blits
+--and converting between the two.
+--@author Morganamilo
+--@copyright Morganamilo 2016
+--@module colourUtils
+
+---This table maps each colour to its corresponding blit.
+--@table blitConversions
+local blitConversions = {
 	[1] = "0",
 	[2] = "1",
 	[4] = "2",
@@ -18,7 +26,9 @@
 	["-"] = "-"
 }
 
- local colourConversions = {
+---This table maps each blit to its corresponding colour.
+--@table colourConversions
+local colourConversions = {
 	["0"] = 1,
 	["1"] = 2,
 	["2"] = 4,
@@ -38,6 +48,9 @@
 	["-"] = "-"
 }
 
+
+---This table maps each colour string to its corresponding blit.
+--@table blits
 blits = {
 	white = "0",
 	orange = "1",
@@ -60,6 +73,8 @@ blits = {
 	transparent = "-"
 }
 
+---This table maps each colour string to its corresponding colour.
+--@table blits
 colours = {
 	white = 1,
 	orange = 2,
@@ -82,7 +97,9 @@ colours = {
 	transparent = "-"
 }
 		
-		
+---This table maps each colour to an inverted version of that colour.
+--due to limited number of colours the inverse of one colour may not be the actually inverse but instead the closest colour avaliable. It is also not guaranteed that the inverse of an inverse is equal to the original colour.
+--@table invertTable
 local invertTable = {
 	[colours.white] = colours.black,
 	[colours.orange] = colours.blue,
@@ -105,6 +122,8 @@ local invertTable = {
 	["-"] = "-"
 }
 
+---This table maps each colour to a lighter version of that colour.
+--@table lighterTable
 local lighterTable = {
 	[colours.white] = colours.lightGray,
 	[colours.orange] = colours.yellow,
@@ -127,6 +146,8 @@ local lighterTable = {
 	["-"] = "-"
 }
 
+---This table maps each colour to a darker version of that colour.
+--@table darkerTable
 local darkerTable = {
 	[colours.white] = colours.lightGray,
 	[colours.orange] = colours.red,
@@ -149,27 +170,10 @@ local darkerTable = {
 	["-"] = "-"
 }
 
-local highlightTable = {
-	[colours.white] = colours.lightGray,
-	[colours.orange] = colours.yellow,
-	[colours.magenta] = colours.pink,
-	[colours.lightBlue] = colours.cyan,
-	[colours.yellow] = colours.orange,
-	[colours.lime] = colours.green,
-	[colours.pink] = colours.magenta,
-	[colours.grey] = colours.lightGray,
-	[colours.lightGray] = colours.gray,
-	[colours.lightGrey] = colours.gray,
-	[colours.cyan] = colours.lightBlue,
-	[colours.purple] = colours.magenta,
-	[colours.blue] = colours.lightBlue,
-	[colours.brown] = colours.red,
-	[colours.green] = colours.lime,
-	[colours.red] = colours.orange,
-	[colours.black] = colours.gray,
-	["-"] = "-"
-}
-
+---Converts a colour to a blit.
+--@param colour A colour.
+--@return The blit corresponding to the given colour. If a valid blit is entered then return the blit back. Otherwise return nil.
+--@usage local red = colourToBlit(colourUtils.colours.red)
 function colourToBlit(colour)
 	local blit = blitConversions[colour]
 	
@@ -180,6 +184,10 @@ function colourToBlit(colour)
 	end
 end
 
+---Converts a blit to a colour.
+--@param b A blit.
+--@return The colour corresponding to the given blit. If a valid colour is entered then return the colour back. Otherwise return nil.
+--@usage local red = blitToColour(colourUtils.blits.red)
 function  blitToColour(b)
 	local colour = colourConversions[b]
 	
@@ -190,6 +198,10 @@ function  blitToColour(b)
 	end
 end
 
+---Transforms a colour using one of the transform tables (lighterTable, darkerTable, invertTable).
+--@param colour The colour to be transformed.
+--@param transformTable The table used to apply the transformation.
+--@return The transformed version of the given colour.
 local function transformColour(colour, transformTable)
 	local isBlit = false
 	
@@ -207,18 +219,29 @@ local function transformColour(colour, transformTable)
 	return colour
 end
 
+---Gives a lighter version of a given colour.
+--White will always return while as it can not get any lighter.
+--@param colour The colour to make lighter.
+--@return a lighter version of colour.
+--@usage lighterRed = colourUtils.lighter(colourUtils.blits.red)
 function lighter(colour)
 	return transformColour(colour, lighterTable)
 end
 
+---Gives a farker version of a given colour.
+--Black will always return black as it can not get any darker.
+--@param colour The colour to make darker.
+--@return a darker version of colour.
+--@usage darkRed = colourUtils.darker(colourUtils.blits.red)
 function darker(colour)
 	return transformColour(colour, darkerTable)
 end
 
+---Gives the inverse of a given colour.
+--Inverting a colour twise it not guaranteed to give the original colour.
+--@param colour The colour to be inverted.
+--@return The inverse of the colour.
+--@usage invertRed = colourUtils.invert(colourUtils.blits.red)
 function invert(colour)
 	return transformColour(colour, invertTable)
-end
-
-function highlight(colour)
-	return transformColour(colour, highlightTable)
 end
