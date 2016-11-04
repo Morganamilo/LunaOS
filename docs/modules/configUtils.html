@@ -1,0 +1,224 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>LunaOS</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/object.html">object</a></li>
+  <li><a href="../modules/lunaos.system.gui.objects.buffer.html">lunaos.system.gui.objects.buffer</a></li>
+  <li><a href="../modules/kernel.html">kernel</a></li>
+  <li><a href="../modules/windowHandler.html">windowHandler</a></li>
+  <li><a href="../modules/colourUtils.html">colourUtils</a></li>
+  <li><strong>configUtils</strong></li>
+  <li><a href="../modules/jsonUtils.html">jsonUtils</a></li>
+  <li><a href="../modules/mathUtils.html">mathUtils</a></li>
+</ul>
+<h2>Scripts</h2>
+<ul class="nowrap">
+  <li><a href="../scripts/bootloader.html">bootloader</a></li>
+  <li><a href="../scripts/craftos.html">craftos</a></li>
+  <li><a href="../scripts/fixperms.html">fixperms</a></li>
+  <li><a href="../scripts/recovery.html">recovery</a></li>
+  <li><a href="../scripts/uninstall.html">uninstall</a></li>
+  <li><a href="../scripts/wipedata.html">wipedata</a></li>
+  <li><a href="../scripts/startup.html">startup</a></li>
+</ul>
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/Component.html">Component</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>configUtils</code></h1>
+<p>Allows for easy editing of config files stored in json format.</p>
+<p>
+Json files mat be easily created, read and edited.</p>
+    <h3>Info:</h3>
+    <ul>
+        <li><strong>Copyright</strong>: Morganamilo 2016</li>
+        <li><strong>Author</strong>: Morganamilo</li>
+    </ul>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#configEditor">configEditor (path, readable)</a></td>
+	<td class="summary">Creates a configEditor object that can be used to manipulate json files.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#self.get">self.get (k)</a></td>
+	<td class="summary">Gets a value from the config file.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#self.set">self.set (k, v)</a></td>
+	<td class="summary">Sets a value in the config file.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#self.save">self.save ()</a></td>
+	<td class="summary">Saves changes and writes them back to the files</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "configEditor"></a>
+    <strong>configEditor (path, readable)</strong>
+    </dt>
+    <dd>
+    Creates a configEditor object that can be used to manipulate json files.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">path</span>
+         The path to the json file.
+        </li>
+        <li><span class="parameter">readable</span>
+         wether or not the json file should be saved in human readable format.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        A configEditor object.
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> editor = configUtils.configEditor(path, <span class="keyword">false</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "self.get"></a>
+    <strong>self.get (k)</strong>
+    </dt>
+    <dd>
+    Gets a value from the config file.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">k</span>
+         The key of the valie.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The value from the config file with key k.
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> value = config.get(<span class="number">4</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "self.set"></a>
+    <strong>self.set (k, v)</strong>
+    </dt>
+    <dd>
+    Sets a value in the config file.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">k</span>
+         the key to write at
+        </li>
+        <li><span class="parameter">v</span>
+         the value to write to the config file
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">config.set(<span class="number">4</span>, <span class="string">"9"</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "self.save"></a>
+    <strong>self.save ()</strong>
+    </dt>
+    <dd>
+    Saves changes and writes them back to the files
+
+
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">config.save()</pre>
+    </ul>
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.5</a></i>
+<i style="float:right;">Last updated 2016-11-04 00:37:18 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

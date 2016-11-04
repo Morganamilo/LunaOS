@@ -1,0 +1,278 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>LunaOS</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/object.html">object</a></li>
+  <li><a href="../modules/lunaos.system.gui.objects.buffer.html">lunaos.system.gui.objects.buffer</a></li>
+  <li><a href="../modules/kernel.html">kernel</a></li>
+  <li><a href="../modules/windowHandler.html">windowHandler</a></li>
+  <li><a href="../modules/colourUtils.html">colourUtils</a></li>
+  <li><a href="../modules/configUtils.html">configUtils</a></li>
+  <li><a href="../modules/jsonUtils.html">jsonUtils</a></li>
+  <li><strong>mathUtils</strong></li>
+</ul>
+<h2>Scripts</h2>
+<ul class="nowrap">
+  <li><a href="../scripts/bootloader.html">bootloader</a></li>
+  <li><a href="../scripts/craftos.html">craftos</a></li>
+  <li><a href="../scripts/fixperms.html">fixperms</a></li>
+  <li><a href="../scripts/recovery.html">recovery</a></li>
+  <li><a href="../scripts/uninstall.html">uninstall</a></li>
+  <li><a href="../scripts/wipedata.html">wipedata</a></li>
+  <li><a href="../scripts/startup.html">startup</a></li>
+</ul>
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/Component.html">Component</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>mathUtils</code></h1>
+<p>Provides some math related function that are missing from the math libary.</p>
+<p></p>
+    <h3>Info:</h3>
+    <ul>
+        <li><strong>Copyright</strong>: Morganamilo 2016</li>
+        <li><strong>Author</strong>: Morganamilo</li>
+    </ul>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#isInt">isInt (x)</a></td>
+	<td class="summary">Checks whether a number is an integer.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#round">round (x)</a></td>
+	<td class="summary">Rounds a number to the nearest integer.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#div">div (x, y)</a></td>
+	<td class="summary">Preforms integer divison on x by y.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#time">time (func, trials)</a></td>
+	<td class="summary">Times the time it takes for a function to complete.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#sign">sign (x)</a></td>
+	<td class="summary">Returns The sign of x.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "isInt"></a>
+    <strong>isInt (x)</strong>
+    </dt>
+    <dd>
+    Checks whether a number is an integer.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+         A number.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        true if the number is an integer.
+    </ol>
+
+    <h3>Raises:</h3>
+    type missmatch error - if x is not a number
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> isInt = mathUtils.isInt(<span class="number">4.3</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "round"></a>
+    <strong>round (x)</strong>
+    </dt>
+    <dd>
+    Rounds a number to the nearest integer.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+         A number.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The nearest integer to x.
+    </ol>
+
+    <h3>Raises:</h3>
+    type missmatch error - if x is not a number
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> x = mathUtils.isInt(<span class="number">5.5</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "div"></a>
+    <strong>div (x, y)</strong>
+    </dt>
+    <dd>
+    Preforms integer divison on x by y.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+         The Dividend.
+        </li>
+        <li><span class="parameter">y</span>
+         The Divisor.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The result of x divided by y truncated towards 0.
+    </ol>
+
+    <h3>Raises:</h3>
+    type missmatch error - if x or y is not a number
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> a = mathUtils.div(<span class="number">5</span>, <span class="number">2</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "time"></a>
+    <strong>time (func, trials)</strong>
+    </dt>
+    <dd>
+    Times the time it takes for a function to complete.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">func</span>
+         The function to time.
+        </li>
+        <li><span class="parameter">trials</span>
+         The number of times to call the function.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The time difference between before the function is called and after the function has been called n times.
+    </ol>
+
+    <h3>Raises:</h3>
+    type missmatch error - if func is not a function
+
+
+
+</dd>
+    <dt>
+    <a name = "sign"></a>
+    <strong>sign (x)</strong>
+    </dt>
+    <dd>
+    Returns The sign of x.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+         The number to sign.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        1 if x is > 0 else -1
+    </ol>
+
+    <h3>Raises:</h3>
+    type missmatch error - if x is not a number
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> sign = mathUtils.sign(<span class="number">43</span>)</pre>
+    </ul>
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.5</a></i>
+<i style="float:right;">Last updated 2016-11-04 00:37:18 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

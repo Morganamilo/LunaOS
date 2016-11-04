@@ -1,0 +1,853 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>LunaOS</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+<li><a href="#Tables">Tables</a></li>
+<li><a href="#Local_Functions">Local Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/object.html">object</a></li>
+  <li><a href="../modules/lunaos.system.gui.objects.buffer.html">lunaos.system.gui.objects.buffer</a></li>
+  <li><a href="../modules/kernel.html">kernel</a></li>
+  <li><a href="../modules/windowHandler.html">windowHandler</a></li>
+  <li><strong>colourUtils</strong></li>
+  <li><a href="../modules/configUtils.html">configUtils</a></li>
+  <li><a href="../modules/jsonUtils.html">jsonUtils</a></li>
+  <li><a href="../modules/mathUtils.html">mathUtils</a></li>
+</ul>
+<h2>Scripts</h2>
+<ul class="nowrap">
+  <li><a href="../scripts/bootloader.html">bootloader</a></li>
+  <li><a href="../scripts/craftos.html">craftos</a></li>
+  <li><a href="../scripts/fixperms.html">fixperms</a></li>
+  <li><a href="../scripts/recovery.html">recovery</a></li>
+  <li><a href="../scripts/uninstall.html">uninstall</a></li>
+  <li><a href="../scripts/wipedata.html">wipedata</a></li>
+  <li><a href="../scripts/startup.html">startup</a></li>
+</ul>
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/Component.html">Component</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>colourUtils</code></h1>
+<p>The colourUtils API provides function to manipulate both colours and blits
+and converting between the two.</p>
+<p></p>
+    <h3>Info:</h3>
+    <ul>
+        <li><strong>Copyright</strong>: Morganamilo 2016</li>
+        <li><strong>Author</strong>: Morganamilo</li>
+    </ul>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#colourToBlit">colourToBlit (colour)</a></td>
+	<td class="summary">Converts a colour to a blit.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#blitToColour">blitToColour (b)</a></td>
+	<td class="summary">Converts a blit to a colour.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#lighter">lighter (colour)</a></td>
+	<td class="summary">Gives a lighter version of a given colour.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#darker">darker (colour)</a></td>
+	<td class="summary">Gives a farker version of a given colour.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#invert">invert (colour)</a></td>
+	<td class="summary">Gives the inverse of a given colour.</td>
+	</tr>
+</table>
+<h2><a href="#Tables">Tables</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#blitConversions">blitConversions</a></td>
+	<td class="summary">This table maps each colour to its corresponding blit.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#colourConversions">colourConversions</a></td>
+	<td class="summary">This table maps each blit to its corresponding colour.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#blits">blits</a></td>
+	<td class="summary">This table maps each colour string to its corresponding blit.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#blits">blits</a></td>
+	<td class="summary">This table maps each colour string to its corresponding colour.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#invertTable">invertTable</a></td>
+	<td class="summary">This table maps each colour to an inverted version of that colour.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#lighterTable">lighterTable</a></td>
+	<td class="summary">This table maps each colour to a lighter version of that colour.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#darkerTable">darkerTable</a></td>
+	<td class="summary">This table maps each colour to a darker version of that colour.</td>
+	</tr>
+</table>
+<h2><a href="#Local_Functions">Local Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#transformColour">transformColour (colour, transformTable)</a></td>
+	<td class="summary">Transforms a colour using one of the transform tables (lighterTable, darkerTable, invertTable).</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "colourToBlit"></a>
+    <strong>colourToBlit (colour)</strong>
+    </dt>
+    <dd>
+    Converts a colour to a blit.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">colour</span>
+         A colour.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The blit corresponding to the given colour. If a valid blit is entered then return the blit back. Otherwise return nil.
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> red = colourToBlit(colourUtils.colours.red)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "blitToColour"></a>
+    <strong>blitToColour (b)</strong>
+    </dt>
+    <dd>
+    Converts a blit to a colour.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">b</span>
+         A blit.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The colour corresponding to the given blit. If a valid colour is entered then return the colour back. Otherwise return nil.
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> red = blitToColour(colourUtils.blits.red)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "lighter"></a>
+    <strong>lighter (colour)</strong>
+    </dt>
+    <dd>
+    Gives a lighter version of a given colour.
+White will always return while as it can not get any lighter.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">colour</span>
+         The colour to make lighter.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        a lighter version of colour.
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">lighterRed = colourUtils.lighter(colourUtils.blits.red)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "darker"></a>
+    <strong>darker (colour)</strong>
+    </dt>
+    <dd>
+    Gives a farker version of a given colour.
+Black will always return black as it can not get any darker.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">colour</span>
+         The colour to make darker.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        a darker version of colour.
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">darkRed = colourUtils.darker(colourUtils.blits.red)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "invert"></a>
+    <strong>invert (colour)</strong>
+    </dt>
+    <dd>
+    Gives the inverse of a given colour.
+Inverting a colour twise it not guaranteed to give the original colour.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">colour</span>
+         The colour to be inverted.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The inverse of the colour.
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">invertRed = colourUtils.invert(colourUtils.blits.red)</pre>
+    </ul>
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Tables"></a>Tables</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "blitConversions"></a>
+    <strong>blitConversions</strong>
+    </dt>
+    <dd>
+    This table maps each colour to its corresponding blit.
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">[1]</span>
+
+        </li>
+        <li><span class="parameter">[2]</span>
+
+        </li>
+        <li><span class="parameter">[4]</span>
+
+        </li>
+        <li><span class="parameter">[8]</span>
+
+        </li>
+        <li><span class="parameter">[16]</span>
+
+        </li>
+        <li><span class="parameter">[32]</span>
+
+        </li>
+        <li><span class="parameter">[64]</span>
+
+        </li>
+        <li><span class="parameter">[128]</span>
+
+        </li>
+        <li><span class="parameter">[256]</span>
+
+        </li>
+        <li><span class="parameter">[512]</span>
+
+        </li>
+        <li><span class="parameter">[1024]</span>
+
+        </li>
+        <li><span class="parameter">[2048]</span>
+
+        </li>
+        <li><span class="parameter">[4096]</span>
+
+        </li>
+        <li><span class="parameter">[8192]</span>
+
+        </li>
+        <li><span class="parameter">[16384]</span>
+
+        </li>
+        <li><span class="parameter">[32768]</span>
+
+        </li>
+        <li><span class="parameter">[-]</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "colourConversions"></a>
+    <strong>colourConversions</strong>
+    </dt>
+    <dd>
+    This table maps each blit to its corresponding colour.
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">[0]</span>
+
+        </li>
+        <li><span class="parameter">[1]</span>
+
+        </li>
+        <li><span class="parameter">[2]</span>
+
+        </li>
+        <li><span class="parameter">[3]</span>
+
+        </li>
+        <li><span class="parameter">[4]</span>
+
+        </li>
+        <li><span class="parameter">[5]</span>
+
+        </li>
+        <li><span class="parameter">[6]</span>
+
+        </li>
+        <li><span class="parameter">[7]</span>
+
+        </li>
+        <li><span class="parameter">[8]</span>
+
+        </li>
+        <li><span class="parameter">[9]</span>
+
+        </li>
+        <li><span class="parameter">[a]</span>
+
+        </li>
+        <li><span class="parameter">[b]</span>
+
+        </li>
+        <li><span class="parameter">[c]</span>
+
+        </li>
+        <li><span class="parameter">[d]</span>
+
+        </li>
+        <li><span class="parameter">[e]</span>
+
+        </li>
+        <li><span class="parameter">[f]</span>
+
+        </li>
+        <li><span class="parameter">[-]</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "blits"></a>
+    <strong>blits</strong>
+    </dt>
+    <dd>
+    This table maps each colour string to its corresponding blit.
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">white</span>
+
+        </li>
+        <li><span class="parameter">orange</span>
+
+        </li>
+        <li><span class="parameter">magenta</span>
+
+        </li>
+        <li><span class="parameter">lightBlue</span>
+
+        </li>
+        <li><span class="parameter">yellow</span>
+
+        </li>
+        <li><span class="parameter">lime</span>
+
+        </li>
+        <li><span class="parameter">pink</span>
+
+        </li>
+        <li><span class="parameter">gray</span>
+
+        </li>
+        <li><span class="parameter">grey</span>
+
+        </li>
+        <li><span class="parameter">lightGray</span>
+
+        </li>
+        <li><span class="parameter">lightGrey</span>
+
+        </li>
+        <li><span class="parameter">cyan</span>
+
+        </li>
+        <li><span class="parameter">purple</span>
+
+        </li>
+        <li><span class="parameter">blue</span>
+
+        </li>
+        <li><span class="parameter">brown</span>
+
+        </li>
+        <li><span class="parameter">green</span>
+
+        </li>
+        <li><span class="parameter">red</span>
+
+        </li>
+        <li><span class="parameter">black</span>
+
+        </li>
+        <li><span class="parameter">transparent</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "blits"></a>
+    <strong>blits</strong>
+    </dt>
+    <dd>
+    This table maps each colour string to its corresponding colour.
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">white</span>
+
+        </li>
+        <li><span class="parameter">orange</span>
+
+        </li>
+        <li><span class="parameter">magenta</span>
+
+        </li>
+        <li><span class="parameter">lightBlue</span>
+
+        </li>
+        <li><span class="parameter">yellow</span>
+
+        </li>
+        <li><span class="parameter">lime</span>
+
+        </li>
+        <li><span class="parameter">pink</span>
+
+        </li>
+        <li><span class="parameter">gray</span>
+
+        </li>
+        <li><span class="parameter">grey</span>
+
+        </li>
+        <li><span class="parameter">lightGray</span>
+
+        </li>
+        <li><span class="parameter">lightGrey</span>
+
+        </li>
+        <li><span class="parameter">cyan</span>
+
+        </li>
+        <li><span class="parameter">purple</span>
+
+        </li>
+        <li><span class="parameter">blue</span>
+
+        </li>
+        <li><span class="parameter">brown</span>
+
+        </li>
+        <li><span class="parameter">green</span>
+
+        </li>
+        <li><span class="parameter">red</span>
+
+        </li>
+        <li><span class="parameter">black</span>
+
+        </li>
+        <li><span class="parameter">transparent</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "invertTable"></a>
+    <strong>invertTable</strong>
+    </dt>
+    <dd>
+    This table maps each colour to an inverted version of that colour.
+due to limited number of colours the inverse of one colour may not be the actually inverse but instead the closest colour avaliable. It is also not guaranteed that the inverse of an inverse is equal to the original colour.
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">[colours]</span>
+
+        </li>
+        <li><span class="parameter">[colours]</span>
+
+        </li>
+        <li><span class="parameter">[colours]</span>
+
+        </li>
+        <li><span class="parameter">[colours]</span>
+
+        </li>
+        <li><span class="parameter">[colours]</span>
+
+        </li>
+        <li><span class="parameter">[colours]</span>
+
+        </li>
+        <li><span class="parameter">[colours]</span>
+
+        </li>
+        <li><span class="parameter">[colours]</span>
+
+        </li>
+        <li><span class="parameter">[colours]</span>
+
+        </li>
+        <li><span class="parameter">[colours]</span>
+
+        </li>
+        <li><span class="parameter">[colours]</span>
+
+        </li>
+        <li><span class="parameter">[colours]</span>
+
+        </li>
+        <li><span class="parameter">[colours]</span>
+
+        </li>
+        <li><span class="parameter">[colours]</span>
+
+        </li>
+        <li><span class="parameter">[colours]</span>
+
+        </li>
+        <li><span class="parameter">[colours]</span>
+
+        </li>
+        <li><span class="parameter">[colours]</span>
+
+        </li>
+        <li><span class="parameter">[colours]</span>
+
+        </li>
+        <li><span class="parameter">[-]</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "lighterTable"></a>
+    <strong>lighterTable</strong>
+    </dt>
+    <dd>
+    This table maps each colour to a lighter version of that colour.
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">[colours]</span>
+
+        </li>
+        <li><span class="parameter">[colours]</span>
+
+        </li>
+        <li><span class="parameter">[colours]</span>
+
+        </li>
+        <li><span class="parameter">[colours]</span>
+
+        </li>
+        <li><span class="parameter">[colours]</span>
+
+        </li>
+        <li><span class="parameter">[colours]</span>
+
+        </li>
+        <li><span class="parameter">[colours]</span>
+
+        </li>
+        <li><span class="parameter">[colours]</span>
+
+        </li>
+        <li><span class="parameter">[colours]</span>
+
+        </li>
+        <li><span class="parameter">[colours]</span>
+
+        </li>
+        <li><span class="parameter">[colours]</span>
+
+        </li>
+        <li><span class="parameter">[colours]</span>
+
+        </li>
+        <li><span class="parameter">[colours]</span>
+
+        </li>
+        <li><span class="parameter">[colours]</span>
+
+        </li>
+        <li><span class="parameter">[colours]</span>
+
+        </li>
+        <li><span class="parameter">[colours]</span>
+
+        </li>
+        <li><span class="parameter">[colours]</span>
+
+        </li>
+        <li><span class="parameter">[colours]</span>
+
+        </li>
+        <li><span class="parameter">[-]</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "darkerTable"></a>
+    <strong>darkerTable</strong>
+    </dt>
+    <dd>
+    This table maps each colour to a darker version of that colour.
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">[colours]</span>
+
+        </li>
+        <li><span class="parameter">[colours]</span>
+
+        </li>
+        <li><span class="parameter">[colours]</span>
+
+        </li>
+        <li><span class="parameter">[colours]</span>
+
+        </li>
+        <li><span class="parameter">[colours]</span>
+
+        </li>
+        <li><span class="parameter">[colours]</span>
+
+        </li>
+        <li><span class="parameter">[colours]</span>
+
+        </li>
+        <li><span class="parameter">[colours]</span>
+
+        </li>
+        <li><span class="parameter">[colours]</span>
+
+        </li>
+        <li><span class="parameter">[colours]</span>
+
+        </li>
+        <li><span class="parameter">[colours]</span>
+
+        </li>
+        <li><span class="parameter">[colours]</span>
+
+        </li>
+        <li><span class="parameter">[colours]</span>
+
+        </li>
+        <li><span class="parameter">[colours]</span>
+
+        </li>
+        <li><span class="parameter">[colours]</span>
+
+        </li>
+        <li><span class="parameter">[colours]</span>
+
+        </li>
+        <li><span class="parameter">[colours]</span>
+
+        </li>
+        <li><span class="parameter">[colours]</span>
+
+        </li>
+        <li><span class="parameter">[-]</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Local_Functions"></a>Local Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "transformColour"></a>
+    <strong>transformColour (colour, transformTable)</strong>
+    </dt>
+    <dd>
+    Transforms a colour using one of the transform tables (lighterTable, darkerTable, invertTable).
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">colour</span>
+         The colour to be transformed.
+        </li>
+        <li><span class="parameter">transformTable</span>
+         The table used to apply the transformation.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The transformed version of the given colour.
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.5</a></i>
+<i style="float:right;">Last updated 2016-11-04 00:37:18 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

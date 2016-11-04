@@ -1,0 +1,724 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>LunaOS</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+<li><a href="#Tables">Tables</a></li>
+<li><a href="#Local_Functions">Local Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/object.html">object</a></li>
+  <li><a href="../modules/lunaos.system.gui.objects.buffer.html">lunaos.system.gui.objects.buffer</a></li>
+  <li><a href="../modules/kernel.html">kernel</a></li>
+  <li><a href="../modules/windowHandler.html">windowHandler</a></li>
+  <li><a href="../modules/colourUtils.html">colourUtils</a></li>
+  <li><a href="../modules/configUtils.html">configUtils</a></li>
+  <li><strong>jsonUtils</strong></li>
+  <li><a href="../modules/mathUtils.html">mathUtils</a></li>
+</ul>
+<h2>Scripts</h2>
+<ul class="nowrap">
+  <li><a href="../scripts/bootloader.html">bootloader</a></li>
+  <li><a href="../scripts/craftos.html">craftos</a></li>
+  <li><a href="../scripts/fixperms.html">fixperms</a></li>
+  <li><a href="../scripts/recovery.html">recovery</a></li>
+  <li><a href="../scripts/uninstall.html">uninstall</a></li>
+  <li><a href="../scripts/wipedata.html">wipedata</a></li>
+  <li><a href="../scripts/startup.html">startup</a></li>
+</ul>
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/Component.html">Component</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>jsonUtils</code></h1>
+<p>JSON API for encoding and decoding json files.</p>
+<p></p>
+    <h3>Info:</h3>
+    <ul>
+        <li><strong>Copyright</strong>: Morganamilo 2016</li>
+        <li><strong>Author</strong>: Morganamilo</li>
+    </ul>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#encode">encode (tbl, readable)</a></td>
+	<td class="summary">Encodes a table into json format.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#decode">decode (str)</a></td>
+	<td class="summary">Decode a json string into a lua table.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#decodeFile">decodeFile (path)</a></td>
+	<td class="summary">Decodes a json string directly from a file</td>
+	</tr>
+</table>
+<h2><a href="#Tables">Tables</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#whitespace">whitespace</a></td>
+	<td class="summary">White space values.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#escapes">escapes</a></td>
+	<td class="summary">Escape values.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#control">control</a></td>
+	<td class="summary">Control characters</td>
+	</tr>
+</table>
+<h2><a href="#Local_Functions">Local Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#escape">escape (str)</a></td>
+	<td class="summary">Escapes values in a string by replaceing all escape values with their escaped counterparts.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unescape">unescape (str)</a></td>
+	<td class="summary">Unscapes values in a string by replaceing all escaped values with their unescaped counterparts.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#isArray">isArray (tbl)</a></td>
+	<td class="summary">Decides whether or not a lua table is equivlent to a json array or object.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#valueToJson">valueToJson (value, indentLevel)</a></td>
+	<td class="summary">Converts a value to its json equivelent.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#keyToJson">keyToJson (key)</a></td>
+	<td class="summary">Converts a ket to its json counterpart.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#encodeInternal">encodeInternal (tbl, indentLevel)</a></td>
+	<td class="summary">Encodes a table into json format.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#nextValue">nextValue (str, start)</a></td>
+	<td class="summary">Gets the next non whitespace value of a string starting from a given point.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#parseArray">parseArray (str, start)</a></td>
+	<td class="summary">Parse a json array and returns the array as a lua table.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#parseObject">parseObject (str, start)</a></td>
+	<td class="summary">Parse a json object and returns the object as a lua table.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#parsePair">parsePair (str, start)</a></td>
+	<td class="summary">Parses a key value pair in the format '"key":value'.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#parseValue">parseValue (str, start)</a></td>
+	<td class="summary">Parse a value in a json array.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#parseString">parseString (str, start)</a></td>
+	<td class="summary">Parse a string value in json</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#parseNonString">parseNonString (str, start)</a></td>
+	<td class="summary">Parse any value that is not a string.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "encode"></a>
+    <strong>encode (tbl, readable)</strong>
+    </dt>
+    <dd>
+    Encodes a table into json format.
+Can be encoded in both a compact and human readable format.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">tbl</span>
+         The table to encode.
+        </li>
+        <li><span class="parameter">readable</span>
+         Whether or not th
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        the json encoded table.
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> str = jsonUtils.encode(tbl, <span class="keyword">true</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "decode"></a>
+    <strong>decode (str)</strong>
+    </dt>
+    <dd>
+    Decode a json string into a lua table.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">str</span>
+         The json string.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        a lua table equivelent to the json string.
+    </ol>
+
+    <h3>Raises:</h3>
+    no object error - if the first character of string is no { or [
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">tbl = jsonUtils.decode(str)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "decodeFile"></a>
+    <strong>decodeFile (path)</strong>
+    </dt>
+    <dd>
+    Decodes a json string directly from a file
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">path</span>
+         Path to the file to decodr
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        a lua table equivelent to the json string in the file.
+    </ol>
+
+    <h3>Raises:</h3>
+    no file error - if the path does not point to a file
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">tbl = jsonUtils.decodeFile(<span class="string">"/config.json"</span>)</pre>
+    </ul>
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Tables"></a>Tables</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "whitespace"></a>
+    <strong>whitespace</strong>
+    </dt>
+    <dd>
+    White space values.
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter"> </span>
+
+        </li>
+        <li><span class="parameter">\t</span>
+
+        </li>
+        <li><span class="parameter">\n</span>
+
+        </li>
+        <li><span class="parameter">\r</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "escapes"></a>
+    <strong>escapes</strong>
+    </dt>
+    <dd>
+    Escape values.
+contains values and their escaped counterpart.
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">[\\\"]</span>
+
+        </li>
+        <li><span class="parameter">[\\\\"] = ]</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "control"></a>
+    <strong>control</strong>
+    </dt>
+    <dd>
+    Control characters
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">\:</span>
+
+        </li>
+        <li><span class="parameter">\,</span>
+
+        </li>
+        <li><span class="parameter">\{</span>
+
+        </li>
+        <li><span class="parameter">\}</span>
+
+        </li>
+        <li><span class="parameter">\[</span>
+
+        </li>
+        <li><span class="parameter">\]</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Local_Functions"></a>Local Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "escape"></a>
+    <strong>escape (str)</strong>
+    </dt>
+    <dd>
+    Escapes values in a string by replaceing all escape values with their escaped counterparts.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">str</span>
+         A string to escape.
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">escapedString = escape(<span class="global">string</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "unescape"></a>
+    <strong>unescape (str)</strong>
+    </dt>
+    <dd>
+    Unscapes values in a string by replaceing all escaped values with their unescaped counterparts.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">str</span>
+         A string to unescape.
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">unescapedString = unescape(<span class="global">string</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "isArray"></a>
+    <strong>isArray (tbl)</strong>
+    </dt>
+    <dd>
+    Decides whether or not a lua table is equivlent to a json array or object.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">tbl</span>
+         A lua table.
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> _isArray = isArray(tbl)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "valueToJson"></a>
+    <strong>valueToJson (value, indentLevel)</strong>
+    </dt>
+    <dd>
+    Converts a value to its json equivelent.
+String are escaped and surrounded by quotes,
+Numbers are un changed,
+Boleans are converted to a string,
+Tables are enoded recursivley,
+nill values are changed to null,
+Other values raise an error.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">value</span>
+         the value to encode.
+        </li>
+        <li><span class="parameter">indentLevel</span>
+         the amount of Spaces currently indented to.
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">json = valueToJsonl(<span class="string">"value"</span>, <span class="number">2</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "keyToJson"></a>
+    <strong>keyToJson (key)</strong>
+    </dt>
+    <dd>
+    Converts a ket to its json counterpart.
+Strings are surrounded by quotes,
+Other values raise an error.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">key</span>
+         the key to encode.
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">json = keyToJson(<span class="string">"key"</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "encodeInternal"></a>
+    <strong>encodeInternal (tbl, indentLevel)</strong>
+    </dt>
+    <dd>
+    Encodes a table into json format.
+Can be encoded in both a compact and human readable format.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">tbl</span>
+         The table to encode.
+        </li>
+        <li><span class="parameter">indentLevel</span>
+         the indentLevel, should be nil to diable indentation or 0 to enable it.
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> json = encodeInternal(tbl)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "nextValue"></a>
+    <strong>nextValue (str, start)</strong>
+    </dt>
+    <dd>
+    Gets the next non whitespace value of a string starting from a given point.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">str</span>
+         The string to Parse.
+        </li>
+        <li><span class="parameter">start</span>
+         The point to start parsing from.
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> c, pos = nextValue(<span class="string">"a        b     c       d"</span>, <span class="number">6</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "parseArray"></a>
+    <strong>parseArray (str, start)</strong>
+    </dt>
+    <dd>
+    Parse a json array and returns the array as a lua table.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">str</span>
+         The string to parse.
+        </li>
+        <li><span class="parameter">start</span>
+         the position in the string to start parsing.
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> tbl, <span class="global">next</span> = parseArray(str, start)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "parseObject"></a>
+    <strong>parseObject (str, start)</strong>
+    </dt>
+    <dd>
+    Parse a json object and returns the object as a lua table.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">str</span>
+         The string to parse.
+        </li>
+        <li><span class="parameter">start</span>
+         the position in the string to start parsing.
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> tbl, <span class="global">next</span> = parseObject(str, start)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "parsePair"></a>
+    <strong>parsePair (str, start)</strong>
+    </dt>
+    <dd>
+    Parses a key value pair in the format '"key":value'.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">str</span>
+         The json string containing a key value pair.
+        </li>
+        <li><span class="parameter">start</span>
+         The position of the pair in the string.
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> key, value, <span class="global">next</span> = parsePair(str, <span class="number">45</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "parseValue"></a>
+    <strong>parseValue (str, start)</strong>
+    </dt>
+    <dd>
+    Parse a value in a json array.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">str</span>
+         The json string containing a json value.
+        </li>
+        <li><span class="parameter">start</span>
+         The position of the value in the string.
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> value = parseValue(str, <span class="number">43</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "parseString"></a>
+    <strong>parseString (str, start)</strong>
+    </dt>
+    <dd>
+    Parse a string value in json
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">str</span>
+         The json string.
+        </li>
+        <li><span class="parameter">start</span>
+         the position of the string in the json string.
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> s = parseString(str, <span class="number">43</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "parseNonString"></a>
+    <strong>parseNonString (str, start)</strong>
+    </dt>
+    <dd>
+    Parse any value that is not a string.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">str</span>
+         the json string.
+        </li>
+        <li><span class="parameter">start</span>
+         The position of the value in the string.
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> value = parseNonString(str, <span class="number">45</span>)</pre>
+    </ul>
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.5</a></i>
+<i style="float:right;">Last updated 2016-11-04 00:37:18 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

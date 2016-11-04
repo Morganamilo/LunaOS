@@ -36,6 +36,17 @@
 </ul>
 
 
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/object.html">object</a></li>
+  <li><strong>lunaos.system.gui.objects.buffer</strong></li>
+  <li><a href="../modules/kernel.html">kernel</a></li>
+  <li><a href="../modules/windowHandler.html">windowHandler</a></li>
+  <li><a href="../modules/colourUtils.html">colourUtils</a></li>
+  <li><a href="../modules/configUtils.html">configUtils</a></li>
+  <li><a href="../modules/jsonUtils.html">jsonUtils</a></li>
+  <li><a href="../modules/mathUtils.html">mathUtils</a></li>
+</ul>
 <h2>Scripts</h2>
 <ul class="nowrap">
   <li><a href="../scripts/bootloader.html">bootloader</a></li>
@@ -44,18 +55,7 @@
   <li><a href="../scripts/recovery.html">recovery</a></li>
   <li><a href="../scripts/uninstall.html">uninstall</a></li>
   <li><a href="../scripts/wipedata.html">wipedata</a></li>
-  <li><strong>startup</strong></li>
-</ul>
-<h2>Modules</h2>
-<ul class="nowrap">
-  <li><a href="../modules/object.html">object</a></li>
-  <li><a href="../modules/lunaos.system.gui.objects.buffer.html">lunaos.system.gui.objects.buffer</a></li>
-  <li><a href="../modules/kernel.html">kernel</a></li>
-  <li><a href="../modules/windowHandler.html">windowHandler</a></li>
-  <li><a href="../modules/colourUtils.html">colourUtils</a></li>
-  <li><a href="../modules/configUtils.html">configUtils</a></li>
-  <li><a href="../modules/jsonUtils.html">jsonUtils</a></li>
-  <li><a href="../modules/mathUtils.html">mathUtils</a></li>
+  <li><a href="../scripts/startup.html">startup</a></li>
 </ul>
 <h2>Classes</h2>
 <ul class="nowrap">
@@ -66,23 +66,16 @@
 
 <div id="content">
 
-<h1>Script <code>startup</code></h1>
-<p>Initial startup file that is called at boot.</p>
-<p>
-It overides the default dofile then calls the bootloader.
-This program is designed to run on Computercratft version 1.75+ (1.79 most recent)</p>
-    <h3>Info:</h3>
-    <ul>
-        <li><strong>Copyright</strong>: Morganamilo 2016</li>
-        <li><strong>Author</strong>: Morganamilo</li>
-    </ul>
+<h1>Module <code>lunaos.system.gui.objects.buffer</code></h1>
+<p>drawing</p>
+<p></p>
 
 
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#dofile">dofile (path)</a></td>
-	<td class="summary">Fix dofile for version 1.79 and above.</td>
+	<td class="name" nowrap><a href="#Buffer:setPos">Buffer:setPos (xPos, yPos)</a></td>
+	<td class="summary">other functions</td>
 	</tr>
 </table>
 
@@ -94,34 +87,26 @@ This program is designed to run on Computercratft version 1.75+ (1.79 most recen
 
     <dl class="function">
     <dt>
-    <a name = "dofile"></a>
-    <strong>dofile (path)</strong>
+    <a name = "Buffer:setPos"></a>
+    <strong>Buffer:setPos (xPos, yPos)</strong>
     </dt>
     <dd>
-    Fix dofile for version 1.79 and above.
+    other functions
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">path</span>
-         The path to the file that is to be run.
+        <li><span class="parameter">xPos</span>
+
+        </li>
+        <li><span class="parameter">yPos</span>
+
         </li>
     </ul>
 
-    <h3>Returns:</h3>
-    <ol>
-
-        The return value of the file ran.
-    </ol>
-
-    <h3>Raises:</h3>
-    Error returned by loadstirng - if loadstring did not succeed.
 
 
-    <h3>Usage:</h3>
-    <ul>
-        <pre class="example"><span class="global">dofile</span>(<span class="string">"/rom/programs/shell"</span>)</pre>
-    </ul>
+
 
 </dd>
 </dl>
