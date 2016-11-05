@@ -140,7 +140,7 @@ function _private.sandbox(func)
 	setfenv(osOveride, env)
 	osOveride()
 	
-	env.os.loadAPIDir("LunaOS/data/APIS")
+	env.os.loadAPIDir("LunaOS/data/APIs")
 end
 
 ---Creates a new process that can be run by the kernel.
