@@ -1,0 +1,429 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>LunaOS</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+<li><a href="#Local_Functions">Local Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/object.html">object</a></li>
+  <li><a href="../modules/LunaOS.system.GUI.objects.Buffer.html">LunaOS.system.GUI.objects.Buffer</a></li>
+  <li><a href="../modules/kernel.html">kernel</a></li>
+  <li><a href="../modules/windowHandler.html">windowHandler</a></li>
+  <li><a href="../modules/colourUtils.html">colourUtils</a></li>
+  <li><a href="../modules/configUtils.html">configUtils</a></li>
+  <li><a href="../modules/jsonUtils.html">jsonUtils</a></li>
+  <li><a href="../modules/mathUtils.html">mathUtils</a></li>
+  <li><a href="../modules/tableUtils.html">tableUtils</a></li>
+  <li><strong>textUtils</strong></li>
+</ul>
+<h2>Scripts</h2>
+<ul class="nowrap">
+  <li><a href="../scripts/bootloader.html">bootloader</a></li>
+  <li><a href="../scripts/craftos.html">craftos</a></li>
+  <li><a href="../scripts/fixperms.html">fixperms</a></li>
+  <li><a href="../scripts/recovery.html">recovery</a></li>
+  <li><a href="../scripts/uninstall.html">uninstall</a></li>
+  <li><a href="../scripts/wipedata.html">wipedata</a></li>
+  <li><a href="../scripts/startup.html">startup</a></li>
+</ul>
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/Component.html">Component</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>textUtils</code></h1>
+<p>The textUtils API provides function to manipulate strings.</p>
+<p></p>
+    <h3>Info:</h3>
+    <ul>
+        <li><strong>Copyright</strong>: Morganamilo 2016</li>
+        <li><strong>Author</strong>: Morganamilo</li>
+    </ul>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#split">split (str, sep)</a></td>
+	<td class="summary">Splits a string by a seperator.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#trimLeadingSpaces">trimLeadingSpaces (str)</a></td>
+	<td class="summary">Removes leading spaces from a string.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#trimTrailingSpaces">trimTrailingSpaces (str)</a></td>
+	<td class="summary">Removes trialing spaces from a string.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#toKey">toKey (A)</a></td>
+	<td class="summary">Converts a string to a value that could be used to index a table using dot notation.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#toWords">toWords (str)</a></td>
+	<td class="summary">Temp function</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#trim">trim (str, length)</a></td>
+	<td class="summary">Takes a string and trims it down to to the as many whole words it can fit inside the specified length.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#wrap">wrap (str, width, height)</a></td>
+	<td class="summary">Text wraps a string into a given height and width and handles '\n'.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#pop">pop (str, n)</a></td>
+	<td class="summary">Pops n characters off the ends of a string and returns both parts.</td>
+	</tr>
+</table>
+<h2><a href="#Local_Functions">Local Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#wrapInternal">wrapInternal (str, width, height, lines)</a></td>
+	<td class="summary">Text wraps a string into a given height and width.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "split"></a>
+    <strong>split (str, sep)</strong>
+    </dt>
+    <dd>
+    Splits a string by a seperator.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">str</span>
+         The string to split.
+        </li>
+        <li><span class="parameter">sep</span>
+         The seperator.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        A table of strings. Created from the largest substrings of str which do not contain sep.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "trimLeadingSpaces"></a>
+    <strong>trimLeadingSpaces (str)</strong>
+    </dt>
+    <dd>
+    Removes leading spaces from a string.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">str</span>
+         The string.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        A substring of str with any spaces before the first non space character removed.
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> noSpaces = textUtils.trimLeadingSpaces(str)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "trimTrailingSpaces"></a>
+    <strong>trimTrailingSpaces (str)</strong>
+    </dt>
+    <dd>
+    Removes trialing spaces from a string.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">str</span>
+         The string.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        A substring of str with any spaces after the last non space character removed.
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> noSpaces = textUtils.trimLeadingSpaces(str)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "toKey"></a>
+    <strong>toKey (A)</strong>
+    </dt>
+    <dd>
+    Converts a string to a value that could be used to index a table using dot notation.
+Spaces are replaced with underscores.
+the string is truncated after the first dot.
+For example "a b.c" could not be used as a key to index a table so the string is edited to "a_b".
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">A</span>
+         string.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        a string that can be used to index a table using dot notations following the rules stated above.
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> key = textUtils.toKey(str)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "toWords"></a>
+    <strong>toWords (str)</strong>
+    </dt>
+    <dd>
+    Temp function
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">str</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "trim"></a>
+    <strong>trim (str, length)</strong>
+    </dt>
+    <dd>
+    Takes a string and trims it down to to the as many whole words it can fit inside the specified length.
+Returns the trimmed string and the rest of the discarded string as seperate returns value.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">str</span>
+         A string.
+        </li>
+        <li><span class="parameter">length</span>
+         The length to trim the string down to.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+        The string truncated upto the length specified including only whole words.</li>
+        <li>
+        The part of the string truncated, without leading whitespace</li>
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> words = textUtils.trim(str, <span class="number">10</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "wrap"></a>
+    <strong>wrap (str, width, height)</strong>
+    </dt>
+    <dd>
+    Text wraps a string into a given height and width and handles '\n'.
+Wraps the string over multiple lines only spliting the line between words or during a word if it is larger than the line.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">str</span>
+         The string to wrap.
+        </li>
+        <li><span class="parameter">width</span>
+         The width of the wrapped text.
+        </li>
+        <li><span class="parameter">height</span>
+         the height of the wrapped text.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        A text wrapped version of the input string.
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> wraped = textUtils.wrap(str, <span class="number">20</span>, <span class="number">10</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "pop"></a>
+    <strong>pop (str, n)</strong>
+    </dt>
+    <dd>
+    Pops n characters off the ends of a string and returns both parts.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">str</span>
+         The string.
+        </li>
+        <li><span class="parameter">n</span>
+         How many characters to pop. Default is 1.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+        The string truncated by n characters.</li>
+        <li>
+        The truncated characters.</li>
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> str, last = textUtils.pop(str)</pre>
+    </ul>
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Local_Functions"></a>Local Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "wrapInternal"></a>
+    <strong>wrapInternal (str, width, height, lines)</strong>
+    </dt>
+    <dd>
+    Text wraps a string into a given height and width.
+Wraps the string over multiple lines only spliting the line between words or during a word if it is larger than the line.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">str</span>
+         The string to wrap.
+        </li>
+        <li><span class="parameter">width</span>
+         The width of the wrapped text.
+        </li>
+        <li><span class="parameter">height</span>
+         the height of the wrapped text.
+        </li>
+        <li><span class="parameter">lines</span>
+         A table of lines that is appened by this function.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        A text wrapped version of the input string, appened on to lines.
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> wraped = wrapInternal(str, <span class="number">20</span>, <span class="number">10</span>, {})</pre>
+    </ul>
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.5</a></i>
+<i style="float:right;">Last updated 2016-11-07 16:12:53 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

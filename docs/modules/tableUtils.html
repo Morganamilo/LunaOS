@@ -1,0 +1,630 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>LunaOS</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+<li><a href="#Local_Functions">Local Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/object.html">object</a></li>
+  <li><a href="../modules/LunaOS.system.GUI.objects.Buffer.html">LunaOS.system.GUI.objects.Buffer</a></li>
+  <li><a href="../modules/kernel.html">kernel</a></li>
+  <li><a href="../modules/windowHandler.html">windowHandler</a></li>
+  <li><a href="../modules/colourUtils.html">colourUtils</a></li>
+  <li><a href="../modules/configUtils.html">configUtils</a></li>
+  <li><a href="../modules/jsonUtils.html">jsonUtils</a></li>
+  <li><a href="../modules/mathUtils.html">mathUtils</a></li>
+  <li><strong>tableUtils</strong></li>
+  <li><a href="../modules/textUtils.html">textUtils</a></li>
+</ul>
+<h2>Scripts</h2>
+<ul class="nowrap">
+  <li><a href="../scripts/bootloader.html">bootloader</a></li>
+  <li><a href="../scripts/craftos.html">craftos</a></li>
+  <li><a href="../scripts/fixperms.html">fixperms</a></li>
+  <li><a href="../scripts/recovery.html">recovery</a></li>
+  <li><a href="../scripts/uninstall.html">uninstall</a></li>
+  <li><a href="../scripts/wipedata.html">wipedata</a></li>
+  <li><a href="../scripts/startup.html">startup</a></li>
+</ul>
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/Component.html">Component</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>tableUtils</code></h1>
+<p>The tableUtils API provides function to manipulate tables.</p>
+<p></p>
+    <h3>Info:</h3>
+    <ul>
+        <li><strong>Copyright</strong>: Morganamilo 2016</li>
+        <li><strong>Author</strong>: Morganamilo</li>
+    </ul>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#indexOf">indexOf (tbl, value)</a></td>
+	<td class="summary">Searches through a table and finds the first key with the given value.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#binarySearch">binarySearch (tbl, searchFor)</a></td>
+	<td class="summary">Public call for binarySearchInternal, acts the same but ommits the low and high variables.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#range">range (tbl, start, finish)</a></td>
+	<td class="summary">Copies part of a table to a new table starting with the key 1.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#getEmptyIndex">getEmptyIndex (tbl)</a></td>
+	<td class="summary">Gets the lowest positive index where tnl[n-1] ~= nil and tbl[n] = nil.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#removeEmptyIndexes">removeEmptyIndexes (tbl)</a></td>
+	<td class="summary">Copies values from tbl, starting at index 1 and ignores nil values.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#copy">copy (tbl)</a></td>
+	<td class="summary">Copies a table non recursively.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#lowestIndex">lowestIndex (tbl)</a></td>
+	<td class="summary">Gets the lowest numberical key from a table.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#combine">combine (tbl1, tbl2)</a></td>
+	<td class="summary">Combine two tables together into a new table.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#removeValue">removeValue (tbl, value)</a></td>
+	<td class="summary">Removes every instance of a value from a table.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#printTable">printTable (tbl)</a></td>
+	<td class="summary">Prints a tanle out in as key pairs.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#sort">sort (tbl, comparator)</a></td>
+	<td class="summary">broken</td>
+	</tr>
+</table>
+<h2><a href="#Local_Functions">Local Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#swap">swap (tbl, i, j)</a></td>
+	<td class="summary">Swaps two elements in a table.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#binarySearchInternal">binarySearchInternal (tbl, searchFor, low, high)</a></td>
+	<td class="summary">Searches through a table and finds the first key with the Given Value.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#defaultComparator">defaultComparator (a, b)</a></td>
+	<td class="summary">broken</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#quickSort">quickSort (tbl, comparator, low, high)</a></td>
+	<td class="summary">broken</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "indexOf"></a>
+    <strong>indexOf (tbl, value)</strong>
+    </dt>
+    <dd>
+    Searches through a table and finds the first key with the given value.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">tbl</span>
+         The table to search.
+        </li>
+        <li><span class="parameter">value</span>
+         The value to seach for.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        the key of the value if the value exists. nil otherwise.
+    </ol>
+
+    <h3>Raises:</h3>
+    type error - if tbl is not a value
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> k = tableUtils.indexOf(tbl, <span class="number">9</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "binarySearch"></a>
+    <strong>binarySearch (tbl, searchFor)</strong>
+    </dt>
+    <dd>
+    Public call for binarySearchInternal, acts the same but ommits the low and high variables.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">tbl</span>
+         The table to seach.
+        </li>
+        <li><span class="parameter">searchFor</span>
+         The value to search for.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        the key of the value if the value exists. nil otherwise.
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../modules/tableUtils.html#binarySearchInternal">binarySearchInternal</a>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> k = tableUtils.binarySearch(tbl, <span class="number">9</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "range"></a>
+    <strong>range (tbl, start, finish)</strong>
+    </dt>
+    <dd>
+    Copies part of a table to a new table starting with the key 1.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">tbl</span>
+         The table to copy.
+        </li>
+        <li><span class="parameter">start</span>
+         The point to start copying from.
+        </li>
+        <li><span class="parameter">finish</span>
+         The point to copy upto.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        A copy of the table containint the elements from tbl[start] to tbl[finish].
+    </ol>
+
+    <h3>Raises:</h3>
+     type error - if tbl is not a table<br>
+raise type error - if start is not a number<br>
+raise type error - if finish is not a number
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> newTbl = tableUtils.range(tbl, <span class="number">4</span>, <span class="number">8</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "getEmptyIndex"></a>
+    <strong>getEmptyIndex (tbl)</strong>
+    </dt>
+    <dd>
+    Gets the lowest positive index where tnl[n-1] ~= nil and tbl[n] = nil.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">tbl</span>
+         A table.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The lowest positive index where tnl[n-1] ~= nil and tbl[n] = nil.
+    </ol>
+
+    <h3>Raises:</h3>
+    type error - if tbl is not a table
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> i = tableUtils.getEmptyIndex(tbl)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "removeEmptyIndexes"></a>
+    <strong>removeEmptyIndexes (tbl)</strong>
+    </dt>
+    <dd>
+    Copies values from tbl, starting at index 1 and ignores nil values.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">tbl</span>
+         A table.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        A new tables with the similar to tbl but with nil values removed.
+    </ol>
+
+    <h3>Raises:</h3>
+    type error - if tbl is not a table
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> newTbl = tableUtils.removeEmptyIndexes(tbl)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "copy"></a>
+    <strong>copy (tbl)</strong>
+    </dt>
+    <dd>
+    Copies a table non recursively.
+If a non table is passed then the value is returned.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">tbl</span>
+         The table to copy.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        A copy of the table (tables withing the table are not copied).
+    </ol>
+
+    <h3>Raises:</h3>
+    type error - if tbl is not a table
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">tblCopy = tableUtils.copy(tbl)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "lowestIndex"></a>
+    <strong>lowestIndex (tbl)</strong>
+    </dt>
+    <dd>
+    Gets the lowest numberical key from a table.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">tbl</span>
+         A table.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The lowest numberical key from a table.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "combine"></a>
+    <strong>combine (tbl1, tbl2)</strong>
+    </dt>
+    <dd>
+    Combine two tables together into a new table.
+The first table will be given keys 1 to n and the second will be given kets n + 1 to n + m
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">tbl1</span>
+         A table.
+        </li>
+        <li><span class="parameter">tbl2</span>
+         Another table.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        A combination of both tables.
+    </ol>
+
+    <h3>Raises:</h3>
+    type error - if tbl1 or tbl2 is not a table
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> tbl3 = tableUtils.combine(tbl1, tbl2)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "removeValue"></a>
+    <strong>removeValue (tbl, value)</strong>
+    </dt>
+    <dd>
+    Removes every instance of a value from a table.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">tbl</span>
+         The table.
+        </li>
+        <li><span class="parameter">value</span>
+         The value to remove.
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">tableUtils.removeValue(tbl, <span class="number">4</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "printTable"></a>
+    <strong>printTable (tbl)</strong>
+    </dt>
+    <dd>
+    Prints a tanle out in as key pairs.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">tbl</span>
+         The table to print.
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">tableUtils.printTable(tbl)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "sort"></a>
+    <strong>sort (tbl, comparator)</strong>
+    </dt>
+    <dd>
+    broken
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">tbl</span>
+
+        </li>
+        <li><span class="parameter">comparator</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Local_Functions"></a>Local Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "swap"></a>
+    <strong>swap (tbl, i, j)</strong>
+    </dt>
+    <dd>
+    Swaps two elements in a table.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">tbl</span>
+         The table.
+        </li>
+        <li><span class="parameter">i</span>
+         The first element.
+        </li>
+        <li><span class="parameter">j</span>
+         The seconds element
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">tableUtils.swap(tbl, <span class="number">1</span>, <span class="number">2</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "binarySearchInternal"></a>
+    <strong>binarySearchInternal (tbl, searchFor, low, high)</strong>
+    </dt>
+    <dd>
+    Searches through a table and finds the first key with the Given Value.
+The table must be sorted in accending order.
+If multiple keys have the same value there is no defined behaviour for wich key is returned.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">tbl</span>
+         The table to seach.
+        </li>
+        <li><span class="parameter">searchFor</span>
+         The value to search for.
+        </li>
+        <li><span class="parameter">low</span>
+         The key to search from.
+        </li>
+        <li><span class="parameter">high</span>
+         The ket to search to.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        the key of the value if the value exists. nil otherwise.
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> k = binarySearchInternal(tbl, <span class="number">9</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "defaultComparator"></a>
+    <strong>defaultComparator (a, b)</strong>
+    </dt>
+    <dd>
+    broken
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">a</span>
+
+        </li>
+        <li><span class="parameter">b</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "quickSort"></a>
+    <strong>quickSort (tbl, comparator, low, high)</strong>
+    </dt>
+    <dd>
+    broken
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">tbl</span>
+
+        </li>
+        <li><span class="parameter">comparator</span>
+
+        </li>
+        <li><span class="parameter">low</span>
+
+        </li>
+        <li><span class="parameter">high</span>
+        if the pointers cross then we have sorted
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.5</a></i>
+<i style="float:right;">Last updated 2016-11-07 16:12:53 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

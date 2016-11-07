@@ -1,7 +1,24 @@
-local function swap(tbl, i, j, k)
+---The tableUtils API provides function to manipulate tables.
+--@author Morganamilo
+--@copyright Morganamilo 2016
+--@module tableUtils
+
+
+---Swaps two elements in a table.
+--@param tbl The table.
+--@param i The first element.
+--@param j The seconds element
+--@usage tableUtils.swap(tbl, 1, 2)
+local function swap(tbl, i, j)
 	tbl[i], tbl[j] = tbl[j], tbl[i]
 end
 
+---Searches through a table and finds the first key with the given value.
+--@param tbl The table to search.
+--@param value The value to seach for.
+--@return the key of the value if the value exists. nil otherwise.
+--@raise type error - if tbl is not a value
+--@usage local k = tableUtils.indexOf(tbl, 9)
 function indexOf(tbl, value)
 	errorUtils.expect(tbl, "table", true)
 	
@@ -10,11 +27,16 @@ function indexOf(tbl, value)
 	end
 end
 
-function binarySearch(tbl,searchFor)
-	return binarySearchInternal(tbl, searchFor, 1, #tbl)
-end
-
-function binarySearchInternal(tbl, searchFor, low, high) 
+---Searches through a table and finds the first key with the Given Value.
+--The table must be sorted in accending order.
+--If multiple keys have the same value there is no defined behaviour for wich key is returned.
+--@param tbl The table to seach.
+--@param searchFor The value to search for.
+--@param low The key to search from.
+--@param high The ket to search to.
+--@return the key of the value if the value exists. nil otherwise.
+--@usage local k = binarySearchInternal(tbl, 9)
+local function binarySearchInternal(tbl, searchFor, low, high)
 	local mid = math.floor(high + low / 2)
 	local value = tbl[mid]
 	
@@ -29,6 +51,25 @@ function binarySearchInternal(tbl, searchFor, low, high)
 	end
 end
 
+---Public call for binarySearchInternal, acts the same but ommits the low and high variables.
+--@param tbl The table to seach.
+--@param searchFor The value to search for.
+--@return the key of the value if the value exists. nil otherwise.
+--@usage local k = tableUtils.binarySearch(tbl, 9)
+--@see binarySearchInternal
+function binarySearch(tbl,searchFor)
+	return binarySearchInternal(tbl, searchFor, 1, #tbl)
+end
+
+---Copies part of a table to a new table starting with the key 1.
+--@param tbl The table to copy.
+--@param start The point to start copying from.
+--@param finish The point to copy upto.
+--@return A copy of the table containint the elements from tbl[start] to tbl[finish].
+--@raise type error - if tbl is not a table<br>
+--raise type error - if start is not a number<br>
+--raise type error - if finish is not a number
+--@usage local newTbl = tableUtils.range(tbl, 4, 8)
 function range(tbl, start, finish)
 	errorUtils.expect(tbl, "table", true)
 	errorUtils.expect(start, "number", false)
@@ -45,17 +86,26 @@ function range(tbl, start, finish)
 	return tempTbl
 end
 
+---Gets the lowest positive index where tnl[n-1] ~= nil and tbl[n] = nil.
+--@param tbl A table.
+--@return The lowest positive index where tnl[n-1] ~= nil and tbl[n] = nil.
+--@raise type error - if tbl is not a table
+--@usage local i = tableUtils.getEmptyIndex(tbl)
 function getEmptyIndex(tbl)
 	errorUtils.expect(tbl, "table", true)
 	
-	for i = 1, table.getn(tbl) + 1 do
-		if not tbl[i] then return i end
-	end
+	return #tbl + 1
 end
 
-function removeEmptyIndexes(tbl) --removes empty slots in tables by changing the keys
+---Copies values from tbl, starting at index 1 and ignores nil values.
+--@param tbl A table.
+--@return A new tables with the similar to tbl but with nil values removed.
+--@raise type error - if tbl is not a table
+--@usage local newTbl = tableUtils.removeEmptyIndexes(tbl)
+function removeEmptyIndexes(tbl)
+    errorUtils.expect(tbl, "table", true)
 	local tempTable = {}
-	
+
 	for _, v in pairs(tbl) do
 		if v then tempTable[#tempTable + 1] = v end
 	end
@@ -63,6 +113,12 @@ function removeEmptyIndexes(tbl) --removes empty slots in tables by changing the
 	return tempTable
 end
 
+---Copies a table non recursively.
+--If a non table is passed then the value is returned.
+--@param tbl The table to copy.
+--@return A copy of the table (tables withing the table are not copied).
+--@raise type error - if tbl is not a table
+--@usage tblCopy = tableUtils.copy(tbl)
 function copy(tbl)
 	errorUtils.expect(tbl, "table", true)
 	
@@ -76,32 +132,40 @@ function copy(tbl)
 	return tempTbl
 end
 
- function deepCopy(o, seen)
+--Copies a table recursively, including all sub tables and meta tables.
+--@param value The table to copy.
+--@param seen A table of seen values.
+--@return A coppy of value including sub tables and meta tables.
+--@usge tblCopy = tableUtils.copy(tbl)
+function deepCopy(value, seen)
   seen = seen or {}
-  if o == nil then return nil end
-  if seen[o] then return seen[o] end
+  if value == nil then return nil end
+  if seen[value] then return seen[value] end
 
-  local no
-  if type(o) == 'table' then
-    no = {}
-    seen[o] = no
+  local copy
+  if type(value) == 'table' then
+    copy = {}
+    seen[value] = copy
 
-    for k, v in next, o, nil do
-      no[deepCopy(k, seen)] = deepCopy(v, seen)
+    for k, v in next, value, nil do
+      copy[deepCopy(k, seen)] = deepCopy(v, seen)
     end
-    setmetatable(no, deepCopy(getmetatable(o), seen))
+    setmetatable(copy, deepCopy(getmetatable(value), seen))
   else -- number, string, boolean, etc
-    no = o
+    copy = value
   end
-  return no
+  return copy
 end
 
+---Gets the lowest numberical key from a table.
+--@param tbl A table.
+--@return The lowest numberical key from a table.
 function lowestIndex(tbl)
 	errorUtils.expect(tbl, "table", true)
 	
 	local lowest
 	
-	for k in pairs(tbl) do 
+	for k in ipairs(tbl) do
 		if not lowest or k < lowest then
 			lowest = k
 		end
@@ -110,36 +174,63 @@ function lowestIndex(tbl)
 	return lowest
 end
 
+---Combine two tables together into a new table.
+--The first table will be given keys 1 to n and the second will be given kets n + 1 to n + m
+--@param tbl1 A table.
+--@param tbl2 Another table.
+--@return A combination of both tables.
+--@raise type error - if tbl1 or tbl2 is not a table
+--@usage local tbl3 = tableUtils.combine(tbl1, tbl2)
 function combine(tbl1, tbl2)
 	errorUtils.expect(tbl1, "table", true)
 	errorUtils.expect(tbl2, "table", true)
 	
 	local tempTbl = {}
 	
-	for _,v in pairs(tbl1) do
+	for _,v in ipairs(tbl1) do
 		tempTbl[#tempTbl + 1] = v
 	end
 	
-	for _,v in pairs(tbl2) do
+	for _,v in ipairs(tbl2) do
 		tempTbl[#tempTbl + 1] = v
 	end
 	
 	return tempTbl
 end
 
+---Removes every instance of a value from a table.
+--@param tbl The table.
+--@param value The value to remove.
+--@usage tableUtils.removeValue(tbl, 4)
 function removeValue(tbl, value)
 	for i = 1, table.getn(tbl) do
 		if value == tbl[i] then table.remove(tbl, i) end
 	end
 end
 
+---Prints a tanle out in as key pairs.
+--@param tbl The table to print.
+--@usage tableUtils.printTable(tbl)
 function printTable(tbl)
 	for k,v in pairs(tbl) do
-		print(k, v )
+		print(k, v)
 	end
 end
 
+---broken
+local function defaultComparator(a, b)
+   if a > b then
+        return 1
+    elseif a < b then
+        return -1
+    else
+        return 0
+    end
+end
+
+---broken
 local function quickSort(tbl, comparator, low, high)
+    --if the pointers cross then we have sorted
 	if low >= high then return end
 	
 	local i = low - 1
@@ -147,9 +238,11 @@ local function quickSort(tbl, comparator, low, high)
 	local lowEqual = i
 	local highEqual = j
 	
-	local pivot = tbl[high]
+    --set the pivot to the middle of low and high
+	local pivot = (tbl[low] + tbl[high]) / 2
 	
 	while true do
+        --move left pointer right until
 		repeat
 			i = i + 1
 		until comparator(tbl[i], pivot) >= 0
@@ -190,6 +283,8 @@ local function quickSort(tbl, comparator, low, high)
 	quickSort(tbl, comparator, i, high)
 end
 
+---broken
 function sort(tbl, comparator)
+    comparator = comparator or defaultComparator
 	quickSort(tbl, comparator, 1, #tbl)
 end
