@@ -388,8 +388,8 @@ end
 function move(scr, dest)
 	errorUtils.expect(scr, "string", true, 2)
 	errorUtils.expect(dest, "string", true, 2)
-	errorUtils.assert(hasWritePermTree(scr), "error: permission denied for " .. path, 2)
-	errorUtils.assert(hasWritePermTree(dest), "error: permission denied for " .. path, 2)
+	errorUtils.assert(hasWritePermTree(scr), "error: permission denied for " .. scr, 2)
+	errorUtils.assert(hasWritePermTree(dest), "error: permission denied for " .. dest, 2)
 	errorUtils.assert(fs.exists(scr), "Error: Source does not exist", 2)
 	errorUtils.assert(not fs.exists(dest), "Error: Destination exists", 2)
 	
