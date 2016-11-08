@@ -115,7 +115,7 @@ function _private.cirticalError(msg)
 	os.shutdown()
 end
 
---Gets the process enivroment.
+---Gets the process enivroment.
 --A new copy of the current enviroment is used so that functions
 --are sandboxed and can not access eachothers vaibles.
 --@return The new enviroment table created.
@@ -266,7 +266,10 @@ function _private.runProgramInternal(program, parent, su, args)
 	local file, err = loadfile(fs.combine(root, name))
 	
 	--if we didnt get a file so error
-	errorUtils.assert(file, err, 2)
+	if not file then
+        return nil, err
+    end
+
 	_private.sandbox(file)
 	
 	--make the process
@@ -389,10 +392,10 @@ function _private.pushEvent(PID, event)
 	end
 end
 
---Pushes an event to all processes.
+---Pushes an event to all processes.
 --If the event is in @{focusEvents} only push it to the focused process.
 --The event is pushed one by one to each process using @{_private.pushEvent}.
---@pram event The event to push to all processes.
+--@param event The event to push to all processes.
 --@usage _private.tick({"mouse_click", 1, 3, 4})
 --@local
 function _private.tick(event)
@@ -437,6 +440,11 @@ function _private.tick(event)
 	end
 end
 
+---Resumes a coroutine, passing an event to it.
+--@param co A coroutine.
+--@param data The data to pass.
+--@return the data return fron the coroutine with the success value removed.
+--@usage data = _private.resume(co, data)
 function _private.resume(co, data)	
 	data = { coroutine.resume(co, unpack(data)) }
 	local success = table.remove(data, 1)
@@ -545,7 +553,12 @@ end
 --@return The PID of the new process.
 --@usage kernel.runFile("/rom/startup", 1, "new process", "this is a new process")
 function runFile(path, parent, name, desc, ...)
-	local file = loadfile(path)
+	local file, err = loadfile(path)
+
+    if not file then
+        return nil, err
+    end
+
 	_private.sandbox(file)
 	
 	return _private.newProcessInternal(function() file(unpack(arg)) end, parent, name or fs.getName(path), desc, false)
@@ -610,15 +623,12 @@ end
 --Only a copy of the process is returned, not the table itself.
 --The fields of the process returned are:
 --	<ul>
---		<li>co</li>
---		<li>parent</li>
---		<li>children</li>
---		<li>name</li>
---		<li>desc</li>
---		<li>PID</li>
---		<li>SU</li>
 --		<li>package</li>
---		<li>window</li>
+--		<li>desc</li>
+--		<li>SU</li>
+--		<li>children</li>
+--		<li>PID</li>
+--		<li>name   </li>
 --	</ul>
 --@param PID The PID of the process.
 --@raise bad argument error - if an argument is mismatched or missing.
@@ -748,7 +758,7 @@ function gotoPID(PID)
 	coroutine.yield("goto")
 end
 
---Gets all children of a process including itself.
+---Gets all children of a process including itself.
 --@param PID the PID of the process you want the children of.
 --@return A list of all children of the given process.
 --@raise bad argument error - if an argument is mismatched or missing. invalid PID error - if PID does not exist.
@@ -784,7 +794,7 @@ function killProcess(PID)
 	_private.killProcessInternal(PID)
 end
 
---Starts the main process loop.
+---Starts the main process loop.
 --The initially focused process is given as an argument.
 --This function can only be called once to ensure a process
 --can not call it again possible breaking the kernel.
@@ -792,6 +802,7 @@ end
 --If the main loop is ever to stop the computer will shutdown.
 --@param PID the PID of the process to be initally focused.
 --@raise bad argument error - if an argument is mismatched or missing. invalid PID error - if PID does not exist. kernel already running error - if the kernel is already running.
+--@usage kernel.startProcesses(1)
 function startProcesses(PID)
 	errorUtils.expect(PID, 'number', true, 2)
 	errorUtils.assert(_private._processes[PID], "Error: PID " .. PID .. " is invalid or does not exist", 2)
@@ -821,6 +832,10 @@ function startProcesses(PID)
 	os.shutdown()
 end
 
+--Replaces the deafult term.native function with one that is aware of the current
+--process and pretends that the processes window is the native one.
+--@return The window of the currently running process. If there is no running process return the true native window.
+--@usage locale window = term.native()
 function term.native()
 	if not _private._focus then
 		return oldNative()
@@ -829,6 +844,7 @@ function term.native()
 	return _private._processes[_private._runningPID].window
 end
 
+--setup debuf function if debug mode is enabled.
 if lunaOS.isDebug() then
 	function real_G()
 		return _G

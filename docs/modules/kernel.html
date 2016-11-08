@@ -103,6 +103,10 @@ Processes have:
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
+	<td class="name" nowrap><a href="#_private.resume">_private.resume (co, data)</a></td>
+	<td class="summary">Resumes a coroutine, passing an event to it.</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#setBarVisable">setBarVisable (visable)</a></td>
 	<td class="summary">Sets the visability of the top bar.</td>
 	</tr>
@@ -179,8 +183,16 @@ Processes have:
 	<td class="summary">Changes the currently focused process to a given process.</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#getAllChildren">getAllChildren (PID)</a></td>
+	<td class="summary">Gets all children of a process including itself.</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#killProcess">killProcess (PID)</a></td>
 	<td class="summary">Kills a specified Process.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#startProcesses">startProcesses (PID)</a></td>
+	<td class="summary">Starts the main process loop.</td>
 	</tr>
 </table>
 <h2><a href="#Tables">Tables</a></h2>
@@ -254,6 +266,10 @@ and how each window should be placed, drawn ect.</td>
 	<td class="summary">Displays a an error message then shuts down the computer.</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#_private.getEnv">_private.getEnv ()</a></td>
+	<td class="summary">Gets the process enivroment.</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#_private.newProcessInternal">_private.newProcessInternal (func, parent, name, desc, SU, package)</a></td>
 	<td class="summary">Creates a new process that can be run by the kernel.</td>
 	</tr>
@@ -273,6 +289,10 @@ a program instead of a function.</td>
 	<tr>
 	<td class="name" nowrap><a href="#_private.pushEvent">_private.pushEvent (PID, event)</a></td>
 	<td class="summary">Pushes a given event to a given PID.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#_private.tick">_private.tick (event)</a></td>
+	<td class="summary">Pushes an event to all processes.</td>
 	</tr>
 </table>
 <h2><a href="#Issues">Issues</a></h2>
@@ -295,6 +315,38 @@ This is not intentional and may be changed.</td>
     <h2 class="section-header "><a name="Functions"></a>Functions</h2>
 
     <dl class="function">
+    <dt>
+    <a name = "_private.resume"></a>
+    <strong>_private.resume (co, data)</strong>
+    </dt>
+    <dd>
+    Resumes a coroutine, passing an event to it.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">co</span>
+         A coroutine.
+        </li>
+        <li><span class="parameter">data</span>
+         The data to pass.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        the data return fron the coroutine with the success value removed.
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">data = _private.resume(co, data)</pre>
+    </ul>
+
+</dd>
     <dt>
     <a name = "setBarVisable"></a>
     <strong>setBarVisable (visable)</strong>
@@ -654,15 +706,12 @@ Must have root to call this funtion.
 Only a copy of the process is returned, not the table itself.
 The fields of the process returned are:
 	<ul>
-		<li>co</li>
-		<li>parent</li>
-		<li>children</li>
-		<li>name</li>
-		<li>desc</li>
-		<li>PID</li>
-		<li>SU</li>
 		<li>package</li>
-		<li>window</li>
+		<li>desc</li>
+		<li>SU</li>
+		<li>children</li>
+		<li>PID</li>
+		<li>name   </li>
 	</ul>
 
 
@@ -879,6 +928,37 @@ A yield is forced so that the focus changes straight away.
 
 </dd>
     <dt>
+    <a name = "getAllChildren"></a>
+    <strong>getAllChildren (PID)</strong>
+    </dt>
+    <dd>
+    Gets all children of a process including itself.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">PID</span>
+         the PID of the process you want the children of.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        A list of all children of the given process.
+    </ol>
+
+    <h3>Raises:</h3>
+    bad argument error - if an argument is mismatched or missing. invalid PID error - if PID does not exist.
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> children = kernel.getAllChildren(<span class="number">3</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
     <a name = "killProcess"></a>
     <strong>killProcess (PID)</strong>
     </dt>
@@ -902,6 +982,37 @@ The proces may only kill another if it has superuser permissions or it attempts 
     <h3>Usage:</h3>
     <ul>
         <pre class="example">kernel.killProcess(<span class="number">1</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "startProcesses"></a>
+    <strong>startProcesses (PID)</strong>
+    </dt>
+    <dd>
+    Starts the main process loop.
+The initially focused process is given as an argument.
+This function can only be called once to ensure a process
+can not call it again possible breaking the kernel.
+This function uses <a href="../modules/kernel.html#_private.tick">_private.tick</a> and <a href="../modules/kernel.html#_private.getEvent">_private.getEvent</a> to get and push events.
+If the main loop is ever to stop the computer will shutdown.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">PID</span>
+         the PID of the process to be initally focused.
+        </li>
+    </ul>
+
+
+    <h3>Raises:</h3>
+    bad argument error - if an argument is mismatched or missing. invalid PID error - if PID does not exist. kernel already running error - if the kernel is already running.
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">kernel.startProcesses(<span class="number">1</span>)</pre>
     </ul>
 
 </dd>
@@ -1203,6 +1314,27 @@ a way that the safest option is to stop and shutdown.
 
 </dd>
     <dt>
+    <a name = "_private.getEnv"></a>
+    <strong>_private.getEnv ()</strong>
+    </dt>
+    <dd>
+    Gets the process enivroment.
+A new copy of the current enviroment is used so that functions
+are sandboxed and can not access eachothers vaibles.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The new enviroment table created.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
     <a name = "_private.newProcessInternal"></a>
     <strong>_private.newProcessInternal (func, parent, name, desc, SU, package)</strong>
     </dt>
@@ -1386,6 +1518,32 @@ Kills the process if it dies.
     </ul>
 
 </dd>
+    <dt>
+    <a name = "_private.tick"></a>
+    <strong>_private.tick (event)</strong>
+    </dt>
+    <dd>
+    Pushes an event to all processes.
+If the event is in <a href="../modules/kernel.html#focusEvents">focusEvents</a> only push it to the focused process.
+The event is pushed one by one to each process using <a href="../modules/kernel.html#_private.pushEvent">_private.pushEvent</a>.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">event</span>
+         The event to push to all processes.
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">_private.tick({<span class="string">"mouse_click"</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">4</span>})</pre>
+    </ul>
+
+</dd>
 </dl>
     <h2 class="section-header "><a name="Issues"></a>Issues</h2>
 
@@ -1426,7 +1584,7 @@ This is not intentional and may be changed.
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.5</a></i>
-<i style="float:right;">Last updated 2016-11-07 16:12:53 </i>
+<i style="float:right;">Last updated 2016-11-08 00:56:57 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

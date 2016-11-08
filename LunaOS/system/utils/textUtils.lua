@@ -46,7 +46,7 @@ end
 --Spaces are replaced with underscores.
 --the string is truncated after the first dot.
 --For example "a b.c" could not be used as a key to index a table so the string is edited to "a_b".
---@param A string.
+--@param str A string.
 --@return a string that can be used to index a table using dot notations following the rules stated above.
 --@usage local key = textUtils.toKey(str)
 function toKey(str)
