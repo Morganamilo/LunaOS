@@ -35,36 +35,40 @@ local default
 local buttonPos = 1
 
 local function comparator(_a, _b)
+    --get lower versions of both strings
 	local a = _a:lower()
 	local b = _b:lower()
 	
-	for n = 1, #a do
-		if string.byte(a, n) > string.byte(b, n) then 
-			return 1
-		end
-		
-		if string.byte(a, n) < string.byte(b, n) then 
-			return -1
-		end
-		
-		if string.byte(_a, n) > string.byte(_b, n) then 
-			return 1
-		end
-		
-		if string.byte(_a, n) < string.byte(_b, n) then 
-			return -1
-		end
-	end
-	
-	if #a > #b then
-		return 1
-	end
-	
-	if #a < #b then
-		return -1
-	end
-	
-	return 0
+    --iterate through entire string character by character
+	for n = 1, math.min(#a, #b) do
+        --only bother checking if original characters differ
+		if _a ~= _b then
+            --get the byte for each string, original and lower case
+            local Ab = string.byte(_a, n)
+            local Bb = string.byte(_b, n)
+
+            local ab = string.byte(a, n)
+            local bb = string.byte(b, n)
+
+            --if the case of string a differs reverse the value
+            if Ab ~= ab then
+                ab = -ab
+            end
+
+            --if the case of string b differes reverse a back
+            if Bb ~= bb then
+                ab = -ab
+            end
+
+            --only return if they differe, otherwise let the next iteration start
+            if ab ~= bb then
+                return ab < bb
+            end
+        end
+
+        --if they are the same upto now just give the shorter one
+        return #a < #b
+    end
 end
 
 function fixPath(path)
@@ -85,8 +89,8 @@ function getFiles(path)
 	local files = fs.listFiles(path)
 	local dirs = fs.listDirs(path)
 	
-	tableUtils.sort(files, comparator)
-	tableUtils.sort(dirs, comparator)
+	table.sort(files, comparator)
+	table.sort(dirs, comparator)
 	
 	return tableUtils.combine(dirs, files)
 end

@@ -235,7 +235,12 @@ function _private.runProgramInternal(program, parent, su, args)
 	local root = packageHandler.getPackagePath(program)
 	local name
 	
-	errorUtils.assert(root, "Error: Program does not exist", 2)
+
+    if not root then
+        return nil, "Error: Program does not exist"
+    end
+
+    --errorUtils.assert(root, "Error: Program does not exist", 2)
 	
 	local isFile = _G.fs.isFile
 	
@@ -259,7 +264,8 @@ function _private.runProgramInternal(program, parent, su, args)
 		name = 'startup'
 	else
 		--theres not startup file we can run so error
-		error("Error: Missing startup file", 2)
+		--error("Error: Missing startup file", 2)
+        return nil, "Error: Missing startup file"
 	end
 	
 	--we got a file so lets try load it
