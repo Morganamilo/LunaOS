@@ -307,7 +307,7 @@ function _private.killProcessInternal(PID)
 	
 	if parent then
 		--iterate over our parent's children until we find ourself
-		--then remove ourslef from our parents children
+		--then remove ourself from our parents children
 		for child = 1, #parent.children do
 			if parent.children[child] == PID then
 				log.i("Telling " .. parent.PID .. " it no longer has child " .. PID)
