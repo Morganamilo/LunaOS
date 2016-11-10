@@ -1,8 +1,15 @@
+---Globaly overides various functions to prevent non root calling functions such as shutdown
+
 local oldfs = fs
 local oldGetfenv = getfenv
 local _has8BitCharacters = fs.exists("rom/apis/settings")
 
 local oldSetComputerLabel = os.setComputerLabel
+local oldShutdown = os.shutdown
+local oldReboot = os.reboot
+local oldTermWrite = term.write
+local oldTermBlit = term.blit
+
 function os.setComputerLabel(label)
 	errorUtils.expect(label, "string", false, 2)
 	
@@ -11,16 +18,22 @@ function os.setComputerLabel(label)
 	end
 end
 
-local oldShutdown = os.shutdown
+
 function os.shutdown()
-	if kernel.isSU() then oldShutdown()
-	else kernel.killProcess(kernel.getRunning()) end
+	if kernel.isSU() then
+        oldShutdown()
+	else
+        kernel.killProcess(kernel.getRunning())
+    end
 end
 
-local oldReboot = os.reboot
+
 function os.reboot()
-	if kernel.isSU() then oldReboot()
-	else kernel.killProcess(kernel.getRunning()) end
+	if kernel.isSU() then
+        oldReboot()
+	else
+        kernel.killProcess(kernel.getRunning())
+    end
 end
 
 function http.timedRequest(url, timeout, post, headers)
@@ -49,8 +62,9 @@ function term.has8BitCharacters()
 	return _has8BitCharacters
 end
 
+
 if not _has8BitCharacters then
-	local oldTermWrite = term.write
+
 	function term.write(str)
 		if type(str) == "string" then
 			for n = 1, #str do
@@ -65,7 +79,7 @@ if not _has8BitCharacters then
 		oldTermWrite(str)
 	end
 
-	local oldTermBlit = term.blit
+
 	function term.blit(str, textColour, backgroundColour)
 		if type(str) == "string" then
 			for n = 1, #str do

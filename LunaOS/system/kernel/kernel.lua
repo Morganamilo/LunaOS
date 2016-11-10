@@ -136,9 +136,9 @@ function _private.sandbox(func)
 	
 	setfenv(func, env)
 	
-	local osOveride = loadfile("/LunaOS/system/APIs/os.lua")
-	setfenv(osOveride, env)
-	osOveride()
+	local osOverride = loadfile("/LunaOS/system/APIs/os.lua")
+	setfenv(osOverride, env)
+	osOverride()
 	
 	env.os.loadAPIDir("LunaOS/data/APIs")
 end
