@@ -355,10 +355,11 @@ end
 --@param data the reason the procces errored, default is empty string.
 --@usage windowHandler.handleError(proc, data)
 function handleError(proc, data)
-	data = data or ""
+    local xSixe, ySize = term.getSize()
+	data = data or {"Unkown Error"}
 	
 	--log the error
-	log.e("Process " .. proc.name .. " (" ..  proc.PID .. ") has crashed: " .. data)
+	log.e("Process " .. proc.name .. " (" ..  proc.PID .. ") has crashed: " .. data[1])
 
 	--if it was a terminate event then skip the error handling
 	if data == 'Terminated' then return end
@@ -367,7 +368,8 @@ function handleError(proc, data)
 	term.redirect(proc.window)
 	local x, y = term.getSize()
 	local lines = {}
-	local errorLines = textUtils.wrap(data, 40,5)
+	--local errorLines = textUtils.wrap(data, 40,5)
+	local errorLines = textUtils.wrap(data[1], xSize - 4, ySize - 4)
 	
 	--generate the error message
 	 lines[#lines + 1] = "This process Has crashed"
@@ -378,7 +380,8 @@ function handleError(proc, data)
 	 lines = tableUtils.combine(lines, errorLines)
 	 
 	 lines[#lines + 1] = ""
-	 lines[#lines + 1] = "Press any key to continue"
+	 lines[#lines + 1] = "Press Enter to continue"
+	 lines[#lines + 1] = "Press Spacebar for stacktrace"
 	
 	term.setBackgroundColor(errorBackgroundColour)
 	term.clear()
@@ -398,12 +401,57 @@ function handleError(proc, data)
 		
 		term.write(lines[n])
 	end
+
 	
-	--wait for .5 seconds so that the user does not accidenly close the error
-	sleep(.5)
-	
-	--wait for the user to press a key to they can read the error message before killing the process.
-	coroutine.yield("key")
+	--wait for the user to press a key so they can read the error message before killing the process.
+	--wait or let them view the stacktrace if they want to
+	local event, key
+
+    repeat
+        event, key = coroutine.yield("key")
+    until event == "key" and (key == keys.enter or key == keys.space)
+
+    if key == keys.space then
+        term.clear()
+        term.setCursorPos(1, 2)
+        term.setTextColor(colours.lightGrey)
+        print("Stack Trace #" .. #data .. ":")
+
+        term.setTextColor(colours.cyan)
+
+        print("  " .. data[1])
+
+        for n = 2, #data - ySize + 6 do
+            local x, y = term.getCursorPos()
+
+            for m = 4, ySize - 2 do
+                term.setTextColor(colours.cyan)
+                term.setCursorPos(1, m)
+                term.clearLine()
+                print("    @" .. n+m-4 .. data[n + m - 4])
+            end
+
+            term.setTextColor(colours.lightGrey)
+            write("Press space to scroll")
+
+            repeat
+                event, key = coroutine.yield("key")
+            until event == "key" and key == keys.space
+        end
+
+        if #data - ySize + 3 < 2 then
+            for n = 2, #data do
+                print("    @" .. data[n])
+            end
+        end
+
+        term.setTextColor(colours.lightGrey)
+        write("Press Enter to continue")
+
+        repeat
+            event, key = coroutine.yield("key")
+        until event == "key" and key == keys.enter
+    end
 end
 
 ---Hanles the death of a process.

@@ -21,6 +21,10 @@
 --@copyright Morganamilo 2016
 --@module kernel
 
+local format = string.format
+local fileNoExist = errorUtils.strings.fileNoExist
+local PIDError = errorUtils.strings.PIDError
+
 ---Save the term.native function.
 local oldNative = term.native
 
@@ -94,7 +98,7 @@ local loadfile = function(path)
         return func, err
     end
 	
-    return nil, "File not found"
+    return nil, format(fileNoExist, path)
 end
 
 ---Displays a an error message then shuts down the computer.
@@ -182,7 +186,7 @@ function _private.newProcessInternal(func, parent, name, desc, SU, package)
 	
 	if parent then
 		--make sure the parent is a valid PID
-		errorUtils.assert(_private._processes[parent], "Error: PID " .. parent .. " is invalid or does not exist", 3)
+		errorUtils.assert(_private._processes[parent], format(PIDError, parent), 3)
 		--tells the parent it has children
 		_private._processes[parent].children[tableUtils.getEmptyIndex(_private._processes[parent].children)] = PID
 	end
@@ -192,8 +196,8 @@ function _private.newProcessInternal(func, parent, name, desc, SU, package)
 	--take control of the thread if the function ends
 	--or errors
 	local wrappedFunc = function()
-		local success, res = pcall(func) 
-	
+        local success, res = errorUtils.stackCall(func)
+
 		if not success then
 			windowHandler.handleError(_private._processes[_private._runningPID], res)
 		else
@@ -237,10 +241,9 @@ function _private.runProgramInternal(program, parent, su, args)
 	
 
     if not root then
-        return nil, "Error: Program does not exist"
+        return nil, "Program does not exist"
     end
 
-    --errorUtils.assert(root, "Error: Program does not exist", 2)
 	
 	local isFile = _G.fs.isFile
 	
@@ -264,8 +267,8 @@ function _private.runProgramInternal(program, parent, su, args)
 		name = 'startup'
 	else
 		--theres not startup file we can run so error
-		--error("Error: Missing startup file", 2)
-        return nil, "Error: Missing startup file"
+
+        return nil, "Missing startup file"
 	end
 	
 	--we got a file so lets try load it
@@ -299,7 +302,7 @@ end
 --@local
 function _private.killProcessInternal(PID)
 	errorUtils.expect(PID, 'number', true, 2)
-	errorUtils.assert(_private._processes[PID], "Error: PID " .. PID .. " is invalid or does not exist", 2)
+	errorUtils.assert(_private._processes[PID], format(PIDError, PID), 2)
 	
 	local thisPoc = _private._processes[PID]
 	local children = getAllChildren(PID)
@@ -545,7 +548,7 @@ end
 --@raise permission error - if current process is not root.
 --@usage kernel.newRootProcess(func, 1, "new process", "this is a new process")
 function newRootProcess(func, parent, name, desc)
-	errorUtils.assertLog(isSU(), "Error: process with PID " .. (_private._focus or "") .. " tried to start a new process as root: Access denied", 2, nil, "Warning")
+	errorUtils.assertLog(isSU(), "Process with PID " .. (_private._focus or "") .. " tried to start a new process as root: Access denied", 2, nil, "Warning")
 	return _private.newProcessInternal(func, parent, name, desc, true)
 end
 
@@ -614,7 +617,7 @@ end
 --@return The PID of the new process.
 --@usage kernel.runRootProgram("Explorer", nil, "/rom")
 function runRootProgram(program, parent, ...)
-	errorUtils.assertLog(isSU(), "Error: process with PID " .. (_private._focus or "") .. " tried to start a new program as root: Access denied", 2, nil, "Warning")
+	errorUtils.assertLog(isSU(), "Process with PID " .. (_private._focus or "") .. " tried to start a new program as root: Access denied", 2, nil, "Warning")
 	return _private.runProgramInternal(program, parent, true, arg)
 end
 
@@ -737,7 +740,7 @@ end
 --@usage kernel.gotoPID(4)
 function gotoPID(PID)
 	errorUtils.expect(PID, 'number', true, 2)
-	errorUtils.assert(_private._processes[PID], "Error: PID " .. PID .. " is invalid or does not exist", 2)
+	errorUtils.assert(_private._processes[PID], format(PIDError, PID), 2)
 	log.i("Going to PID " .. PID)
 	
 	local old = _private._focus
@@ -771,7 +774,7 @@ end
 --@usage local children = kernel.getAllChildren(3)
 function getAllChildren(PID)
 	errorUtils.expect(PID, 'number', true, 2)
-	errorUtils.assert(_private._processes[PID], "Error: PID " .. PID .. " is invalid or does not exist", 2)
+	errorUtils.assert(_private._processes[PID], format(PIDError, PID), 2)
 	
 	local allChildren = {PID}
 	local i = 1
@@ -794,8 +797,8 @@ end
 --@usage kernel.killProcess(1)
 function killProcess(PID)
 	errorUtils.expect(PID, 'number', true, 2)
-	errorUtils.assertLog(isSU() or _private._runningPID == PID, "Error: process with PID " .. (_private._focus or "") .. " tried to kill process", 2, nil, "Warning")
-	errorUtils.assert(_private._processes[PID], "Error: PID " .. PID .. " is invalid or does not exist", 2)
+	errorUtils.assertLog(isSU() or _private._runningPID == PID, "Process with PID " .. (_private._focus or "") .. " tried to kill process", 2, nil, "Warning")
+	errorUtils.assert(_private._processes[PID], format(PIDError, PID), 2)
 	
 	_private.killProcessInternal(PID)
 end
@@ -811,8 +814,8 @@ end
 --@usage kernel.startProcesses(1)
 function startProcesses(PID)
 	errorUtils.expect(PID, 'number', true, 2)
-	errorUtils.assert(_private._processes[PID], "Error: PID " .. PID .. " is invalid or does not exist", 2)
-	errorUtils.assert(not _running, "Error: kernel already running", 2)
+	errorUtils.assert(_private._processes[PID], format(PIDError, PID), 2)
+	errorUtils.assert(not _running, "kernel already running", 2)
 	
 	--kernel is now running
 	_running = true
@@ -859,4 +862,8 @@ if lunaOS.isDebug() then
 	function real_ENV()
 		return _ENV
 	end
+
+    function crash()
+        _private = nil
+    end
 end

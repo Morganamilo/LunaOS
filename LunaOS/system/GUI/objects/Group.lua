@@ -8,7 +8,7 @@ function Group:init(allowMultipleSelected, oneMustBeSelected)
 end
 
 function Group:addComponent(component)
-	errorUtils.assert(component:instanceOf(GUI.Selectable), "Error: Component must implement the Selectable interface")
+	errorUtils.assert(component:instanceOf(GUI.Selectable), string.format(errorUtils.strings.mustImplement, "Selectable"))
 	
 	table.insert(self.components, component)
 	

@@ -6,6 +6,12 @@
 --@script startup
 
 
+local errors = {}
+local shutdown = os.shutdown
+local current = term.current()
+local fs = fs
+local shutdown = os.shutdown
+
 ---Fix dofile for version 1.79 and above.
 --@function dofile
 --@param path The path to the file that is to be run.
@@ -16,7 +22,7 @@ function _G.dofile(path)
 	local func, e = loadfile(path)
 	
 	if func then
-		setfenv(func, getfenv(2) )
+		setfenv(func, getfenv(1) )
 		return func()
 	else
 		--loadfile failed so raise an error.
@@ -24,8 +30,87 @@ function _G.dofile(path)
 	end
 end
 
---clear screen
-term.clear()
+local function readyScreen()
+    term.clear()
+    term.redirect(term.native())
+    sleep(0)
+    term.setBackgroundColour(colours.grey)
+    term.clear()
+    term.setCursorPos(1,1)
+end
+
+---Handles an error when called from xpcall.
+--Builds a stacktrace of every function in the stack uptop the point where an error occured.
+--does not return a table build edits errors globaly.
+--@param errorText The text of the initial error.
+--@usage xpcall(func, handler)
+local function handler(errorText)
+    local _, err
+    local level = 4
+    
+    errors[1] = errorText
+    while true do
+        _, err = pcall(error, "", level)
+        
+        if err == "" then
+           break
+        end
+        
+        errors[#errors + 1] = err
+        level = level + 1
+    end
+end
+
+---Is called after the kernel stops running.
+--If an error occured output the stack trace to the user
+--and allow them to read it.
+--Also save the trace to a file so that it can be read afterwards.
+--@usage postError()
+local function postError()
+    if not res then
+        term.redirect(current)
+        term.setBackgroundColour(colours.grey)
+        term.clear()
+        term.setCursorPos(1,1)
+        term.setTextColour(colours.cyan)
+        print("LunaOS has Crashed and can not recover\n")
+        term.setTextColour(colours.red)
+        sleep(.2)
+
+        for k,v in ipairs(errors) do
+            if k ~= 1 or k > 999 then
+                write(" @")
+            end
+
+            print(v)
+            
+            local xCursor, yCursor = term.getCursorPos()
+            local xSize, ySize = term.getSize()
+            
+            if yCursor >= ySize then
+                coroutine.yield("key")
+            end
+            
+        end
+
+        term.setTextColour(colours.cyan)
+        print("Press any key to shutdown")
+        
+        local file = fs.open("/PANIC", "w")
+        
+        if file then 
+            file.write(table.concat(errors, "\n"))
+            file.close()
+        end
+        
+        sleep(.5)
+        coroutine.yield("key")
+    end
+end
 
 --start the bootloader
-dofile("bootloader/bootloader")
+local res, err = xpcall(function() dofile("bootloader/bootloader") end, handler)
+
+--best be safe
+pcall(postError)
+shutdown()

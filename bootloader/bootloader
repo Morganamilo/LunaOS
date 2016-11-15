@@ -8,8 +8,7 @@
 --@script bootloader
 
 ---The timer the user has to enter recovery.
---@field time 0.3
-local time = 0.3
+local time = .3
 
 ---Starts a timer, and waits for an Event.
 --if the event is the timer then it boots LunaOS normaly.

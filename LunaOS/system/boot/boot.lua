@@ -171,13 +171,11 @@ local pid = kernel.runRootProgram("LunaOS")
 kernel.runRootFile("rom/programs/lua")
 kernel.runRootFile("rom/programs/lua")
 kernel.runRootFile("rom/programs/shell")
+kernel.runRootFile("x")
 kernel.runProgram("GUITest", nil, false)
 kernel.runProgram("GUITest", nil, true)
 kernel.runProgram("Explorer")
 
 t = function() print(mathUtils.time(function() f:draw(true) end, 60)) end
 os.pullEvent = oldPullEvent
-
-local a,b =pcall(kernel.startProcesses, pid)--]]
-print(a,b)
-sleep(5)
+kernel.startProcesses(1)

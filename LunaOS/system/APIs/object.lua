@@ -184,7 +184,7 @@ end
 --@return The instance of the class.
 --@usage local instance = Class()
 local function new(class, ...)
-	errorUtils.assert(checkInterfaces(class), "Error: Class does not implement all fields", 2)
+	errorUtils.assert(checkInterfaces(class), "Class does not implement all fields", 2)
 	
 	--define the actual instance and its meta table
 	local instance = {self = {}, class = class}

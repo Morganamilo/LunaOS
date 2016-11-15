@@ -1,6 +1,7 @@
 local dataPath = "/LunaOS/data/system/password"
 local saltPath = fs.combine(dataPath, "salt")
 local passwordPath = fs.combine(dataPath, "hash")
+local permissionDenied = errorUtils.strings.permDenied
 
 local function generateSalt()
 	local salt = ""
@@ -34,7 +35,7 @@ local function getPassword()
 end
 
 function isPassword(password)
-	errorUtils.assert(kernel.isSU(), "Error: permission denied", 2)
+	errorUtils.assert(kernel.isSU(), permissionDenied, 2)
 	
 	if not (fs.exists(saltPath) and fs.exists(passwordPath)) then
 		setPassword("")
@@ -49,7 +50,7 @@ end
 
 
 function setPassword(password)
-	errorUtils.assert(kernel.isSU(), "Error: permission denied", 2)
+	errorUtils.assert(kernel.isSU(), permissionDenied, 2)
 	
 	local salt = generateSalt()
 	local hash = sha256.hash(salt .. password)

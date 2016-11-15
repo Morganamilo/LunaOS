@@ -5,7 +5,7 @@ local oldGetfenv = getfenv
 
 
 local function loadAPIInternal(path, locally, req)
-	if type(path) ~= "string" then error("Error: string expected got " .. type(path), 2) end
+	if type(path) ~= "string" then error("String expected got " .. type(path), 2) end
 	
 	local name = fs.getName(path):gmatch("([^.]+)")():gsub(" ", "_") --replace spaces with underscores and truncate after the first .
         
@@ -80,7 +80,7 @@ function os.unloadAPI(name)
 end
 
 function os.loadAPIList(path)
-	if type(path) ~= "string" then error("Error: string expected got " .. type(path), 2) end
+	if type(path) ~= "string" then error("String expected got " .. type(path), 2) end
 
 	local file = fs.open(path, 'r')
 	if file then
@@ -104,8 +104,8 @@ function os.loadAPIList(path)
 end
 
 function os.loadAPIDir(path)
-	if type(path) ~= "string" then error("Error: string expected got " .. type(path), 2) end
-	if not fs.isDir(path) then error("Error: " .. path .. " is not a directory", 2) end
+	if type(path) ~= "string" then error("String expected got " .. type(path), 2) end
+	if not fs.isDir(path) then error(path .. " is not a directory", 2) end
 	
 	for _, file in pairs(fs.list(path)) do
 		if not fs.isDir(file) then

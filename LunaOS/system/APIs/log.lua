@@ -42,8 +42,8 @@ end
 log = {
 	log = function(message, flag)
 		if not (enabled and logPath) then return end
-		if type(message) ~= "string" then error("Error: string expected got " .. type(message)) end
-		if type(flag) ~= "string" then error("Error: string expected got " .. type(flag)) end
+		if type(message) ~= "string" then error("String expected got " .. type(message)) end
+		if type(flag) ~= "string" then error("String expected got " .. type(flag)) end
 		
 		flag = flag:gsub("%]","}"):gsub("%[","{")
 		
@@ -67,7 +67,8 @@ log = {
 	e = function(message) log(message, "Error") end,
 	c = function(message) log(message, "Config") end,
 	w = function(message) log(message, "Warning") end,
-	s = function(message) log(message, "Severe") end
+	s = function(message) log(message, "Severe") end,
+	d = function(message) if lunaOS.isDebug() then log(message, "debug") end end
 }
 
 setmetatable(log, {__call = function(t, message, flag) log.log(message, flag) end})
@@ -75,12 +76,12 @@ setmetatable(log, {__call = function(t, message, flag) log.log(message, flag) en
 function log.init()
 	local config = jsonUtils.decodeFile("LunaOS/data/system/log.json")
 	
-	clearAtBoot = errorUtils.assert(config.clearAtBoot ~= nil, "Error: Missing config data: clearAtBoot")
-	logPath = errorUtils.assert(config.logPath, "Error: Missing config data: logPath")
-	serverPath = errorUtils.assert(config.serverPath, "Error: Missing config data: serverPath")
+	clearAtBoot = errorUtils.assert(config.clearAtBoot ~= nil, "Missing config data: clearAtBoot")
+	logPath = errorUtils.assert(config.logPath, "Missing config data: logPath")
+	serverPath = errorUtils.assert(config.serverPath, "Missing config data: serverPath")
 	
-	errorUtils.assert(config.enabled ~= nil, "Error: Missing config data: enabled")
-	errorUtils.assert(config.useServer ~= nil, "Error: Missing config data: useServer")
+	errorUtils.assert(config.enabled ~= nil, "Missing config data: enabled")
+	errorUtils.assert(config.useServer ~= nil, "Missing config data: useServer")
 	enabled = config.enabled
 	useServer = config.useServer
 	

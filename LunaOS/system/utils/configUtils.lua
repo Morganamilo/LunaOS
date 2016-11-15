@@ -24,7 +24,7 @@ function configEditor(path, readable)
 		success, data = pcall(jsonUtils.decodeFile, path)
 		file.close()
 		
-		errorUtils.assert(success, "Error: invalid json file", 2)
+		errorUtils.assert(success, "Invalid json file", 2)
 	end
 
 	---Gets a value from the config file. 

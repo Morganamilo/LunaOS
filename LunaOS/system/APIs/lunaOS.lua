@@ -27,7 +27,7 @@ end
 function unlock()
 	if not locked then return end
 	
-	errorUtils.assert(kernel.isSU(), "Error: permission denied", 2)
+	errorUtils.assert(kernel.isSU(), ErrorUtils.strings.permDenied, 2)
 	locked = false
 	kernel.setBarVisable(true)
 end

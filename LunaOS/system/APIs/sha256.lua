@@ -1,5 +1,6 @@
 --
--- Taken from http://pastebin.com/gsFrNjbt
+-- http://www.computercraft.info/forums2/index.php?/topic/8169-sha-256-in-pure-lua/
+-- By GravityScore
 --
 
 --  

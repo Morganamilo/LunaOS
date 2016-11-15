@@ -100,7 +100,7 @@ function valueToJson(value, indentLevel)
 	elseif t == "nil" then
 		return "null"
 	else
-		error("Error: Unserializable type: " .. t, 0)
+		error("Unserializable type: " .. t, 0)
 	end
 end
 
@@ -116,7 +116,7 @@ function keyToJson(key)
 	if type(key) == "string" then
 		return '"' .. escape(key) .. '"'
 	else
-		error("Error: Key must be string, got " .. type(key), 0)
+		error("Key must be string, got " .. type(key), 0)
 	end
 end
 
@@ -129,7 +129,7 @@ end
 --@raise type error - if tbl is not a table
 --@usage local json = encodeInternal(tbl)
 function encodeInternal(tbl, indentLevel)
-	errorUtils.assert(type(tbl) == "table", "Error: Table expected got " .. type(tbl), 2)
+	errorUtils.assert(type(tbl) == "table", "Table expected got " .. type(tbl), 2)
 	local isA = isArray(tbl)
 	local jsonStr = (isA and "[" or "{")
 	local indent
@@ -186,7 +186,7 @@ function nextValue(str, start)
 		end
 	end
 	
-	error("Error: Unexpected end of input near" .. start, 0)
+	error("Unexpected end of input near" .. start, 0)
 end
 
 ---Parse a json array and returns the array as a lua table.
@@ -218,7 +218,7 @@ function parseArray(str, start)
 		if c == "]" then
 			return array, start + 1
 		elseif c ~= "," then
-			error("Error: Expected ',' near" .. start, 0)
+			error("Expected ',' near" .. start, 0)
 		end
 	end
 end
@@ -250,7 +250,7 @@ function parseObject(str, start)
 		if c == "}" then
 			return object, start + 1
 		elseif c ~= "," then
-			error("Error: Expected ',' near " .. start, 0)
+			error("Expected ',' near " .. start, 0)
 		end
 	end
 end
@@ -271,10 +271,10 @@ function parsePair(str, start)
 	
 	key, start = parseValue(str, start)
 	c, start = nextValue(str, start)
-	errorUtils.assert(type(key) == "string", "Error: key must be string near" .. start, 0)
+	errorUtils.assert(type(key) == "string", "Key must be string near" .. start, 0)
 	
 	if c ~= ":" then
-		error("Error: Expected ':' near " .. start, 0)
+		error("Expected ':' near " .. start, 0)
 	else
 		c, start = nextValue(str, start + 1) 
 	end
@@ -354,7 +354,7 @@ function parseNonString(str, start)
 		end
 	end
 	
-	if not endPos then error("Error: Unexpected end of input near" .. start, 0) end
+	if not endPos then error("Unexpected end of input near" .. start, 0) end
 	prevC = str:sub(start, endPos - 1)
 	
 	if prevC == "null" then
@@ -367,7 +367,7 @@ function parseNonString(str, start)
 		return tonumber(prevC), endPos
 	end
 	
-	error("Error: Invalid value near" .. start, 0)
+	error("Invalid value near" .. start, 0)
 end
 
 
@@ -387,7 +387,7 @@ function decode(str)
 	elseif c == "[" then
 		result = parseArray(str, start)
 	else
-		error("Error: No Object or Array", 2)
+		error("No Object or Array", 2)
 	end
 	
 	return result
@@ -400,7 +400,7 @@ end
 --@usage tbl = jsonUtils.decodeFile("/config.json")
 function decodeFile(path)
 	errorUtils.expect(path, "string", true)
-	errorUtils.assert(fs.exists(path) and not fs.isDir(path), "Error: not a flie", 2)
+	errorUtils.assert(fs.exists(path) and not fs.isDir(path), "Not a flie", 2)
 	
 	local file = fs.open(path, 'r')
 	local data = file.readAll()

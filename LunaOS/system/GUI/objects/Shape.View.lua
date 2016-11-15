@@ -22,9 +22,9 @@ function View:makeBuffer()
 end
 
 function View:addComponent(component)
-	errorUtils.assert(component ~= self, "Error: View can not be added to itself")
-	errorUtils.assert(component:instanceOf(GUI.Drawable), "Error: Component must implement the Viewable interface")
-	errorUtils.assert(component:instanceOf(GUI.EventHandler), "Error: Component must implement the EventHandler interface")
+	errorUtils.assert(component ~= self, "View can not be added to itself")
+	errorUtils.assert(component:instanceOf(GUI.Drawable), string.format(errorUtils.strings.mustImplement, "Drawable"))
+	errorUtils.assert(component:instanceOf(GUI.EventHandler), string.format(errorUtils.strings.mustImplement, "EventHandler"))
 	table.insert(self.components, component)
 	
 	component:setParentPane(self)

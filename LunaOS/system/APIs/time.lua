@@ -50,9 +50,9 @@ function timef(s, t)
 	t = t or time() + offset
 	s = s or "%c"
 
-	errorUtils.assert(type(s) == "string", "Error: string expected got " .. type(s), 2)
-	errorUtils.assert(type(t) == "number", "Error: number expected got " .. type(t), 2)
-	errorUtils.assert(t >= 0 and mathUtils.isInt(t), "Error: time must be a positive integer", 2)
+	errorUtils.expect(s, "string", true, 2)
+	errorUtils.expect(t, "number", true, 2)
+	errorUtils.assert(t >= 0 and mathUtils.isInt(t), "Ttime must be a positive integer", 2)
 		
 	local function isLeap(year)
 		return year % 4 == 0 and (year % 100 ~= 0 or year % 400 == 0)

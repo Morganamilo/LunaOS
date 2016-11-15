@@ -3,6 +3,7 @@ local programPath = lunaOS.getProp("programPath")
 local systemProgramPath = lunaOS.getProp("systemProgramPath")
 local list = fs.list
 local url = lunaOS.getProp("serverURL")
+local permDenied = errorUtils.strings.permDenied
 
 function getDataPath()
 	return programDataPath
@@ -31,27 +32,27 @@ function getPackageDataPath(packageName)
 end
 
 function installPackage(dir)
-	errorUtils.assert(kernel.isSU(), "Error: permission denied", 2)
-	errorUtils.assert(fs.exists(dir), "Error: Package does not exist", 2)
+	errorUtils.assert(kernel.isSU(), permDenied, 2)
+	errorUtils.assert(fs.exists(dir), "Package does not exist", 2)
 	
 	local packageName = fs.getName(dir)
 	
 	if isPackage(packageName) then
-		error("Error: Package already exists", 2)
+		error("Package already exists", 2)
 	end
 	
 	fs.copy(dir, fs.combine(programPath, packageName))
 end
 
 function uninstallPackage(packageName)
-	errorUtils.assert(kernel.isSU(), "Error: permission denied", 2)
+	errorUtils.assert(kernel.isSU(), permDenied, 2)
 	
 	if tableUtils.indexOf(fs.listDirs(systemProgramPath), packageName) then
-		error("Error: Can't uninstall system package", 2)
+		error("Can't uninstall system package", 2)
 	end
 	
 	if not tableUtils.indexOf(fs.listDirs(programPath), packageName) then
-		error("Error: Package does not exits", 2)
+		error("Package does not exits", 2)
 	end
 	
 	fs.delete(fs.combine(programPath, packageName))

@@ -205,7 +205,7 @@ function setPath(path)
 	
 	
 	if not fs.hasReadPerm(path) then
-		footer:setText("Access Denied")
+		footer:setText(errorUtils.strings.permDenied)
 	elseif fs.isDir(path) then
 		handleDirectory(path)
 	elseif fs.isFile(path) then
