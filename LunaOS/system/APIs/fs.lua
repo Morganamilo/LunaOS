@@ -147,6 +147,11 @@ function hasReadPerm(path)
 	if dataPath and isSubdirOf(dataPath, path) then 
 		return true
 	end
+
+    local packagePath = kernel.getCurrentPackagePath()
+	if packagePath and isSubdirOf(packagePath, path) then
+		return true
+	end
 	
 	local perm = getEffectivePerm(path)
 	return perm == 1 or perm == 3
