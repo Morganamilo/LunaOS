@@ -12,7 +12,8 @@ strings = {
     notDir = "Not a direcotry %s",
     PIDError = "PID %s is invalid or does not exist",
     expected = "%s expexted, got %s",
-    expectedOrNil = "%s or nill expected, got %s"
+    expectedOrNil = "%s or nill expected, got %s",
+    mustImplement = "Component must implement %s"
 }
 
 local function getCode(code)
