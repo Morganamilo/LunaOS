@@ -53,26 +53,6 @@ function toKey(str)
 	return str:gmatch("[^%.]*")():gsub(" ","_")
 end
 
----Temp function
-function toWords(str)
-    str = str..'"'
-    local words = {}
-    local inQuote = false
-    for word in str:gmatch('(.-)"') do
-        if inQuote then
-            words[#words + 1] = word
-        else
-            for w in word:gmatch("[^ \t]+" ) do
-                words[#words + 1] = w
-            end
-        end
-        
-        inQuote = not inQuote
-    end
-    
-    return words
-end
-
 ---Takes a string and trims it down to to the as many whole words it can fit inside the specified length.
 --Returns the trimmed string and the rest of the discarded string as seperate returns value.
 --@param str A string.
@@ -155,4 +135,322 @@ end
 --@usage local str, last = textUtils.pop(str)
 function pop(str, n)
 	return str:sub(1, #str - (n or 1)), str:sub(#str - (n or 1) + 1, #str)
+end
+
+local function wrappedPrint(str, startYCursor)
+    local xSize, ySize = term.getSize()
+    local textPos = 1
+    local x, y
+
+    while textPos <= #str do
+        x, y = term.getCursorPos()
+        local gap = xSize - x
+
+        term.write(str:sub(textPos, textPos + gap))
+        textPos = textPos + gap + 1
+
+        x, y = term.getCursorPos()
+
+        if y >= ySize and x > xSize and startYCursor > 1 then
+            term.scroll(1)
+            startYCursor = startYCursor - 1
+            term.setCursorPos(1, ySize)
+        else
+            term.setCursorPos(1, y + 1)
+        end
+    end
+
+    if x then
+        term.setCursorPos(x, y)
+    end
+
+    return startYCursor
+end
+
+
+function newRead(replace, history, autoComplete)
+    local xSize, ySize = term.getSize()
+    local startXCursor, startYCursor = term.getCursorPos()
+
+    local text = ""
+    local cursorPos = 0
+    local longest = 0
+    local historyIndex
+
+    local completions
+    local completionNumber
+
+    history = history or {}
+    history[#history + 1] = ""
+    historyIndex = #history
+
+    term.setCursorBlink(true)
+
+    local function setCursor(pos)
+        term.setCursorPos( ((startXCursor + pos - 1) % xSize) + 1, startYCursor + math.floor( (startXCursor + pos - 1) / xSize) )
+    end
+
+    local function addText(str)
+        text = text:sub(1, cursorPos) .. str .. text:sub(cursorPos + 1)
+        cursorPos = cursorPos + #str
+    end
+
+    local function redraw()
+        local paddedText
+
+        if type(replace) == "string" and #replace > 0 then
+            paddedText = replace:rep(#text):sub(1, #text)
+        else
+            paddedText = text
+        end
+
+        term.setCursorPos(startXCursor, startYCursor)
+        startYCursor = wrappedPrint(paddedText, startYCursor)
+
+        local x, y = term.getCursorPos()
+
+        if completions then
+            local colour = term.getTextColour()
+
+            term.setTextColour(colours.grey)
+            startYCursor = wrappedPrint(completions[completionNumber], startYCursor)
+            term.setTextColour(colour)
+
+            paddedText = paddedText .. completions[completionNumber]
+        end
+
+         if #paddedText > longest then
+            longest = #paddedText
+        end
+
+        startYCursor = wrappedPrint(string.rep(" ", longest - #paddedText), startYCursor)
+
+        setCursor(cursorPos)
+    end
+
+    local function complete()
+        if autoComplete then
+            completions = autoComplete(text)
+
+            if completions and #completions > 0 and #text > 0 and cursorPos == #text then
+                completionNumber = 1
+            else
+                completions = nil
+                completionNumber = nil
+            end
+        end
+    end
+
+    local function finishComplete()
+        if completions then
+            addText(completions[completionNumber])
+        end
+    end
+
+    local function completeUp()
+        if completions then
+            completionNumber = (completionNumber % #completions) + 1
+        end
+    end
+
+    local function compleDown()
+        if completions then
+            completionNumber = ((completionNumber - 2) % #completions) + 1
+        end
+    end
+
+    local function historyUp()
+        if historyIndex > 1 then
+            history[historyIndex] = text
+            historyIndex = historyIndex - 1
+            text = history[historyIndex]
+            cursorPos = #text
+        end
+    end
+
+    local function historyDown()
+        if historyIndex < #history then
+            history[historyIndex] = text
+            historyIndex = historyIndex + 1
+            text = history[historyIndex]
+        else
+            text = ""
+        end
+
+        cursorPos = #text
+    end
+
+
+    while true do
+        local event, a, b, c, d, e = os.pullEvent()
+
+        if event == "term_resize" then
+            xSize, ySize = term.getSize()
+            redraw()
+        end
+
+        if event == "char" or event == "paste" then
+            addText(a)
+            complete()
+            redraw()
+        end
+
+        if event == "mouse_click" or event == "mouse_drag" then
+            startPoint = xSize * startYCursor + startXCursor
+            newCursorPoint = xSize * c + b
+
+            if newCursorPoint >= startPoint and newCursorPoint <= startPoint + #text then
+                cursorPos = newCursorPoint - startPoint
+            end
+
+            complete()
+            redraw()
+        end
+
+        if event == "key" then
+            if a == keys.enter then
+                cursorPos = #text
+                term.setCursorPos(1, startYCursor + math.floor((cursorPos + startXCursor - 1) / xSize) + 1)
+
+                local x, y = term.getCursorPos()
+                if y > ySize then
+                    term.scroll(y - ySize)
+                    term.setCursorPos(1,ySize)
+                end
+
+
+                history[#history] = nil
+
+                term.setCursorBlink(false)
+                return text
+            end
+
+            if a == keys.left and cursorPos > 0 then
+               cursorPos = cursorPos - 1
+                complete()
+                redraw()
+            end
+
+            if a == keys.right then
+                if completions then
+                    finishComplete()
+                elseif cursorPos < #text then
+                    cursorPos = cursorPos + 1
+                end
+
+                complete()
+                redraw()
+            end
+
+            if a == keys.up then
+                if completions then
+                    completeUp()
+                else
+                    historyUp()
+                end
+
+                redraw()
+            end
+
+            if a == keys.down then
+                if completions then
+                    compleDown()
+                else
+                    historyDown()
+                end
+
+                redraw()
+            end
+
+            if a == keys.backspace and cursorPos >= 1 then
+                text = text:sub(1, cursorPos - 1) .. text:sub(cursorPos + 1)
+                cursorPos = cursorPos - 1
+                complete()
+                redraw()
+            end
+
+            if a == keys.delete and cursorPos <= #text then
+                text = text:sub(1, cursorPos) .. text:sub(cursorPos + 2)
+                complete()
+                redraw()
+            end
+
+            if a == keys.home then
+                cursorPos = 0
+                complete()
+                redraw()
+            end
+
+            if a == keys["end"] then --end is a key word :/
+                cursorPos = #text
+                complete()
+                redraw()
+            end
+
+            if a == keys.tab and completions then
+                local fullCompletions = {}
+
+                for k, v in ipairs(completions) do
+                    fullCompletions[k] = text .. v
+                end
+
+                completions = nil
+                completionNumber = nil
+
+                redraw()
+
+                term.setCursorPos(1, startYCursor + math.floor((cursorPos + startXCursor - 1) / xSize) + 1)
+                textutils.pagedTabulate(fullCompletions)
+
+                 history[#history] = nil
+
+                return ""
+            end
+
+            if a == keys.a and keyHandler.isKeyDown(29) then
+                cursorPos = 0
+                complete()
+                redraw()
+            end
+
+            if a == keys.e and keyHandler.isKeyDown(29) then
+                cursorPos = #text
+                complete()
+                redraw()
+            end
+
+            if a == keys.right and keyHandler.isKeyDown(29) then
+                local nextWord = text:find("[^%s][%s]", cursorPos + 1)
+
+                if nextWord then
+                    cursorPos = nextWord
+                else
+                    cursorPos = #text
+                end
+
+                complete()
+                redraw()
+            end
+
+            if a == keys.left and keyHandler.isKeyDown(29) then
+                local nextWord = text:reverse():find("[%s][^%s]", #text - cursorPos )
+
+                if nextWord then
+                    cursorPos = #text - nextWord
+                else
+                    cursorPos = 0
+                end
+
+                complete()
+                redraw()
+            end
+
+            if a == 1 and completions then
+                completions = nil
+                completionNumber = nil
+
+                redraw()
+            end
+        end
+    end
 end
