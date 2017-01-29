@@ -716,12 +716,6 @@ end
 --@usage kernel.requestSU()
 function requestSU()
 	if not kernel.getCurrentPackagePath() then return false end
-	
-
-
-	print(fs.getDir(kernel.getCurrentPackagePath()))
-	print(packageHandler.getSystemProgramPath())
-	sleep(2)
 
 	if fs.getDir(kernel.getCurrentPackagePath()) == packageHandler.getSystemProgramPath() then
 		_private._processes[_private._runningPID].SU = true
