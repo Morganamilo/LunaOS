@@ -26,7 +26,7 @@ function Frame:getFrame()
 end
 
 function Frame:addComponent(component)	
-	errorUtils.assert(component:instanceOf(GUI.Drawable),string.format(errorUtils.strings.mustImplement, "Drawable"))
+	errorUtils.assert(component:instanceOf(GUI.Drawable), string.format(errorUtils.strings.mustImplement, "Drawable"))
 	errorUtils.assert(component:instanceOf(GUI.EventHandler), string.format(errorUtils.strings.mustImplement, "EventHandler"))
 	table.insert(self.components, component)
 	
@@ -74,13 +74,13 @@ function Frame:drawInternal()
 end
 
 function Frame:draw()
-	term.setCursorBlink(false)
+	self.window.setCursorBlink(false)
 	self:drawInternal()
 	self.buffer:draw()
 	
 	if self.cursorXPos and self.cursorYPos then
-		term.setCursorBlink(self.blink)
-		term.setCursorPos(self.cursorXPos, self.cursorYPos)
+		self.window.setCursorBlink(self.blink)
+		self.window.setCursorPos(self.cursorXPos, self.cursorYPos)
 	end
 	
 	term.setTextColour(self.cursorColour)
