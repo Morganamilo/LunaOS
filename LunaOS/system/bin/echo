@@ -1,0 +1,10 @@
+local args = {...}
+local method = print
+
+if args[1] == "-n" then
+	table.remove(args, 1)
+ 	method = write
+end
+
+local text = table.concat(args, " ")
+method(text)

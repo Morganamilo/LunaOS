@@ -1,0 +1,12 @@
+local args = {...}
+
+if #args <= 0 then
+	printError("Usage: run <lua command>")
+end
+
+local command = table.concat(args, " ")
+print(command)
+
+local func = loadstring(command, _ENV)
+
+func()

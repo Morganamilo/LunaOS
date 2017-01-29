@@ -1,0 +1,8 @@
+local args = {...}
+
+if #args <= 0 then
+	printError("Usage: hash <string>")
+	return
+end
+
+print(sha256.hash(args[1]))

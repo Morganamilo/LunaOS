@@ -1,0 +1,7 @@
+local args = {...}
+
+if #args ~= 1 then
+  error("Usage: get <varible name>", 0)
+end
+
+print(_ENV[args[1]])

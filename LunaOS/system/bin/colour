@@ -1,0 +1,29 @@
+local args = {...}
+local n = 1
+
+local function toColour(colour)
+	c = colourUtils.colours[colour] or colourUtils.blitToColour(c)
+  
+	if not c then
+		error(tostring(colour) .. ": is not a colour", 0)
+	end
+  
+	return c
+end
+
+if #args == 0 then
+	print("Usage: colour [options] [text colour] [background colour]")
+	print(" -t -1    set text colour")
+	print(" -b -2    set background colour")
+	return
+end
+
+if args[1] == "-2" or args[1] == "-b" then
+	term.setBackgroundColour(toColour(args[2]))
+
+elseif args[1] == "-1" or args[1] == "-t" then
+	term.setTextColor(toColour(args[2]))
+else
+	term.setTextColor(toColour(args[1]))
+	erm.setBackgroundColour(toColour(args[2]))
+end

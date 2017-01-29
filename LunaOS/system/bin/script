@@ -1,0 +1,15 @@
+local args = {...}
+
+if #args <= 0 then
+	print("Usage: script [files...]")
+end
+
+for k, path in pairs(args) do
+	local program = shell.resolve(path)
+	
+	if not program then
+		printError(path .. ": not found")
+	else
+		shell.runScript(program)
+	end
+end

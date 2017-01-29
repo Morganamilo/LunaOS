@@ -1,0 +1,21 @@
+local args = {...}
+
+if #args <= 0 then
+	printError("Usage: touch <files...>")
+	return
+end
+
+local function openFile(file)
+ 	local f = fs.open(file, "a")
+  
+	if not f then
+    	printError("Error opening file: " .. file)
+ 	else
+  		f.close()
+	end
+end
+
+for k,v in ipairs(args) do
+	openFile(shell.resolve(v))
+end
+    

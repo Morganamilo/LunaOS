@@ -1,0 +1,29 @@
+local args = {...}
+
+if #args <= 0 then
+	printError("Usage: cat <files...>")
+	return
+end
+
+local function readFile(file)
+ 	local f = fs.open(file, "r")
+  	local data 
+	
+	if not f then
+    	printError("Error opening file: " .. file)
+ 	else
+  		data = f.readAll()
+  		f.close()
+	end
+  
+	return data
+end
+
+for k,v in ipairs(args) do
+	local text = readFile(shell.resolve(v))
+	
+	if text then
+		print(text)
+	end
+end
+    
