@@ -140,11 +140,11 @@ function _private.sandbox(func)
 	
 	setfenv(func, env)
 	
-	local osOverride = loadfile("/LunaOS/system/APIs/os.lua")
-	setfenv(osOverride, env)
-	osOverride()
+	--local osOverride = loadfile("/LunaOS/system/APIs/os.lua")
+	--setfenv(osOverride, env)
+	--osOverride()
 	
-	env.os.loadAPIDir("LunaOS/data/APIs")
+	--env.os.loadAPIDir("LunaOS/data/APIs")
 end
 
 ---Creates a new process that can be run by the kernel.
@@ -717,6 +717,12 @@ end
 function requestSU()
 	if not kernel.getCurrentPackagePath() then return false end
 	
+
+
+	print(fs.getDir(kernel.getCurrentPackagePath()))
+	print(packageHandler.getSystemProgramPath())
+	sleep(2)
+
 	if fs.getDir(kernel.getCurrentPackagePath()) == packageHandler.getSystemProgramPath() then
 		_private._processes[_private._runningPID].SU = true
 		return true
