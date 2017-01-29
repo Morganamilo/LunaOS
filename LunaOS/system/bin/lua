@@ -82,15 +82,18 @@ while bRunning do
 	--term.setTextColour( colours.white )
 
 	local s = textUtils.newRead( nil, tCommandHistory, function( sLine )
-		if settings and settings.get( "lua.autocomplete" ) then
+		if (not settings and textutils.complete) or (settings and settings.get( "lua.autocomplete" )) then
 		    local nStartPos = string.find( sLine, "[a-zA-Z0-9_%.]+$" )
-		    if nStartPos then
+		    
+			if nStartPos then
 		        sLine = string.sub( sLine, nStartPos )
 		    end
+			
 		    if #sLine > 0 then
 	            return textutils.complete( sLine, tEnv )
 	        end
 		end
+		
         return nil
 	end )
 	

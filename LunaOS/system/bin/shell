@@ -771,7 +771,7 @@ local function fullRead()
             line = line:sub(1, #line - 1)
         end
 
-		if settings and settings.get( "shell.autocomplete" ) then
+		if (not settings and shell.complete) or (settings and settings.get( "shell.autocomplete" )) then
             line = line .. textUtils.newRead(nil, history, shell.complete)
         else
             line = line .. textUtils.newRead(nil, history)
