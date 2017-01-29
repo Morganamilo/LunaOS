@@ -1,0 +1,20 @@
+local args = {...}
+
+if #args <= 0 then
+	printError("Usage: where <files...>")
+	return
+end
+
+for k,v in ipairs(args) do
+	local programPath = shell.resolveProgram(v)
+	local path = shell.resolve(v)
+	
+	if fs.exists(path) then
+		print(v .. " is " .. path)
+	elseif programPath then
+		print(v .. " is " .. programPath)
+	else
+		print("Can not find: " .. v)
+	end
+end
+    
