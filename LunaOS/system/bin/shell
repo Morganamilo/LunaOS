@@ -771,7 +771,12 @@ local function fullRead()
             line = line:sub(1, #line - 1)
         end
 
-        line = line .. textUtils.newRead(nil, history, shell.complete)
+		if settings and settings.get( "shell.autocomplete" ) then
+            line = line .. textUtils.newRead(nil, history, shell.complete)
+        else
+            line = line .. textUtils.newRead(nil, history)
+        end
+       
         done = isEndOfCommand(line)
     end
     
