@@ -150,6 +150,26 @@ function ScrollView:setSize(width, height)
 	self:setSubComponentSteps()
 end
 
+function ScrollView:scroll(n)
+    if n < 0 then
+        self.vBar:scrollUp(n)
+    end
+
+    if n > 0 then
+        self.vBar:scrollDown(n)
+    end
+end
+
+function ScrollView:horizontalScroll(n)
+    if n < 0 then
+        self.hBar:scrollUp(n)
+    end
+
+    if n > 0 then
+        self.hBar:scrollDown(n)
+    end
+end
+
 function ScrollView:setVirtualSize(width, height)
 	self.virtualWidth = width
 	self.virtualHeight = height
