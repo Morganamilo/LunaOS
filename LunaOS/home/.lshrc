@@ -1,0 +1,4 @@
+set VERSION $(lua "print(lunaOS.getProp('version'))");
+
+colour -t cyan;
+echo LunaShell $VERSION;

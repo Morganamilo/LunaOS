@@ -1,0 +1,830 @@
+-- > write output to file
+-- >> append output to file
+-- < use file data as argument (entire file is treated as 1 token)
+-- $< use file data as argument (file is tokenized and passed as 1 or more arguments)
+-- $( use command output as argument (output is tokenized and passed as 1 or more arguments)
+-- ^( use command output as argument (output is treated as 1 token)
+-- ) closes $( and ^(
+-- ; end of command
+-- & end of command
+-- # comment
+
+local args = {...} 
+
+local running = true
+
+local multishell = multishell
+local parentShell = shell
+
+local dir = (parentShell and parentShell.dir()) or ""
+local path = (parentShell and parentShell.path()) .. ":/LunaOS/system/bin"
+local aliases = (parentShell and parentShell.aliases()) or {}
+local completionInfo = (parentShell and parentShell.getCompletionInfo()) or {}
+local programStack = {}
+local special = {">>", "<", "$<", ">", "$(", "^(", ")", "&", ";", "$"}
+local home = lunaOS.getProp("home")
+
+local win = term.current()
+
+local promtColour = colours.cyan
+local textColour = colours.white
+
+local promptBackgroundColour = colours.black
+local backgroundColour = colours.black
+
+local history = {}
+local shell = {}
+
+local maxCommandHistory = 50
+
+local env = {shell = shell, multishell = multishell}
+
+if home then
+    local file = fs.open(fs.combine(home, ".lsh_history"), "r")
+    
+    if file then
+        local line = ""
+
+        while line do
+            line = file.readLine()
+            history[#history + 1] = line
+        end
+
+        file.close()
+    end
+end
+
+local f = function() end
+
+function shell.setTextColour(colour)
+    errorUtils.assert(tableUtils.indexOf(colourUtils.colours, colour), "Not a colour")
+        textColour = colour
+end
+shell.setTextColor = shell.setTextColour
+
+function shell.setPromptColour(colour)
+    promtColour = colour
+end
+shell.setPromptColor = shell.setPromptColour
+
+
+function shell.setBackgroundColour(colour)
+    backgroundColour = colour
+end
+shell.setBackgroundColor = shell.setBackgroundColour
+
+function shell.setPromptBackgrounsColour(colour)
+    promptBackgroundColour = colour
+end
+shell.setPromptBackgrounsColor = shell.setPromptBackgrounsColour
+
+local function tokenise(str)
+    local words = {}
+    local quote
+    local pos = 1
+    local currentWord = ""
+    
+    while pos <= #str do
+        local char = str:sub(pos, pos)
+     
+        if char == "\\" then
+            char = str:sub(pos, pos + 1)
+            pos = pos + 1
+            currentWord = currentWord .. char
+            
+        --elseif not quote and char == "!" and str:sub(pos + 1, pos + 1) == "!" then
+          --  currentWord = currentWord .. history[#history]
+        --    pos = pos + 1
+            
+        elseif not quote and char == "~" then
+            currentWord = currentWord .. home
+            
+        elseif not quote and (char == " " or char == "\n") then
+            if #currentWord > 0 then
+                words[#words + 1] = currentWord
+            end
+            currentWord = ""
+        
+        elseif not quote and (char == "\"" or char == "\'") then
+            quote = char
+        
+        elseif not quote and tableUtils.indexOf(special, str:sub(pos, pos + 1)) then
+            if #currentWord > 0 then
+                words[#words + 1] = currentWord
+            end
+            words[#words + 1] = str:sub(pos, pos + 1)
+            currentWord = ""
+            pos = pos + 1
+        
+        elseif not quote and tableUtils.indexOf(special, char) then
+            if #currentWord > 0 then
+                words[#words + 1] = currentWord
+            end
+            
+            words[#words + 1] = char
+            currentWord = ""
+            
+        elseif quote == char then
+            quote = nil
+        
+        else
+            currentWord = currentWord .. char
+        end
+        
+        pos = pos + 1
+    end
+    
+    if #currentWord > 0 then
+        words[#words + 1] = currentWord
+    end
+    
+    return words
+    
+end
+
+local function makePipeWindow()
+    local pipeWindow = {}
+    
+    pipeWindow.text = {}
+    pipeWindow.xCursor = 1
+    pipeWindow.yCursor = 1
+    pipeWindow.xSize, pipeWindow.ySize = term.getSize()
+    pipeWindow._scroll = 0
+    
+    pipeWindow.window = {}
+    
+    local w = pipeWindow.window
+    local t = pipeWindow.text
+    
+    function pipeWindow.getText()
+        for n = 1, math.max(table.getn(pipeWindow.text), pipeWindow.yCursor) do
+            if not pipeWindow.text[n] then
+                pipeWindow.text[n] = ""
+            end
+        end
+        
+        return table.concat(pipeWindow.text, "\n")
+    end
+    
+    w.write = function(str)
+        if not t[pipeWindow.yCursor] then
+            t[pipeWindow.yCursor] = ""
+        end
+        
+        local lineSize = #t[pipeWindow.yCursor]
+        local xCursor = pipeWindow.xCursor 
+        
+        if lineSize + 1 < xCursor and xCursor > 0 then
+           t[pipeWindow.yCursor] = t[pipeWindow.yCursor] .. string.rep(" ", xCursor):sub(lineSize)
+        end
+        
+        t[pipeWindow.yCursor] = t[pipeWindow.yCursor]:sub(1, xCursor - 1) .. tostring(str) .. t[pipeWindow.yCursor]:sub(xCursor + #tostring(str)):sub(1, pipeWindow.xSize)
+        t[pipeWindow.yCursor]:sub(1, pipeWindow.xSize)
+        pipeWindow.xCursor = pipeWindow.xCursor + #str
+    end
+
+    w.scroll = function(n)  
+        pipeWindow._scroll = pipeWindow._scroll + n 
+        pipeWindow.yCursor = pipeWindow.yCursor + n
+    end
+    
+    w.setCursorPos = function(x, y)
+        pipeWindow.xCursor = x
+        pipeWindow.yCursor = y + pipeWindow._scroll
+    end
+    
+    w.clear = function(str) 
+        for n = pipeWindow._scroll + 1, pipeWindow._scroll + 1 + pipeWindow.xSize do
+            pipeWindow.text[n] = nil
+        end
+    end
+        
+    w.clearLine = function() t[pipeWindow.yCursor + pipeWindow._scroll] = nil end
+    w.getBackgroundColor = function() return colours.black end
+    w.getCursorPos = function() return pipeWindow.xCursor, pipeWindow.yCursor - pipeWindow._scroll end
+    w.getPosition = function() return 1, 1 end
+    w.getSize = function() return pipeWindow.xSize, pipeWindow.ySize end
+    w.getTextColor = function() return colours.white end
+    w.isColor = function() return true end
+
+    w.setBackgroundColor = f
+    w.setTextBlink = f
+    w.setTextColor = f
+    w.setVisible = f
+    w.redraw = f
+    w.reposition = f
+    w.restoreCursor = f
+                    
+    w.blit = w.write
+    w.getBackgroundColour = w.getBackgroundColor
+    w.getTextColour = w.getTextColor 
+    w.isColour = w.isColor
+    w.setBackgroundColour = w.setBackgroundColor
+    w.setTextColour = w.setTextColor
+        
+    return pipeWindow
+end
+
+local function isEndOfCommand(line)
+    return line:sub(#line,#line) ~= "\\"
+end
+
+local function pipe(command, ...)
+    local pipeWindow = makePipeWindow()
+    local win = term.current()
+    
+    term.redirect(pipeWindow.window) -- a=tokenTokeniser(tokenise("this is a test; another t"))
+    local result = os.run(env, command, ...)
+    term.redirect(win)
+    
+    return pipeWindow.getText(), result
+end
+
+local function unescape(str)
+    local newStr = ""
+    local pos = 1
+    
+    while pos <= #str do
+        local char = str:sub(pos, pos)
+        
+        if char == "\\" then
+            pos = pos + 1
+        end
+        
+        newStr = newStr .. str:sub(pos, pos)
+        
+        pos = pos + 1
+    end
+    
+    return newStr
+end
+
+local function runCommand(command, out)
+    if #command > 0 then
+        local path = shell.resolveProgram(command[1])
+
+        if path then
+            if #out > 0 then
+                local text, result = pipe(path, unpack(command, 2))
+
+                for k, v in pairs(out) do
+                    local file = fs.open(v[1], v[2])
+
+                    if not file then
+                        printError("Can not open: " .. v[1])
+                    else
+                        file.write(text)
+                        file.close()
+                    end
+                end
+
+                return result
+            else
+                return os.run(env, path, unpack(command, 2))
+            end
+        else
+            printError(command[1] .. ": Command not found")
+        end
+    end
+end
+
+
+--token parsing
+--groups tokens into commands that can be called by os.run
+local function parseTokens(tokens, n, inBracket)
+    if #tokens <= 0 then
+        return
+    end
+    
+    local command = {}
+    local out = {}
+    
+    while n <= #tokens do
+        local token = tokens[n]
+        
+        if tableUtils.indexOf(special, token) then
+            if token == ";" or token == "&" then
+                if n <= #tokens then
+                    n = n + 1
+                end
+                
+                break
+           
+            elseif token == "$" then
+				local var = tokens[n + 1]
+				
+				if not var then
+					printError("No token after $")
+					return
+				end
+				
+				
+				var = env[var] or ""
+				command[#command + 1] = unescape(var)
+				n = n + 1
+				
+			elseif token == "$(" or token == "^(" then
+                local nestedCommands, nestedOut, nestedN = parseTokens(tokens, n + 1, true)
+                
+                if not nestedCommands or #nestedCommands <= 0 then
+                    --printError("Invalid token after " .. token)
+                    return
+                end
+                
+                local path = shell.resolveProgram(nestedCommands[1])
+                
+                if not path then
+                    printError(nestedCommands[1] .. ": Command not found")
+                    return
+                end
+                
+                local text, result = pipe(path, unpack(nestedCommands, 2))
+                
+                if not result then
+                   return
+                end
+                
+				
+				
+                for k, v in pairs(nestedOut) do
+                    local file = fs.open(v[1], v[2])
+
+                    if not file then
+                        printError("Can not open: " .. v[1])
+                    else
+                        file.write(text)
+                        file.close()
+                    end
+                end
+
+
+				
+				
+				
+                if token == "$(" then
+                    local nestedTokens = tokenise(text)
+
+                    for k, v in pairs(nestedTokens) do    
+                        command[#command + 1] = v
+                    end
+                else
+                    command[#command + 1] = text
+                end
+                
+                n = nestedN
+                
+                
+            
+            elseif token == ")" then
+                if not inBracket then
+                    printError("Unexpected token: )")
+                    return
+                end
+                
+                return command, out, n
+                
+            elseif token == "<" or token == "$<" then
+                n = n + 1
+                
+                local path = tokens[n]
+                
+                if not path or tableUtils.indexOf(special, path) then
+                    return nil, "Unexpected token after " .. token
+                end
+                
+                path = unescape(path)
+                
+                local resolvedPath = shell.resolveProgram(path)
+                
+                if not resolvedPath then
+                    return nil, "No such file: " .. path
+                end
+                
+                local file = fs.open(path, "r")
+                
+                if not file then
+                    return nil, "Can not open: " .. path
+                end
+                
+                local data = file.readAll()
+                
+                
+                
+                if token == "$<" then
+                    local tokenisedData = tokenise(data)
+
+                    for k, v in pairs(tokenisedData) do    
+                        command[#command + 1] = v
+                    end
+                else
+                    command[#command + 1] = data
+                end
+                
+            elseif token == ">" or token == ">>" then
+                n = n + 1
+                
+                local path = tokens[n]
+                
+                if not path or tableUtils.indexOf(special, path) then
+                    return nil, "Unexpected token after " .. token
+                end
+                
+                path = unescape(path)
+                path = shell.resolve(path)
+                
+                if fs.isDir(path) then
+                    return nil, "Is directory: " .. path
+                end
+                
+                out[#out + 1] = {path, (token == ">" and "w" or "a")}
+            end
+        else
+           command[#command + 1] = unescape(token) 
+        end
+        
+        n = n + 1
+    end
+    
+    if inBracket then
+        printError("Unclosed: $(")
+        return
+    end
+	
+	
+	local result = runCommand(command, out)
+    
+    if n > #tokens then
+        return result
+    else
+        return parseTokens(tokens, n)
+    end
+end
+
+local function runTokens(tokens)
+    local result
+    local out
+    local n = 1
+    local parsedTokens
+    
+    if not tokens then return false end
+    
+    if #tokens <= 0 then 
+        return
+    end
+    
+    while n and n <= #tokens do
+        parsedTokens, out, n = parseTokens(tokens, n)
+
+        if not parsedTokens then
+           printError(out)
+           return false
+        end
+        
+        result = runCommand(parsedTokens, out)
+    end
+    
+    return result
+end
+
+function shell.run(...)
+    local str = table.concat(arg, " ")
+    local tokens = tokenise(str)
+    
+    if tokens then
+        return parseTokens(tokens, 1)
+    end
+    
+    return  false
+end
+
+function shell.exit()
+    running = false
+end
+
+function shell.dir()
+    return dir
+end
+
+function shell.setDir(d)
+    dir = d
+end
+
+function shell.path()
+    return path
+end
+
+function shell.setPath(p)
+    path = p
+end
+
+---From original shell
+--turns relative path to an absolute one
+function shell.resolve(_path)
+	local char = string.sub(_path, 1, 1)
+    
+	if char == "/" or char == "\\" then
+		return fs.combine(_path)
+	else
+		return fs.combine(dir, _path)
+	end
+end
+
+---From original shell
+--turns program name to an absolute path to the program one
+function shell.resolveProgram(command)
+	-- Substitute aliases firsts
+	if aliases[command] ~= nil then
+		command = aliases[command]
+	end
+
+    -- If the path is a global path, use it directly
+    local char = string.sub( command, 1, 1 )
+    
+    if char == "/" or char == "\\" then
+    	local _path = fs.combine(command)
+        
+    	if fs.isFile(_path) then
+			return _path
+    	end
+        
+		return nil
+    end
+    
+ 	-- Otherwise, look on the path variable
+    for _path in string.gmatch(path, "[^:]+") do
+    	_path = fs.combine(shell.resolve(_path), command)
+        
+    	if fs.isFile(_path) then
+			return _path
+    	end
+    end
+	
+	-- Not found
+	return nil
+end
+
+---From original shell
+function shell.programs(showHidden)
+	local programs = {}
+	
+	-- Add programs from the path
+    for _path in string.gmatch(path, "[^:]+") do
+    	_path = shell.resolve(_path)
+		
+        if fs.isDir(_path) then
+			local list = fs.list(_path)
+            
+            for n = 1, #list do
+                local file = list[n]
+				
+                if fs.isFile(fs.combine( _path, file)) and (showHidden or string.sub( file, 1, 1 ) ~= ".") then
+					programs[#programs + 1] = file
+				end
+			end
+		end
+    end	
+
+
+    table.sort(programs)
+	return programs
+end
+
+local function completeProgramArgument(program, argument, part, previousParts )
+    local info = completionInfo[program]
+    
+    if info then
+        return info.fnComplete( shell, argument, part, previousParts )
+    end
+    
+    return nil
+end
+
+function shell.complete(line)
+    if #line > 0 then
+        local words = tokenise(line)
+        local index = #words
+        
+        if string.sub( line, #line, #line ) == " " then
+            index = index + 1
+        end
+        
+        if index == 1 then
+            local bit = words[1] or ""
+            local _path = shell.resolveProgram( bit )
+        
+            if completionInfo[ _path ] then
+                return {" "}
+            else
+                local results = shell.completeProgram( bit )
+                
+                for n = 1, #results do
+                    local result = results[n]
+                    local path = shell.resolveProgram( bit .. result )
+                    
+                    if completionInfo[ path ] then
+                        results[n] = result .. " "
+                    end
+                end
+                
+                return results
+            end
+
+        elseif index > 1 then
+            local _path = shell.resolveProgram( words[1] )
+            local part = words[index] or ""
+            local previousParts = words
+            
+            previousParts[index] = nil
+            
+            return completeProgramArgument( _path , index - 1, part, previousParts )
+        end
+    end
+    
+	return nil
+end
+
+function shell.completeProgram(line)
+    if #line > 0 and string.sub( line, 1, 1 ) == "/" then
+	    -- Add programs from the root
+	    return fs.complete( line, "", true, false )
+
+    else
+        local results = {}
+        local seen = {}
+
+        -- Add aliases
+        for alias, command in pairs(aliases) do
+            if #alias > #line and string.sub( alias, 1, #line ) == line then
+                local result = string.sub( alias, #line + 1 )
+                
+                if not seen[ result ] then
+                    table.insert( results, result )
+                    seen[ result ] = true
+                end
+            end
+        end
+
+        -- Add programs from the path
+        local programs = shell.programs()
+        for n = 1, #programs do
+            local program = programs[n]
+            
+            if #program > #line and string.sub( program, 1, #line ) == line then
+                local result = string.sub( program, #line + 1 )
+                
+                if not seen[ result ] then
+                    table.insert( results, result )
+                    seen[ result ] = true
+                end
+            end
+        end
+
+        -- Sort and return
+        table.sort( results )
+        return results
+    end
+end
+
+function shell.setCompletionFunction(program, func)
+    completionInfo[program] = {fnComplete = func}
+end
+
+function shell.getCompletionInfo()
+    return tableUtils.copy(completionInfo)
+end
+
+function shell.getRunningProgram()
+	if #programStack > 0 then
+		return programStack[#programStack]
+	end
+end
+
+function shell.setAlias(command, program)
+	aliases[command] = program
+end
+
+function shell.clearAlias(command)
+	aliases[command] = nil
+end
+
+function shell.aliases()
+	return tableUtils.copy(aliases)
+end
+
+if multishell then
+    function shell.openTab( ... )
+        local words = tokenise( ... )
+        local command = words[1]
+        
+        if command then
+        	local _path = shell.resolveProgram(command)
+            
+        	if path == "rom/programs/shell" then
+                return multishell.launch( env, path, table.unpack( words, 2 ) )
+            elseif path ~= nil then
+                return multishell.launch( env, "rom/programs/shell", command, table.unpack( words, 2 ) )
+            else
+                printError(command .. ": Command not found")
+            end
+        end
+    end
+
+    function shell.switchTab( nID )
+        multishell.setFocus( nID )
+    end
+end
+
+local function fullRead()
+    term.setBackgroundColour(backgroundColour)
+    term.setTextColour(promtColour)
+    
+	local d = shell.dir()
+	
+	if fs.combine(home) == d:sub(1, #fs.combine(home)) then
+    	write("~" .. d:sub(#fs.combine(home) + 1))
+	else
+		write(d)
+	end
+
+    if kernel.isSU() then
+        write("# ")
+    else
+        write("$ ")
+    end
+
+    term.setTextColour(textColour)
+    term.setBackgroundColour(promptBackgroundColour)
+
+    local line = textUtils.newRead(nil, history, shell.complete)
+    local done = isEndOfCommand(line)
+
+    while not done do
+        term.setBackgroundColour(backgroundColour)
+        term.setTextColour(promtColour)
+
+        write(">")
+
+        term.setTextColour(textColour)
+        term.setBackgroundColour(promptBackgroundColour)
+
+        if line:sub(#line, #line) == "\\" then
+            line = line:sub(1, #line - 1)
+        end
+
+        line = line .. textUtils.newRead(nil, history, shell.complete)
+        done = isEndOfCommand(line)
+    end
+    
+    return line
+end
+
+function shell.runScript(path)
+	local file = fs.open(path, "r")
+	
+	if file then
+		local data = file.readAll()
+		return shell.run(data)
+	end
+	
+	return false
+end
+
+local function mainLoop()
+    if home then
+        local file = fs.open(fs.combine(home, ".lshrc"), "r")
+        
+        if file then
+            local data = file.readAll()
+            file.close()
+            shell.run(data)
+        end
+    end    
+        
+    while running do
+        term.redirect(win)
+        
+        local line = fullRead()
+             
+        shell.run(line)
+        
+        if #line > 0 then
+            history[#history + 1] = line
+            
+            local file = fs.open(fs.combine(home, ".lsh_history"), "w")
+            
+            if file then
+                for n = math.max(#history - maxCommandHistory + 1, 1), #history do
+                    file.write(history[n] .. "\n")
+                end
+            
+                file.close()
+            end
+        end
+    end
+end
+
+if #args > 0 then
+    return shell.run(...)
+else
+    mainLoop()
+end

@@ -167,11 +167,18 @@ drawImage()
 drawText()
 loadAPIs()
 
+local bin = lunaOS.getProp("binPath")
+
+shell.setPath('.' .. ":" .. bin .. shell.path():sub(2))
+
+
+
 local pid = kernel.runRootProgram("LunaOS")
 kernel.runRootFile("rom/programs/lua")
 kernel.runRootFile("rom/programs/lua")
 kernel.runRootFile("rom/programs/shell")
 kernel.runRootFile("x")
+kernel.runRootFile("/LunaOS/system/bin/shell")
 kernel.runProgram("GUITest", nil, false)
 kernel.runProgram("GUITest", nil, true)
 kernel.runProgram("Explorer")
