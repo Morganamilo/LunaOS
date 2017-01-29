@@ -6,7 +6,7 @@ local dataPath = lunaOS.getProp("dataPath")
 local format = string.format
 local permDenied = errorUtils.strings.permDenied
 local permDeniedFor = errorUtils.strings.permDeniedFor
-local pathExists = errorUtils.strings.exists
+local pathExists = errorUtils.strings.fileExists
 local noExist = errorUtils.strings.noExist
 local notDir = errorUtils.strings.notDir
 local filePermsMissing = "File Permissions are missing"
@@ -73,7 +73,7 @@ function setPerm(path, perm)
 	errorUtils.expect(path, "string", true, 2)
 	errorUtils.expect(perm, "number", true, 2)
 	errorUtils.assert(kernel.isSU(), format(permDeniedFor, path), 2)
-	errorUtils.assert(oldFs.exists(path), format(pathNoExist, path, 2))
+	errorUtils.assert(oldFs.exists(path), format(errorUtils.strings.fileNoExist, path, 2))
 	errorUtils.assert(perm >= 0 and perm <= 3, format(invalidPerm, perm), 2)
 	
 	permData[combine(path):lower()] = perm
@@ -169,6 +169,7 @@ function hasReadPermTree(path)
 	if not hasReadPerm(path) then return false end
 	local permTree = getPermTree(path)
 	return (permTree == 1 or permTree == 3)
+
 end
 
 function hasWritePerm(path)
@@ -373,7 +374,7 @@ function isFile(path)
 end
 
 function isDir(path)
-	errorUtils.expect(path, "string", true, 2)
+	--errorUtils.expect(path, "string", true, 2)
 	errorUtils.assert(hasReadPerm(path), format(permDeniedFor, path), 2)
 	return oldFs.isDir(path)
 end
@@ -408,7 +409,7 @@ function move(scr, dest)
 	errorUtils.assert(hasWritePermTree(scr), format(permDeniedFor, scr), 2)
 	errorUtils.assert(hasWritePermTree(dest), format(permDeniedFor, dest), 2)
 	errorUtils.assert(fs.exists(scr), format(noExist, scr), 2)
-	errorUtils.assert(not fs.exists(dest), format(PathExists, dest), 2)
+	errorUtils.assert(not fs.exists(dest), format(pathExists, dest), 2)
 	
 	copyPerm(scr, dest)
 	deletePerm(scr)
