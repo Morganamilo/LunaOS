@@ -6,8 +6,8 @@ local permissionDenied = errorUtils.strings.permDenied
 local function generateSalt()
 	local salt = ""
  
-	for n = 1,64 do
-		salt = salt .. math.random(0,9)
+	for n = 1, 64 do
+		salt = salt .. string.char(math.random(33,126))
 	end
 	
 	return salt
