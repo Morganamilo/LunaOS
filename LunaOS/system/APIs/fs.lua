@@ -1,7 +1,7 @@
 local oldFs = fs
 local permData = {}
+
 local permPath = lunaOS.getProp("permPath")
-local dataPath = lunaOS.getProp("dataPath")
 
 local format = string.format
 local permDenied = errorUtils.strings.permDenied
@@ -74,7 +74,7 @@ function setPerm(path, perm)
 	errorUtils.expect(perm, "number", true, 2)
 	errorUtils.assert(kernel.isSU(), format(permDeniedFor, path), 2)
 	errorUtils.assert(oldFs.exists(path), format(errorUtils.strings.fileNoExist, path, 2))
-	errorUtils.assert(perm >= 0 and perm <= 3, format(invalidPerm, perm), 2)
+	errorUtils.assert(perm >= 0 and perm <= 4, format(invalidPerm, perm), 2)
 	
 	permData[combine(path):lower()] = perm
 	saveData()
@@ -85,7 +85,7 @@ function setPermTree(path, perm)
 	errorUtils.expect(perm, "number", true, 2)
 	errorUtils.assert(kernel.isSU(), format(permDeniedFor, path), 2)
 	errorUtils.assert(oldFs.isDir(path), format(notDir, path), 2)
-	errorUtils.assert(perm >= 0 and perm <= 3, format(invalidPerm, perm), 2)
+	errorUtils.assert(perm >= 0 and perm <= 4, format(invalidPerm, perm), 2)
 	
 	permData[combine(path):lower()] = perm
 	
@@ -142,47 +142,27 @@ end
 function hasReadPerm(path)
 	if kernel.isSU() then return true end
 	errorUtils.expect(path, "string", true, 2)
-	
-	local dataPath = kernel.getCurrentDataPath()
-	if dataPath and isSubdirOf(dataPath, path) then 
-		return true
-	end
 
-    local packagePath = kernel.getCurrentPackagePath()
-	if packagePath and isSubdirOf(packagePath, path) then
-		return true
-	end
-	
 	local perm = getEffectivePerm(path)
-	return perm == 1 or perm == 3
+	return perm == 1 or perm >= 3
 end
 
 function hasReadPermTree(path)
 	errorUtils.expect(path, "string", true, 2)
 	if kernel.isSU() then return true end
-	
-	local dataPath = kernel.getCurrentDataPath()
-	if dataPath and isSubdirOf(dataPath, path) then 
-		return true
-	end
-	
+
 	if not hasReadPerm(path) then return false end
 	local permTree = getPermTree(path)
-	return (permTree == 1 or permTree == 3)
+	return (permTree == 1 or permTree >= 3)
 
 end
 
 function hasWritePerm(path)
 	errorUtils.expect(path, "string", true, 2)
 	if kernel.isSU() and not oldFs.isReadOnly(path) then return true end
-	
-	local dataPath = kernel.getCurrentDataPath()
-	if dataPath and isSubdirOf(dataPath, path) then 
-		return true
-	end
-	
+
 	local perm = getEffectivePerm(path)
-	return perm >= 2 and not oldFs.isReadOnly(path)
+	return perm == 2 or perm == 3 and not oldFs.isReadOnly(path)
 end
 
 function hasWritePermTree(path)
@@ -191,7 +171,7 @@ function hasWritePermTree(path)
 	
 	if not hasWritePerm(path) then return false end
 	local permTree = getPermTree(path)
-	return (permTree >= 2)
+	return (permTree == 2 or perm == 3)
 end
 
 function isReadOnly(path)
