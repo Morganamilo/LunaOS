@@ -165,7 +165,7 @@ function lowestIndex(tbl)
 	
 	local lowest
 	
-	for k in ipairs(tbl) do
+	for k in pairs(tbl) do
 		if not lowest or k < lowest then
 			lowest = k
 		end
