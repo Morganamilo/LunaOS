@@ -19,12 +19,12 @@ function multishell.setFocus(PID)
 	end
 end
 
-function multishell.setTitle(PID)
-
+function multishell.setTitle(PID, title)
+	kernel.setTitle(PID, title)
 end
 
 function multishell.getTitle(PID)
-	return kernel.getProcess(PID).title
+	return kernel.getProcess(PID).name
 end
 
 function multishell.getFocus()
