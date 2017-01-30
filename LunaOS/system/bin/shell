@@ -16,6 +16,10 @@ local running = true
 local multishell = multishell
 local parentShell = shell
 
+if multishell then
+    multishell.setTitle( multishell.getCurrent(), "shell" )
+end
+
 local dir = (parentShell and parentShell.dir()) or ""
 local path = (parentShell and parentShell.path()) .. ":/LunaOS/system/bin"
 local aliases = (parentShell and parentShell.aliases()) or {}
@@ -77,6 +81,29 @@ function shell.setPromptBackgrounsColour(colour)
     promptBackgroundColour = colour
 end
 shell.setPromptBackgrounsColor = shell.setPromptBackgrounsColour
+
+local function run(command, ...)
+	programStack[#programStack + 1] = command
+	
+	if multishell then
+		multishell.setTitle( multishell.getCurrent(), fs.getName( command ) )
+	end
+                
+	local result = os.run(env, command, ...)
+	
+	programStack[#programStack] = nil
+	
+	if multishell then
+		if #programStack > 0 then
+			multishell.setTitle( multishell.getCurrent(), fs.getName( programStack[#programStack] ) )
+    	else
+    		multishell.setTitle( multishell.getCurrent(), "shell" )
+    	end
+	end
+	
+	return result
+end
+	
 
 local function tokenise(str)
     local words = {}
@@ -234,7 +261,7 @@ local function pipe(command, ...)
     local win = term.current()
     
     term.redirect(pipeWindow.window) -- a=tokenTokeniser(tokenise("this is a test; another t"))
-    local result = os.run(env, command, ...)
+    local result = run(command, ...)
     term.redirect(win)
     
     return pipeWindow.getText(), result
@@ -280,7 +307,7 @@ local function runCommand(command, out)
 
                 return result
             else
-                return os.run(env, path, unpack(command, 2))
+				local result = run(path, unpack(command, 2))
             end
         else
             printError(command[1] .. ": Command not found")
@@ -735,7 +762,7 @@ if multishell then
 end
 
 local function fullRead()
-    term.setBackgroundColour(backgroundColour)
+    term.setBackgroundColour(promptBackgroundColour)
     term.setTextColour(promtColour)
     
 	local d = shell.dir()
@@ -753,7 +780,7 @@ local function fullRead()
     end
 
     term.setTextColour(textColour)
-    term.setBackgroundColour(promptBackgroundColour)
+    term.setBackgroundColour(backgroundColour)
 
     local line = textUtils.newRead(nil, history, shell.complete)
     local done = isEndOfCommand(line)
