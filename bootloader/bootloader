@@ -10,30 +10,166 @@
 ---The timer the user has to enter recovery.
 local time = .3
 
+local errors = {}
+local shutdown = os.shutdown
+local current = term.current()
+local fs = fs
+local shutdown = os.shutdown
+
+term.setBackgroundColour(colours.grey)
+term.clear()
+
+---Handles an error when called from xpcall.
+--Builds a stacktrace of every function in the stack uptop the point where an error occured.
+--does not return a table build edits errors globaly.
+--@param errorText The text of the initial error.
+--@usage xpcall(func, handler)
+local function handler(errorText)
+    local _, err
+    local level = 4
+    
+    errors[1] = errorText
+    while true do
+        _, err = pcall(error, "", level)
+        
+        if err == "" then
+           break
+        end
+        
+        errors[#errors + 1] = err
+        level = level + 1
+    end
+end
+
+---Is called after the kernel stops running.
+--If an error occured output the stack trace to the user
+--and allow them to read it.
+--Also save the trace to a file so that it can be read afterwards.
+--@usage postError()
+local function postError()
+    if not res then
+		local file = fs.open("/PANIC", "w")
+        
+        if file then 
+            file.write(table.concat(errors, "\n"))
+            file.close()
+        end
+		
+        term.redirect(current)
+        term.setBackgroundColour(colours.grey)
+        term.clear()
+        term.setCursorPos(1,1)
+        term.setTextColour(colours.cyan)
+        print("LunaOS has Crashed and can not recover\n")
+        term.setTextColour(colours.red)
+        sleep(.2)
+
+        for k,v in ipairs(errors) do
+            if k ~= 1 or k > 999 then
+                write(" @")
+            end
+
+            print(v)
+            
+            local xCursor, yCursor = term.getCursorPos()
+            local xSize, ySize = term.getSize()
+            
+            if yCursor >= ySize then
+                coroutine.yield("key")
+            end
+            
+        end
+
+        term.setTextColour(colours.cyan)
+        print("Press any key to shutdown")
+        
+        sleep(.5)
+        coroutine.yield("key")
+    end
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ---Starts a timer, and waits for an Event.
---if the event is the timer then it boots LunaOS normaly.
---if the event is the key shift then reovery is booted.
+--if the event is the timer then tells the system to boot LunaOS normaly.
+--if the event is the key shift then it tells the system to boot reovery isstead
 --otherise it loops and waits for the next event
---@usage main()
-function main()
+--@return "recovery" if the timmer was interupted, "boot" otherwise
+--@usage local bootOption = getBootOpion()
+function getBootOpion()
 	local timer = os.startTimer(time)
 	
 	while true do
 		--wait for an event
 		local event, key = coroutine.yield()
-
 		--if shift was hit in time go to recovery
 		if event == 'key' and key == 42 then
 			os.cancelTimer(timer)
-			dofile("bootloader/recovery")
-			break
+			return "recovery"
 		elseif event == 'timer' and key == timer then
 			--otherwise boot the normal boot file
-			dofile("LunaOS/system/boot/boot.lua")
-			break
+			return "boot"
 		end
 	end
 end
 
-main()
 
+
+local bootOption = getBootOpion()
+
+if bootOption == "recovery" then
+	dofile("/bootloader/recovery")
+else
+	---Fix dofile for version 1.79 and above.
+	--@function dofile
+	--@param path The path to the file that is to be run.
+	--@return The return value of the file ran.
+	--@usage dofile("/rom/programs/shell")
+	--@raise Error returned by loadstirng - if loadstring did not succeed.
+	function _G.dofile(path)
+		local func, e = loadfile(path)
+
+		if func then
+			setfenv(func, _ENV )
+			return func()
+		else
+			--loadfile failed so raise an error.
+			error(e, 2)
+		end
+	end
+	
+	--start the bootloader
+	local res, err = xpcall(function() dofile("/LunaOS/system/boot/boot.lua") end, handler)
+
+	--best be safe
+	pcall(postError)
+	shutdown()
+end
+
+	
