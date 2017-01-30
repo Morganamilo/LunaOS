@@ -19,10 +19,6 @@ local native = term.native()
 --The list is sorted by age in ascending order.
 local windowOrder = {}
 
----The current window each process is redirected to.
---When we switch to a process we redirect back to the winow the process was using last.
-local currentWindow = {}
-
 ---The kernel API but with acess to its private table.
 local kernel
 
@@ -87,14 +83,6 @@ function setPrivate(p)
 	local metaFunction =  function(t, k) if p[k] ~= nil then return p[k] else return _G.kernel[k] end end
 	
 	kernel = setmetatable({}, {__index = metaFunction})
-end
-
----Set the current window of a process.
---@param PID The PID of the process.
---@param window The current window the process is using.
---@usage windowHandler.setCurrentWindow(3, window)
-function setCurrentWindow(PID, window)
-	currentWindow[PID] = term.current()
 end
 
 ---Gets the banner label at a given point and return the PID
@@ -227,9 +215,14 @@ function setHidden(state)
 	updateBanner()
 end
 
+function getHidden()
+	return hidden
+end
+
 function init()
 	--banner.setVisible(true)
-	--workingArea.setVisible(true)
+	workingArea.setVisible(true)
+	--term.current().redraw()
 	--updateBanner()
 	--setHidden(true)
 end
@@ -250,7 +243,6 @@ function newWindow(PID)
 	
 	updateBanner()
 	windowOrder[#windowOrder + 1] = PID
-	currentWindow[PID] = win
 	
 	return win
 end
@@ -275,7 +267,7 @@ end
 --@param PID The pid of the process to redirect to.
 --@usage windowHandler.redirect(3)
 function redirect(PID)
-	term.redirect(currentWindow[PID])
+	term.redirect(kernel._processes[PID].window)
 end
 
 ---Handles a mouse event when clicked on the banner
@@ -460,7 +452,6 @@ end
 function handleDeath(PID)
 	tableUtils.removeValue(windowOrder, PID)
 	updateBanner()
-	currentWindow[PID] = nil
 end
 
 --Handles when a process ends naturaly with no errors.
