@@ -222,7 +222,7 @@ end
 function init()
 	--banner.setVisible(true)
 	workingArea.setVisible(true)
-	--term.current().redraw()
+	term.current().redraw()
 	--updateBanner()
 	--setHidden(true)
 end
