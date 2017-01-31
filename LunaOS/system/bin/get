@@ -1,7 +1,13 @@
 local args = {...}
 
-if #args ~= 1 then
-  error("Usage: get <varible name>", 0)
+if #args <= 0 then
+	error("Usage: get <varible name>", 0)
 end
 
-print(_ENV[args[1]])
+local table = _G
+
+for k, v in ipairs(args) do
+	table = table[v]
+end
+
+print(table)

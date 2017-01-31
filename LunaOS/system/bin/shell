@@ -7,7 +7,6 @@
 -- ) closes $( and ^(
 -- ; end of command
 -- & end of command
--- # comment
 
 local args = {...} 
 
@@ -83,7 +82,7 @@ end
 shell.setPromptBackgrounsColor = shell.setPromptBackgrounsColour
 
 local function run(command, ...)
-	programStack[#programStack + 1] = command
+	programStack[#programStack + 1] = command:match("^[^%.]+") or ""
 	
 	if multishell then
 		multishell.setTitle( multishell.getCurrent(), fs.getName( command ) )

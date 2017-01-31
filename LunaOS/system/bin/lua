@@ -68,18 +68,17 @@ if #tArgs > 0 then
 end
 
 if term.isColour() then
-	term.setTextColour( colours.yellow )
+	term.setTextColour( colours.cyan )
 end
-print( "Interactive Lua prompt." )
-print( "Call exit() to exit." )
+print( _VERSION )
 term.setTextColour( colours.white )
 
 while bRunning do
-	--if term.isColour() then
-	--	term.setTextColour( colours.yellow )
-	--end
+	if term.isColour() then
+		term.setTextColour( colours.cyan )
+	end
 	write( "lua> " )
-	--term.setTextColour( colours.white )
+	term.setTextColour( colours.white )
 
 	local s = textUtils.newRead( nil, tCommandHistory, function( sLine )
 		if (not settings and textutils.complete) or (settings and settings.get( "lua.autocomplete" )) then

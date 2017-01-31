@@ -1,0 +1,102 @@
+local args = {...}
+
+local sortBy = "PID"
+local searchBy = "PID"
+local searchFor
+local detailed = false
+
+local procs = kernel.getProcesses()
+local filteredProcs = {}	
+
+
+do
+	local n = 1
+	
+	while n <= #args do
+		local ag = args[n]
+		
+		if ag == "-d" then
+			detailed = true
+		elseif ag == "-s" then
+			n = n + 1
+			searchBy = args[n]
+		elseif ag == "-o" then
+			n = n + 1
+			sortBy = args[n]
+		else
+			searchFor = ag
+		end
+		
+		n = n + 1
+	end
+end
+
+if searchFor == "-1" then
+	searchFor = tostring(kernel.getRunning())
+end
+
+if searchFor then
+	for k, v in pairs(procs) do
+		if tostring(v[searchBy]) == searchFor then
+			filteredProcs[#filteredProcs + 1] = v
+		end
+	end
+else
+	filteredProcs = procs
+end
+
+local function comparator(a, b)
+	return a[sortBy] < b[sortBy]
+end
+
+table.sort(filteredProcs, comparator)
+
+local function writeLine(part1, part2)
+	term.setTextColour(colours.cyan)
+	write(part1)
+	
+	term.setTextColour(colours.white)
+	print(part2)
+end
+
+local function printAll()
+	local header = {"PID", "Name", "SU", "Parent"}
+	local procList = {}
+
+	for k, v in pairs(filteredProcs) do
+		local details = {}
+		details[#details + 1] = v.PID
+		details[#details + 1] = v.name
+		details[#details + 1] = tostring(v.SU)
+		details[#details + 1] = v.parent or "None"
+
+		procList[#procList + 1] = details
+	end
+
+	textutils.tabulate(colours.cyan, header, colours.white, unpack(procList))
+end
+
+local function printDetailed()	
+	for k, proc in pairs(filteredProcs) do
+		term.setTextColour(colours.cyan)
+		print(string.rep("-", term.getSize()))
+		
+		writeLine("PID: ", proc.PID)
+		writeLine("Name: ", proc.name)
+		writeLine("Description: ", proc.desc)
+		writeLine("SU: ", proc.SU)
+		writeLine("Parent: ", proc.parent or "None")
+		writeLine("Program Stack: ", "\n  " .. table.concat(proc.programStack, "\n" .. string.rep(" ", 2)))
+		writeLine("Children: ", table.concat(proc.children, " "))
+	end
+
+end
+	
+
+
+
+if detailed then
+	printDetailed()
+else
+	printAll()
+end

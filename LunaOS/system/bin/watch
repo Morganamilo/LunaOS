@@ -1,0 +1,32 @@
+local args = {...}
+
+if #args <= 0 then
+	printError("Usage: watch <command> <args...>")
+	return
+end
+
+local t = 2
+local x, y = term.getSize()
+local banner = window.create(term.current(), 1, 1, x, y, true)
+local main = window.create(banner, 1, 2, x, y-1, true)
+
+while true do
+	banner.setCursorPos(1,1)
+	banner.setTextColour(colours.yellow)
+	
+	local text = "Watching every " .. t .. "s: " .. args[1]
+	local currentTime = time.timef("%X")
+	
+	text = text .. string.rep(" ", math.max(0, x - #text - #currentTime)) .. currentTime
+	
+	write(text)
+	
+	main.clear()
+	main.setCursorPos(1,1)
+	
+	term.redirect(main)
+	shell.run(...)
+	main.setVisible(true)
+	main.setVisible(false)
+	sleep(t)
+end

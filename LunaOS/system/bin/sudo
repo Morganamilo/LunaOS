@@ -1,0 +1,32 @@
+local args = {...}
+
+if #args <= 0 then
+	printError("Usage: sudo <command> <args...>")
+	error()
+end
+
+local path = kernel.getRunningProgram()
+
+if fs.getPerm(path) ~= 4 then
+	error("SuperUser bit needts to be set to use sudo", 0)
+end
+
+local success = kernel.setSU(true)
+
+if not success then
+	error("Could not set SuperUser", 0)
+end
+
+if not password.isPassword("") then
+	print("Enter current password: ")
+	local pass = textUtils.newRead("*")
+	
+	if not password.isPassword(pass) then
+		kernel.setSU(false)
+		error("Incorrect password", 0)
+	end
+end
+
+shell.run(args[1], unpack(args, 2))
+
+kernel.setSU(false)
