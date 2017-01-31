@@ -18,7 +18,7 @@ if not success then
 end
 
 if not password.isPassword("") then
-	print("Enter current password: ")
+	write("Enter current password: ")
 	local pass = textUtils.newRead("*")
 	
 	if not password.isPassword(pass) then
