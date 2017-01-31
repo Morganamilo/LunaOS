@@ -465,7 +465,7 @@ function copy(scr, dest)
 	--errorUtils.assert(hasReadPermTree(scr), format(permDeniedFor, scr), 2)
 	--errorUtils.assert(hasWritePermTree(dest), format(permDeniedFor, dest), 2)
 
-	if not (hasWritePerm(scr) and hasWritePerm(dest)) then
+	if not (hasReadPerm(scr) and hasWritePerm(dest)) then
 		return
 	end
 
