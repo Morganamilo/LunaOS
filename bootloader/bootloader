@@ -153,10 +153,9 @@ else
 	--@usage dofile("/rom/programs/shell")
 	--@raise Error returned by loadstirng - if loadstring did not succeed.
 	function _G.dofile(path)
-		local func, e = loadfile(path)
+		local func, e = loadfile(path, _ENV)
 
 		if func then
-			setfenv(func, _ENV )
 			return func()
 		else
 			--loadfile failed so raise an error.
