@@ -4,4 +4,4 @@ if #args ~= 2 then
   error("Usage: set <varible name> <value>", 0)
 end
 
-_ENV[args[1]] = args[2]
+_G[args[1]] = args[2]
