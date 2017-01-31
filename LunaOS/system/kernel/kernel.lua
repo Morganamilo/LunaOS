@@ -74,13 +74,51 @@ _private._runningHistory = {}
 _private._waitingFor = {}
 
 ---Path to program data
-_private.programDataPath = lunaOS.getProp("dataPath")
+_private.dataPath = lunaOS.getProp("dataPath")
 
----Path to programs
-_private.programPath = lunaOS.getProp("programPath")
+---Path to packages
+_private.packagePath = lunaOS.getProp("packagePath")
 
 --pass private values to the windowHandler
 windowHandler.setPrivate(_private)
+
+local oldLoadfile = _G.loadfile
+function _G.loadfile(path, env)
+
+	local func, err = oldLoadfile(path, env)
+
+	if not func then
+		return nil, err
+	end
+
+	if _running then
+		local pStack = _private._processes[_private._runningPID].programStack
+
+		return function(...)
+			pStack[#pStack + 1] = fs.combine(path, "")
+			local success, err = pcall(func, ...)
+			pStack[#pStack] = nill
+
+			if not success then
+				error(err, 0)
+			end
+		end
+	end
+
+	return func
+end
+
+--Replaces the deafult term.native function with one that is aware of the current
+--process and pretends that the processes window is the native one.
+--@return The window of the currently running process. If there is no running process return the true native window.
+--@usage locale window = term.native()
+function term.native()
+	if not _private._focus then
+		return oldNative()
+	end
+
+	return _private._processes[_private._runningPID].window
+end
 
 ---Overide the default loadString function so that it uses the old fileSystem.
 --This allows the kernel to load any files whether ot not the user currently has
@@ -89,16 +127,41 @@ windowHandler.setPrivate(_private)
 --@return Function generated from the file.
 --@error "File not found"
 --@usage local function, err = loadfile("/rom/programs/shell")
-local loadfile = function(path)
+loadfile = function(path, env)
     local file = fs.open( path, "r" )
-    
+
 	if file then
-        local func, err = loadstring( file.readAll(), fs.getName( path ) )
+        local func, err = load( file.readAll(), fs.getName( path ) , "t", env)
         file.close()
         return func, err
     end
 	
     return nil, format(fileNoExist, path)
+end
+
+function os.run( _tEnv, _sPath, ... )
+    local tArgs = { ... }
+    local tEnv = _tEnv
+
+	setmetatable( tEnv, { __index = _private._processes[_private._runningPID].env._G } )
+
+    local fnFile, err = _G.loadfile( _sPath, tEnv )
+    if fnFile then
+        local ok, err = pcall( function()
+            fnFile( table.unpack( tArgs ) )
+        end )
+        if not ok then
+            if err and err ~= "" then
+                printError( err )
+            end
+            return false
+        end
+        return true
+    end
+    if err and err ~= "" then
+        printError( err )
+    end
+    return false
 end
 
 ---Displays a an error message then shuts down the computer.
@@ -127,24 +190,12 @@ end
 function _private.getEnv()
 	local env = tableUtils.deepCopy(_ENV)
 	
-	env._G = env
-	env._ENV = env
+	env.a = 34
+	env._G.a = 23
+	--env._G = env
+	--env._ENV = env
 	
 	return env
-end
-
-function _private.sandbox(func)
-	local env = _private.getEnv()
-	local isLoading = {}
-	local toInit = {}
-	
-	setfenv(func, env)
-	
-	--local osOverride = loadfile("/LunaOS/system/APIs/os.lua")
-	--setfenv(osOverride, env)
-	--osOverride()
-	
-	--env.os.loadAPIDir("LunaOS/data/APIs")
 end
 
 ---Creates a new process that can be run by the kernel.
@@ -171,17 +222,18 @@ end
 --@raise bad argument error - if an argument is mismatched or missing. invalid PID error - if parent does not exits.
 --@usage _private.newProcessInternal(func, nil, "a process", "this process is amazing", true, nil)
 --@local
-function _private.newProcessInternal(func, parent, name, desc, SU, package)
+function _private.newProcessInternal(path, parent, name, desc, SU, ...)
 	--check some arguments are the correct types
-	errorUtils.expect(func, 'function', true, 3)
+	errorUtils.expect(path, 'string', true, 3)
 	errorUtils.expect(parent, 'number', false, 3)
 	errorUtils.expect(name, 'string', false, 3)
 	errorUtils.expect(desc, 'string', false, 3)
 	
 	---@warning Using the same function for multiple processes breaks sandboxing because they share local varibles.
 	local PID = tableUtils.getEmptyIndex(_private._processes)
+	local env = _private.getEnv()
 	
-	name = name or 'Unnamed'
+	name = name or fs.getName(path):match("^[^%.]+") or ""
 	desc = desc or ''
 	
 	if parent then
@@ -191,6 +243,10 @@ function _private.newProcessInternal(func, parent, name, desc, SU, package)
 		_private._processes[parent].children[tableUtils.getEmptyIndex(_private._processes[parent].children)] = PID
 	end
 	
+	local func = function()
+		_G.loadfile(path, env)(unpack(arg))
+	end
+
 	--function that goes on to create the thread
 	--pcall th function for saftey and let windowHandler
 	--take control of the thread if the function ends
@@ -210,7 +266,7 @@ function _private.newProcessInternal(func, parent, name, desc, SU, package)
 	local window = windowHandler.newWindow(PID)
 	
 	--the actual process
-	_private._processes[PID] = {co = co, parent = parent, children = {}, name = name, desc = desc, PID = PID, SU = SU, package = package, window = window}
+	_private._processes[PID] = {co = co, parent = parent, children = {}, name = name, desc = desc, PID = PID, SU = SU, window = window, programStack = {}, env = env}
 	
 	--log the great birth of process mc process face
 	log.i("Created new " .. (SU and "Root" or "User") .. " process with PID " .. PID)
@@ -220,79 +276,107 @@ function _private.newProcessInternal(func, parent, name, desc, SU, package)
 	return PID
 end
 
----Similar to @{_private.newProcessInternal} except runs
---a program instead of a function.
---Processes created with this function are given a package field.
---This allows the process to access protected files that belong to its Package.
---@param program The program to be ran.
---@param parent The processes parent, can be nil.
---@param su Whether or not the process has superuser rights.
---@param args The arguments passed to the program.
---@return The PID of the newley created process.
---@raise bad argument error - if an argument is mismatched or missing. program does not exit error - if the program does not exist.
---@usage _private.newProgramInternal("Explorer", nil, true, "/rom")
---@local
-function _private.runProgramInternal(program, parent, su, args)
-	errorUtils.expect(program, 'string', true, 3)
-	
-	--the package path
-	local root = packageHandler.getPackagePath(program)
-	local name
-	
-
-    if not root then
-        return nil, "Program does not exist"
-    end
-
-	
-	local isFile = _G.fs.isFile
-	
-	--first try to open programName.lua
-	if isFile(fs.combine(root, program .. '.lua')) then
-		name = program .. '.lua'
-	--second try programName
-	elseif isFile(fs.combine(root, program)) then
-		name = program
-	--third try main.lua
-	elseif isFile(fs.combine(root, 'main.lua')) then
-		name = 'main.lua'
-	--fourth try main
-	elseif isFile(fs.combine(root, 'main')) then
-		name = 'main'
-	--fith try startup.lua
-	elseif isFile(fs.combine(root, 'startup.lua')) then
-		name = 'startup.lua'
-	--sixth try startup
-	elseif isFile(fs.combine(root, 'startup')) then
-		name = 'startup'
-	else
-		--theres not startup file we can run so error
-
-        return nil, "Missing startup file"
-	end
-	
-	--we got a file so lets try load it
-	local file, err = loadfile(fs.combine(root, name))
-	
-	--if we didnt get a file so error
-	if not file then
-        return nil, err
-    end
-
-	_private.sandbox(file)
-	
-	--make the process
-	local PID = _private.newProcessInternal(
-		function() file(unpack(args)) end,
-		parent,
-		program,
-		desc,
-		su,
-		program
-	)
-	
-	return PID
+---Creates a new process with a given function, parent, name and description.
+--@see _private.newProcessInternal
+--@param func The function that the process runs.
+--@param parent The parent PID of the new process.
+--@param name The name of the new process.
+--@param desc The description of the new process.
+--@return The PID of the new process.
+--@usage kernel.newProcess(func, 1, "new process", "this is a new process")
+function newProcess(path, parent, name, desc, ...)
+	return _private.newProcessInternal(path, parent, name, desc, false, ...)
 end
+
+---Creates a new process as root with a given function, parent, name and description.
+--Must have root to call this funtion
+--@see _private.newProcessInternal
+--@see newProcess
+--@param func The function that the process runs.
+--@param parent The parent PID of the new process.
+--@param name The name of the new process.
+--@param desc The description of the new process.
+--@return The PID of the new process.
+--@raise permission error - if current process is not root.
+--@usage kernel.newRootProcess(func, 1, "new process", "this is a new process")
+function newRootProcess(path, parent, name, desc, ...)
+	errorUtils.assertLog(isSU(), "Process with PID " .. (_private._runningPID or "") .. " tried to start a new process as root: Access denied", 2, nil, "Warning")
+	return _private.newProcessInternal(path, parent, name, desc, true, ...)
+end
+
+-----Similar to @{_private.newProcessInternal} except runs
+----a program instead of a function.
+----Processes created with this function are given a package field.
+----This allows the process to access protected files that belong to its Package.
+----@param program The program to be ran.
+----@param parent The processes parent, can be nil.
+----@param su Whether or not the process has superuser rights.
+----@param args The arguments passed to the program.
+----@return The PID of the newley created process.
+----@raise bad argument error - if an argument is mismatched or missing. program does not exit error - if the program does not exist.
+----@usage _private.newProgramInternal("Explorer", nil, true, "/rom")
+----@local
+--function _private.runProgramInternal(program, parent, su, args)
+--	errorUtils.expect(program, 'string', true, 3)
+--
+--	--the package path
+--	local root = packageHandler.getPackagePath(program)
+--	local name
+--
+--
+--    if not root then
+--        return nil, "Program does not exist"
+--    end
+--
+--
+--	local isFile = _G.fs.isFile
+--
+--	--first try to open programName.lua
+--	if isFile(fs.combine(root, program .. '.lua')) then
+--		name = program .. '.lua'
+--	--second try programName
+--	elseif isFile(fs.combine(root, program)) then
+--		name = program
+--	--third try main.lua
+--	elseif isFile(fs.combine(root, 'main.lua')) then
+--		name = 'main.lua'
+--	--fourth try main
+--	elseif isFile(fs.combine(root, 'main')) then
+--		name = 'main'
+--	--fith try startup.lua
+--	elseif isFile(fs.combine(root, 'startup.lua')) then
+--		name = 'startup.lua'
+--	--sixth try startup
+--	elseif isFile(fs.combine(root, 'startup')) then
+--		name = 'startup'
+--	else
+--		--theres not startup file we can run so error
+--
+--        return nil, "Missing startup file"
+--	end
+--
+--	--we got a file so lets try load it
+--	local file, err = loadfile(fs.combine(root, name))
+--
+--	--if we didnt get a file so error
+--	if not file then
+--        return nil, err
+--    end
+--
+--	_private.sandbox(file)
+--
+--	--make the process
+--	local PID = _private.newProcessInternal(
+--		function() file(unpack(args)) end,
+--		parent,
+--		program,
+--		desc,
+--		su,
+--		program
+--	)
+--
+--	return PID
+--end
 
 ---Kills the given process and all its children recursivley.
 --Also removes the given process from the parents children.
@@ -389,7 +473,7 @@ function _private.pushEvent(PID, event)
 		--resume the thread and get its yeild
 		local data = _private.resume(currentProc.co, event)
 
-		windowHandler.setCurrentWindow(PID)
+		--windowHandler.setCurrentWindow(PID)
 		
 		if  _private._processes[PID] then
 			_private._waitingFor[PID] = data 
@@ -460,50 +544,6 @@ function _private.resume(co, data)
 	return data
 end
 
---function _private.next(data)
---	if  _private._waitingFor[_private._focus] then return _private._waitingFor[_private._focus]  end
---	
---	local currentProc = _private._processes[_private._focus]
---	local event
---	
---	data = _private.resume(currentProc.co, data)
---	
---	if coroutine.status(currentProc.co) == 'dead' then --handle death
---		_private.killProcessInternal(currentProc.PID)
---		data = {}
---	end
---	
---	return data
---end
---
---function _private.getYield(data)
---	local proc = _private._focus
---	local event
---	
---	repeat
---		local success
---		
---		if proc ~= _private._focus then --if the process has changed since we starded the loop
---			if _private._processes[proc] then _private._waitingFor[proc] = data end
---			return data
---		elseif _private._focus then
---			_private._waitingFor[proc] = nil
---		end
---		
---		event = {coroutine.yield()} --the event we get + extra data
---		
---		keyHandler.handleKeyEvent(event)
---		event = windowHandler.handleEvent(event)
---		
---	until tableUtils.indexOf(data, event[1]) or #data == 0 and #event ~= 0 or event[1] == 'terminate'
---	
---	return event
---end
-
---_-------------------------------------------------------------------------------------------------------------
---Public
-----------------------------------------------------------------------------------------------------------------
-
 ---Sets the visability of the top bar.
 --@param visable The visablility of the top bar.
 --@usage kernel.setBarVisable(true)
@@ -511,121 +551,26 @@ function setBarVisable(visable)
 	windowHandler.setHidden(not visable)
 end
 
+function getBarVisable()
+	return not windowHandler.getHidden()
+end
 ---Kill the currently running process.
 --@usage kernel.die()
 function die()
 	_private.killProcessInternal(_private._runningPID)
 end
 
----Gets the program data path.
---@return The program data path.
---@usage local dataPath = kernel.getProgramDataPath()
-function getProgramDataPath()
-	return _private.programDataPath
-end
-
----Creates a new process with a given function, parent, name and description.
---@see _private.newProcessInternal
---@param func The function that the process runs.
---@param parent The parent PID of the new process.
---@param name The name of the new process.
---@param desc The description of the new process.
---@return The PID of the new process.
---@usage kernel.newProcess(func, 1, "new process", "this is a new process")
-function newProcess(func, parent, name, desc)
-	return _private.newProcessInternal(func, parent, name, desc, false)
-end
-
----Creates a new process as root with a given function, parent, name and description.
---Must have root to call this funtion
---@see _private.newProcessInternal
---@see newProcess
---@param func The function that the process runs.
---@param parent The parent PID of the new process.
---@param name The name of the new process.
---@param desc The description of the new process.
---@return The PID of the new process.
---@raise permission error - if current process is not root.
---@usage kernel.newRootProcess(func, 1, "new process", "this is a new process")
-function newRootProcess(func, parent, name, desc)
-	errorUtils.assertLog(isSU(), "Process with PID " .. (_private._focus or "") .. " tried to start a new process as root: Access denied", 2, nil, "Warning")
-	return _private.newProcessInternal(func, parent, name, desc, true)
-end
-
----Creates a new process from a file.
---@see _private.newProcessInternal
---@see newProcess
---@param path Path to the file.
---@param parent The parent PID of the new process.
---@param name The name of the new process, default is the file name.
---@param desc The description of the new process, default is '',
---@return The PID of the new process.
---@usage kernel.runFile("/rom/startup", 1, "new process", "this is a new process")
-function runFile(path, parent, name, desc, ...)
-	local file, err = loadfile(path)
-
-    if not file then
-        return nil, err
-    end
-
-	_private.sandbox(file)
-	
-	return _private.newProcessInternal(function() file(unpack(arg)) end, parent, name or fs.getName(path), desc, false)
-end
-
----Creates a new process from a file.
---Must have root to call this funtion.
---@raise permission error - if current process is not root.
---@see _private.newProcessInternal
---@see newProcess
---@see runFile
---@param path Path to the file.
---@param parent The parent PID of the new process.
---@param name The name of the new process, default is the file name.
---@param desc The description of the new process, default is '',
---@return The PID of the new process.
---@usage kernel.runFile("/rom/startup", 1, "new process", "this is a new process")
-function runRootFile(path, parent, name, desc, ...)
-	local file, err = loadfile(path)
-	if not file then return nil, err end
-	_private.sandbox(file)
-	
-	return _private.newProcessInternal(function() file(unpack(arg)) end, parent, name or fs.getName(path), desc, true)
-end
-
----Creates a new process from a program.
---@see _private.runProgramInternal
---@see newProcess
---@see runFile
---@param program the program to run.
---@param parent The parent PID of the new process.
---@param ... Argumrnts to be passed to the program.
---@return The PID of the new process.
---@usage kernel.runProgram("Explorer", nil, "/rom")
-function runProgram(program, parent, ...)
-	return _private.runProgramInternal(program, parent, false, arg)
-end
-
----Creates a new root process from a program.
---@raise permission error - if current process is not root.
---@see _private.runProgramInternal
---@see newProcess
---@see runFile
---@param program the program to run.
---@param parent The parent PID of the new process.
---@param ... Argumrnts to be passed to the program.
---@return The PID of the new process.
---@usage kernel.runRootProgram("Explorer", nil, "/rom")
-function runRootProgram(program, parent, ...)
-	errorUtils.assertLog(isSU(), "Process with PID " .. (_private._focus or "") .. " tried to start a new program as root: Access denied", 2, nil, "Warning")
-	return _private.runProgramInternal(program, parent, true, arg)
-end
-
 ---Gets the total amout of alive processes.
 --@return The total amout of alive processes.
 --@usage local count = kernel.getProcessCount()
 function getProcessCount()
-	return #_private._processes
+	local count
+
+	for _ in pairs(_private._processes) do
+		count = count + 1
+	end
+
+	return count
 end
 
 ---Gets a specified process.
@@ -655,7 +600,7 @@ function getProcess(PID)
 	stripedProc.name = proc.name
 	stripedProc.SU = proc.SU
 	stripedProc.desc = proc.desc
-	stripedProc.package = proc.package
+	stripedProc.programStack = prog.programStack
 	stripedProc.parent = proc.parent
 	stripedProc.children = tableUtils.deepCopy(proc.children)
 	
@@ -683,42 +628,28 @@ function getRunning()
 	return _private._runningPID
 end
 
----Gets the package of the currently running process.
---@return The package of the currently running procces. nil if the process does not have a package 
---@usage local package = kernel.getCurrentPackage()
-function getCurrentPackage()
-	if _private._runningPID then
-		return _private._processes[_private._runningPID].package
+function getRunningProgram()
+	local stack = _private._processes[_private._runningPID].programStack
+	return stack[#stack]
+end
+
+function getDataPath()
+	local path = getRunningProgram()
+
+	if fs.combine(fs.getDir(path), "") == fs.combine(_private.packagePath, "") then
+		return fs.combine(_private.dataPath, fs.getName(path))
 	end
 end
 
----Gets the package path of the currently running process.
---@return The package path of the currently running procces. nil if the process does not have a package 
---@usage local package = kernel.getCurrentPackagePath()
-function getCurrentPackagePath()
-	if _private._focus then
-		return packageHandler.getPackagePath(_private._processes[_private._runningPID].package)
-	end
-end
+---Change the superuser value for the running process
+--@return true if SU was edited
+--@usage kernel.setSU()
+function setSU(su)
+	local ps = _private._processes[_private._runningPID].programStack
+	local running = ps[#ps]
 
----Gets the package data path of the currently running process.
---@return The package data path of the currently running procces. nil if the process does not have a package 
---@usage local dataPath = kernel.getCurrentDataPath()
-function getCurrentDataPath()
-	if getCurrentPackage() then
-		return fs.combine(packageHandler.getDataPath(), getCurrentPackage())
-	end
-end
-
----Requets for the running process to gain superuser permissions.
---A process is only granted superuser permissions if it a package in the system package directory.
---@return true if superuser permissions were granted, false otherwise
---@usage kernel.requestSU()
-function requestSU()
-	if not kernel.getCurrentPackagePath() then return false end
-
-	if fs.getDir(kernel.getCurrentPackagePath()) == packageHandler.getSystemProgramPath() then
-		_private._processes[_private._runningPID].SU = true
+	if kernel.isSU() or _G.fs.getPerm(running) == 4 then
+		_private._processes[_private._runningPID].SU = (su and true or false)
 		return true
 	end
 	
@@ -741,10 +672,18 @@ end
 function gotoPID(PID)
 	errorUtils.expect(PID, 'number', true, 2)
 	errorUtils.assert(_private._processes[PID], format(PIDError, PID), 2)
-	log.i("Going to PID " .. PID)
+
+	if not _running then
+		return
+	end
 	
 	local old = _private._focus
 	
+	log.i("Going to PID " .. PID .. " from " .. tostring(old))
+
+	if PID == old then
+		return
+	end
 	--if the PID is already in the history remove it
 	local index = tableUtils.indexOf(_private._runningHistory, PID)
 	
@@ -803,6 +742,23 @@ function killProcess(PID)
 	_private.killProcessInternal(PID)
 end
 
+---Sets the name of a process.
+--If the process if not the one currently running and you are not super user
+--then the name will not change.
+--@param PID The PID of the process to change.
+--@param title What to change the name to.
+--@return true if the name eas changed, false otherwise.
+--@usage kernel.setTitle(1, "my program")
+function setTitle(PID, title)
+	if isSU() or PID == _private._runningPID then
+		_private._processes[PID].name = tostring(title)
+		windowHandler.updateBanner()
+		return true
+	end
+
+	return false
+end
+
 ---Starts the main process loop.
 --The initially focused process is given as an argument.
 --This function can only be called once to ensure a process
@@ -841,29 +797,27 @@ function startProcesses(PID)
 	os.shutdown()
 end
 
---Replaces the deafult term.native function with one that is aware of the current
---process and pretends that the processes window is the native one.
---@return The window of the currently running process. If there is no running process return the true native window.
---@usage locale window = term.native()
-function term.native()
-	if not _private._focus then
-		return oldNative()
+
+
+--setup debug function if debug mode is enabled.
+if lunaOS.isDebug() then
+	debug = {}
+
+	function debug.getPrivate()
+		return _private
 	end
 
-	return _private._processes[_private._runningPID].window
-end
-
---setup debuf function if debug mode is enabled.
-if lunaOS.isDebug() then
-	function real_G()
+	function debug.real_G()
 		return _G
 	end
 	
-	function real_ENV()
+	function debug.real_ENV()
 		return _ENV
 	end
 
-    function crash()
+    function debug.crash()
         _private = nil
     end
+
+	debug.explode = debug.crash
 end

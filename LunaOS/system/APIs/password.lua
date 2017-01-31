@@ -34,9 +34,7 @@ local function getPassword()
 	return data
 end
 
-function isPassword(password)
-	errorUtils.assert(kernel.isSU(), permissionDenied, 2)
-	
+local function isPasswordInternal(password)
 	if not (fs.exists(saltPath) and fs.exists(passwordPath)) then
 		setPassword("")
 	end
@@ -48,6 +46,14 @@ function isPassword(password)
 	return hash == hashedPassword
 end
 
+function hasPassword()
+	return not isPasswordInternal("")
+end
+
+function isPassword(password)
+	errorUtils.assert(kernel.isSU(), permissionDenied, 2)
+	return isPasswordInternal(password)
+end
 
 function setPassword(password)
 	errorUtils.assert(kernel.isSU(), permissionDenied, 2)

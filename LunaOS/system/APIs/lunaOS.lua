@@ -15,10 +15,10 @@ end
 
 function lock()
 	if locked then return end
-	if password.isPassword("") then return end
+	if not password.hasPassword() then return end
 	
 	kernel.setBarVisable(false)
-	local PID = kernel.runProgram("keygaurd")
+	local PID = kernel.newProcess("/LunaOS/system/packages/keygaurd.lua")
 	
 	locked = true
 	kernel.gotoPID(PID)

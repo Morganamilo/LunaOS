@@ -175,7 +175,7 @@ end
 --@usage windowHandler.setHidden(true)
 function setHidden(state)
 	--if its locked and we're trying to show the banner just return
-	if lunaOS.isLocked() and hidden then return end
+	if lunaOS.isLocked() or state == hidden then return end
 	
 	local newPos = 2
 	local newSize = ySize - 1
@@ -185,8 +185,10 @@ function setHidden(state)
 		newSize = ySize
 	end
 	
+	workingArea.setBackgroundColor(8)
+
 	--hide the working area while we do ajustments
-	workingArea.setVisible(false)
+	--workingArea.setVisible(false)
 	workingArea.reposition(1, newPos, xSize, newSize)
 	
 	--scroll the window if the cursor is already at the bottom of the terminal
@@ -207,6 +209,7 @@ function setHidden(state)
 	
 	--now that we've done the ajustments make it visable againg
 	workingArea.setVisible(true)
+	workingArea.redraw()
 	
 	--set the hidden varible
 	hidden = state
@@ -223,6 +226,7 @@ function init()
 	--banner.setVisible(true)
 	workingArea.setVisible(true)
 	term.current().redraw()
+	term.current().setVisible(false)
 	--updateBanner()
 	--setHidden(true)
 end
@@ -259,6 +263,8 @@ function gotoWindow(old, new)
 	end
 	
 	newWin.setVisible(true)
+	newWin.redraw()
+
 	updateBanner()
 end
 
