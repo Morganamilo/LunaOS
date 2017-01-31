@@ -1,6 +1,8 @@
-kernel.requestSU()
+if not kernel.setSU(true) then
+	error("Can not get Super User")
+end
 
-local dataPath = kernel.getCurrentDataPath()
+local dataPath = lunaOS.getProp("systemDataPath")
 local default = GUI.Theme()
 local frame = GUI.Frame(term.current())
 local passwordField = GUI.TextField()
@@ -13,7 +15,7 @@ local timeLabel = GUI.Label()
 
 local function tryPassword(self)
 	local correct = password.isPassword(passwordField.text)
-	
+
 	if correct then
 		lunaOS.unlock()
 		kernel.die()
@@ -71,7 +73,7 @@ function initComponents()
 	infoLabel.textColour = colourUtils.blits.grey
 	infoLabel:setAlignment("center", "top")
 
-	image:setImageFromFile(fs.combine(kernel.getCurrentPackagePath(), "logon.img"))
+	image:setImageFromFile(fs.combine(dataPath, "logon.img"))
 	image:setPos(1 + math.floor(frame.width/2 - image.width/2), 7)
 
 	passwordField:setSize(32)
@@ -90,7 +92,7 @@ function initComponents()
 	if time.isRealTime() then
 		frame:addComponent(timeLabel)
 	end
-	
+
 	passwordField:requestFocus()
 end
 

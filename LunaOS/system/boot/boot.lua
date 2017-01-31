@@ -100,6 +100,7 @@ local function loadAPIs()
 	newLoadAPI("/LunaOS/system/APIs/fs.lua")
 	os.initAPIs()
 
+	drawBar("Done", 1)
 
 	log.i("------- Finished loading APIs -------")
 end
@@ -167,21 +168,20 @@ drawImage()
 drawText()
 loadAPIs()
 
-local bin = lunaOS.getProp("binPath")
+dofile("/LunaOS/system/boot/shellInit.lua")
 
-shell.setPath('.' .. ":" .. bin .. shell.path():sub(2))
+--local pid = kernel.newProcess("/LunaOS/system/packages/LunaOS.lua")
+lunaOS.lock()
 
 
-
-local pid = kernel.runRootProgram("LunaOS")
-kernel.runRootFile("rom/programs/lua")
-kernel.runRootFile("rom/programs/lua")
-kernel.runRootFile("rom/programs/shell")
-kernel.runRootFile("x")
-kernel.runRootFile("/LunaOS/system/bin/shell")
-kernel.runProgram("GUITest", nil, false)
-kernel.runProgram("GUITest", nil, true)
-kernel.runProgram("Explorer")
+kernel.newRootProcess("/LunaOS/system/packages/LunaOS.lua")
+kernel.newRootProcess("/LunaOS/system/bin/lua")
+kernel.newRootProcess("/LunaOS/system/bin/lua")
+kernel.newProcess("rom/programs/shell")
+kernel.newProcess("/LunaOS/system/bin/shell")
+--kernel.runProgram("GUITest", nil, false)
+--kernel.runProgram("GUITest", nil, true)
+--kernel.runProgram("Explorer")
 
 t = function() print(mathUtils.time(function() f:draw(true) end, 60)) end
 os.pullEvent = oldPullEvent

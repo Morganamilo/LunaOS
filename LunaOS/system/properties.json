@@ -1,10 +1,14 @@
 {
- 	"programPath":"LunaOS/data/programs",
-	"dataPath":"LunaOS/data/data",
- 	"permPath":"LunaOS/data/system/perms.json",
- 	"systemProgramPath":"LunaOS/system/programs",
-    "binPath":"LunaOS/system/bin",
+	"programPath":"/LunaOS/system/programs",
+	"dataPath":"/LunaOS/data/data",
+	"systemDataPath":"/LunaOS/data/system",
+	"packagePath":"/LunaOS/data/packages",
+	"systemPackagePath":"/LunaOS/system/packages",
+ 	"permPath":"/LunaOS/data/system/perms.json",
+    "binPath":"/LunaOS/system/bin",
+    "userBinPath":"/LunaOS/home/bin",
     "home":"/LunaOS/home",
+
 	"serverURL":"http://LunaDB.ddns.net",
  	"version":"0.3",
 	"debug":true
