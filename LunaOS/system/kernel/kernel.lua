@@ -600,7 +600,7 @@ function getProcess(PID)
 	stripedProc.name = proc.name
 	stripedProc.SU = proc.SU
 	stripedProc.desc = proc.desc
-	stripedProc.programStack = prog.programStack
+	stripedProc.programStack = proc.programStack
 	stripedProc.parent = proc.parent
 	stripedProc.children = tableUtils.deepCopy(proc.children)
 	
