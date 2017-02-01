@@ -1,0 +1,11 @@
+local args = {...}
+
+if #args ~= 1 and #args ~= 2 then
+	printError("Usage: lzip <indir> [outfile]")
+	return
+end
+
+local from = args[1]
+local to = args[2] or args[1] .. ".lzip"
+
+lzip.zipToFile(from, to)
