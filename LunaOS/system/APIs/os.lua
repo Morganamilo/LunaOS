@@ -18,7 +18,7 @@ local function loadAPIInternal(path, locally, req)
 	isLoading[path] = true
 	log.i("Loading API " .. path)
 	
-	local env = setmetatable({}, {__index = ENV, metatable = "")
+	local env = setmetatable({}, {__index = ENV, metatable = ""})
 	
 	--compile error
 	local APIFunc, err = loadfile(path, env)
