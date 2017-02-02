@@ -1,6 +1,8 @@
 local isLoading = {}
-local toInit = {}
 local oldGetfenv = getfenv
+local loadfile = loadfile
+local G = _G
+local ENV = _ENV
 
 
 
@@ -16,13 +18,13 @@ local function loadAPIInternal(path, locally, req)
 	isLoading[path] = true
 	log.i("Loading API " .. path)
 	
-	local env = setmetatable({}, {__index = getfenv(), __metatable = ""})
+	local env = setmetatable({}, {__index = ENV, metatable = "")
 	
 	--compile error
-	local APIFunc, err = loadfile(path)
+	local APIFunc, err = loadfile(path, env)
 	
 	if APIFunc then
-		setfenv(APIFunc, env)
+		--setfenv(APIFunc, env)
 		
 		--runtime error
 		local status, err2 = pcall(APIFunc)
@@ -50,7 +52,6 @@ local function loadAPIInternal(path, locally, req)
 	end
 	
 	isLoading[path] = nil
-	if not locally then toInit[#toInit + 1] = name end
 	log.i("Succsess: loaded " .. path .. " as " .. name)
 	
 	return locally and APITable or true
@@ -114,13 +115,35 @@ function os.loadAPIDir(path)
 	end
 end
 
-function os.initAPIs()
-	for _,v in pairs(toInit) do
-		if _G[v].init then 
-			local succsess, res =	pcall(_G[v].init)
-			errorUtils.assert(succsess, res, 0)
-		end
-		
-		_G[v].init = nil
+function multishell.getCurrent()
+	return kernel.getRunning()
+end
+
+function multishell.getCount()
+	return kernel.getProcessCount()
+end
+
+function multishell.launch(env, path, ...)
+	return kernel.runFile(path, kernel.getRunning(), nil, nil, unpack(arg))
+end
+
+function multishell.setFocus(PID)
+	if kernel.getProcess(PID) then
+		kernel.gotoPID(PID)
+		return true
+	else
+		return false
 	end
+end
+
+function multishell.setTitle(PID, title)
+	kernel.setTitle(PID, title)
+end
+
+function multishell.getTitle(PID)
+	return kernel.getProcess(PID).name
+end
+
+function multishell.getFocus()
+	kernel.getRunning()
 end

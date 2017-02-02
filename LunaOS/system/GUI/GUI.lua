@@ -2,6 +2,8 @@ local objectPath = '/LunaOS/system/GUI/objects'
 local interfacePath = '/LunaOS/system/GUI/interfaces'
 local toLoad = {}
 
+_G.GUI={}
+
 local function loadObject(file, dir)
 	local parts = textUtils.split(file, ".")
 	local child, parent, extension
@@ -38,7 +40,5 @@ local function loadDir(dir)
 	until allLoaded
 end
 
-function init()
-	loadDir(interfacePath)
-	loadDir(objectPath)
-end
+loadDir(interfacePath)
+loadDir(objectPath)

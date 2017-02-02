@@ -189,12 +189,7 @@ end
 --@local
 function _private.getEnv()
 	local env = tableUtils.deepCopy(_ENV)
-	
-	env.a = 34
-	env._G.a = 23
-	--env._G = env
-	--env._ENV = env
-	
+
 	return env
 end
 

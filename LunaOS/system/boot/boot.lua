@@ -9,11 +9,11 @@ numToHex[0] = "0"
 numToHex[16] = "-"
 
 local xSize, ySize = term.getSize()
-local filesToLoad = 16
+local filesToLoad = 15
 local loaded = 0
 local imagePath = "LunaOS/system/boot/boot.img"
 local image
-local sleepTime = 0
+local sleepTime = .05
 local image
 
 local function drawBar(text, percent)
@@ -75,7 +75,7 @@ end
 local function loadAPIs()
 	newDofile("/LunaOS/system/APIs/override.lua")
 	newDofile("/LunaOS/system/APIs/log.lua")
-	newDofile("/LunaOS/system/APIs/multishell.lua")
+	--newDofile("/LunaOS/system/APIs/multishell.lua")
 	newDofile("/LunaOS/system/APIs/os.lua")
 	
 	newLoadAPI("/LunaOS/system/APIs/object.lua")
@@ -83,23 +83,20 @@ local function loadAPIs()
 
 	log.init()
 	log.init = nil
-	os.initAPIs()
 
 	log.i("------- Finished loading utils -------")
 
-	newLoadAPI("/LunaOS/system/GUI/GUI.lua")
-	os.initAPIs()
+	newDofile("/LunaOS/system/GUI/GUI.lua")
 
 	newLoadAPI("/LunaOS/system/APIs/lunaOS.lua")
-	newLoadAPI("/LunaOS/system/APIs/password.lua")
-	newLoadAPI("/LunaOS/system/APIs/packageHandler.lua")
 	newLoadAPI("/LunaOS/system/APIs/time.lua")
 	newLoadAPI("/LunaOS/system/APIs/sha256.lua")
 	newLoadAPI("/LunaOS/system/APIs/keyHandler.lua")
-	newLoadAPI("/LunaOS/system/kernel/kernel.lua")
 	newLoadAPI("/LunaOS/system/APIs/lzip.lua")
+	newLoadAPI("/LunaOS/system/APIs/password.lua")
+	newLoadAPI("/LunaOS/system/APIs/packageHandler.lua")
+	newLoadAPI("/LunaOS/system/kernel/kernel.lua")
 	newLoadAPI("/LunaOS/system/APIs/fs.lua")
-	os.initAPIs()
 
 	drawBar("Done", 1)
 
@@ -168,6 +165,10 @@ image = decodeFile(imagePath)
 drawImage()
 drawText()
 loadAPIs()
+
+local tmp = lunaOS.getProp("tmpPath")
+fs.delete(tmp)
+fs.makeDir(tmp)
 
 dofile("/LunaOS/system/boot/shellInit.lua")
 
