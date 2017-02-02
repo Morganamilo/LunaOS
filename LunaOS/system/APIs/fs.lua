@@ -199,6 +199,8 @@ function isSubdirOf(dir, subdir)
 end
 
 function combine(...)
+	errorUtils.expect(arg[1], "string", true, 2)
+
 	local combinedString = ''
 
 	for _, v in ipairs(arg) do
@@ -433,12 +435,11 @@ end
 
 function makeDir(path)
 	--errorUtils.assert(hasWritePerm(getDir(path)), format(permDeniedFor, path), 2)
-	oldFs.makeDir(path)
-	setPerm(path, getPerm(path))
-
 	if not hasWritePerm(path) then
 		return
 	end
+
+	oldFs.makeDir(path)
 end
 
 function move(scr, dest)
@@ -553,6 +554,7 @@ if not oldFs.exists("LunaOS/data/system/perms.json") then
 	setPermTree("/LunaOS/data", 1)
 	setPermTree("/LunaOS/data/data", 0)
 	setPermTree("/LunaOS/data/system", 0)
+	setPermTree("/LunaOS/data/tmp", 0)
 	setPermTree("/LunaOS/data/packages", 1)
 	setPermTree("/rom", 1)
 	setPermTree("/LunaOS/home", 3)
