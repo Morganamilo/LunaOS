@@ -8,13 +8,15 @@
 --Deletes all files in a given directory
 --@param path The path of the directory.
 --@usage deleteDir("/LunaOS/data/system")
-function deleteDir(path)
+local function deleteDir(path)
+	if not fs.exists(path) then
+		return
+	end
+	
 	for _, file in pairs(fs.list(path)) do
 		fs.delete(file)
 	end
 end
 
 --delete the data directories
-deleteDir("LunaOS/data/data")
-deleteDir("LunaOS/data/system")
-deleteDir("LunaOS/data/programs")
+deleteDir("LunaOS/data")
