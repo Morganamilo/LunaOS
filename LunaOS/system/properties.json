@@ -1,9 +1,10 @@
 {
-	"programPath":"/LunaOS/system/programs",
 	"dataPath":"/LunaOS/data/data",
 	"systemDataPath":"/LunaOS/data/system",
 	"packagePath":"/LunaOS/data/packages",
+	"systemPath":"LunaOS/system",
 	"systemPackagePath":"/LunaOS/system/packages",
+	"tmpPath":"/LunaOS/data/tmp",
  	"permPath":"/LunaOS/data/system/perms.json",
     "binPath":"/LunaOS/system/bin",
     "userBinPath":"/LunaOS/home/bin",
