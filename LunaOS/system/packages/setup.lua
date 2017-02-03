@@ -2,7 +2,7 @@ if not kernel.setSU(true) then
 	error("Can not get SuperUser")
 end
 
-kernel.setBarVisible(false)
+kernel.setFullscreen(true)
 
 local systemPath = lunaOS.getProp("systemPath")
 local systemDataPath = lunaOS.getProp("systemDataPath")
