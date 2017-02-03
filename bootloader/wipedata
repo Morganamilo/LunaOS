@@ -19,4 +19,4 @@ local function deleteDir(path)
 end
 
 --delete the data directories
-deleteDir("LunaOS/data")
+fs.delete("LunaOS/data")

@@ -170,9 +170,8 @@ local tmp = lunaOS.getProp("tmpPath")
 local home = lunaOS.getProp("home")
 local systemPath = lunaOS.getProp("systemPath")
 local systemDataPath = lunaOS.getProp("systemDataPath")
-fs.delete(tmp)
-fs.makeDir(tmp)
-
+local dataPath = lunaOS.getProp("dataPath")
+local packagePath = lunaOS.getProp("packagePath")
 
 dofile(fs.combine(systemPath, "boot/shellInit.lua"))
 shell.setDir(fs.combine(home))

@@ -547,6 +547,20 @@ end
 
 -------------------------------------------------------------------
 if not oldFs.exists("LunaOS/data/system/perms.json") then
+	local tmp = lunaOS.getProp("tmpPath")
+	local home = lunaOS.getProp("home")
+	local systemPath = lunaOS.getProp("systemPath")
+	local systemDataPath = lunaOS.getProp("systemDataPath")
+	local dataPath = lunaOS.getProp("dataPath")
+	local packagePath = lunaOS.getProp("packagePath")
+
+	fs.delete(tmp)
+	fs.makeDir(tmp)
+	fs.makeDir(systemDataPath)
+	fs.makeDir(dataPath)
+	fs.makeDir(packagePath)
+
+
 	setPermTree("/", 3)
 	setPermTree("/LunaOS/system", 1)
 	setPermTree("bootloader", 1)

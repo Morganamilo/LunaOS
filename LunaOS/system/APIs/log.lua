@@ -1,21 +1,26 @@
-local clearAtBoot
-local logPath
-local serverPath
-local useServer
-local enabled
-local serverIsReachable
 local fs = fs
+local serverIsReachable
+local configPath = "/LunaOS/data/system/config/log.cfg"
+
+local config = {
+	enabled = true,
+	logPath = "/LunaOS/data/system/LunaOS.log",
+	clearAtBoot = "true",
+	serverPath = "http://lunadb.ddns.net",
+	enabled = true,
+	useServer = false,
+}
 
 local function initFile()
-	local file = fs.open(logPath, "w")
+	local file = fs.open(config.logPath, "w")
 	file.write("--- LunaOS Log ---\n")
 	file.close()
 end
 
 local function writeToDB()
-	--if not useServer then return end
+	if not config.useServer then return end
 	local sql = "p=LunaOS&sql=INSERT%20INTO%20Logs%20(Time,Type,message)%20VALUES%20"
-	local file = fs.open(logPath,"r")
+	local file = fs.open(congig.logPath,"r")
 	if not file then return end
 	
 	file.readLine() -- skip the first line
@@ -41,17 +46,17 @@ end
 
 log = {
 	log = function(message, flag)
-		if not (enabled and logPath) then return end
+		if not config.enabled then return end
 		if type(message) ~= "string" then error("String expected got " .. type(message)) end
 		if type(flag) ~= "string" then error("String expected got " .. type(flag)) end
 		
 		flag = flag:gsub("%]","}"):gsub("%[","{")
 		
-		if not fs.exists(logPath) then
+		if not fs.exists(config.logPath) then
 			initFile()
 		end
 	
-		local file = fs.open(logPath, "a")
+		local file = fs.open(config.logPath, "a")
 		if file then
 			if time and time.isRealTime() then
 				file.write(time.timef("[%Y-%m-%d %H:%M:%S, ") .. flag .. "] ".. message .. "\n")
@@ -74,18 +79,16 @@ log = {
 setmetatable(log, {__call = function(t, message, flag) log.log(message, flag) end})
  
 function log.init()
-	local config = jsonUtils.decodeFile("LunaOS/data/system/log.json")
-	
-	clearAtBoot = errorUtils.assert(config.clearAtBoot ~= nil, "Missing config data: clearAtBoot")
-	logPath = errorUtils.assert(config.logPath, "Missing config data: logPath")
-	serverPath = errorUtils.assert(config.serverPath, "Missing config data: serverPath")
-	
-	errorUtils.assert(config.enabled ~= nil, "Missing config data: enabled")
-	errorUtils.assert(config.useServer ~= nil, "Missing config data: useServer")
-	enabled = config.enabled
-	useServer = config.useServer
-	
-	serverIsReachable = http.timedRequest(serverPath, 2) ~= nil
+	if not fs.exists(configPath) then
+		local data = jsonUtils.encode(config, true)
+
+		local file = fs.open(configPath, "w")
+		file.write(data)
+		file.close()
+	end
+
+	config = jsonUtils.decodeFile(configPath)
+	serverIsReachable = http.timedRequest(config.serverPath, 2) ~= nil
 	
 	if serverIsReachable then writeToDB() end
 	if clearAtBoot then initFile() end
