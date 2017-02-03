@@ -10,6 +10,10 @@ local frame = GUI.Frame(term.current())
 frame:applyTheme(default)
 
 lunaOS.lock()
-kernel.setBarVisable(true)
+
+kernel.newRootProcess("/LunaOS/system/bin/lua")
+kernel.newRootProcess("/LunaOS/system/bin/lua")
+kernel.newProcess("rom/programs/shell")
+kernel.newProcess("/LunaOS/system/bin/shell")
 
 frame:mainLoop()

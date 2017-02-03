@@ -13,7 +13,7 @@ local filesToLoad = 15
 local loaded = 0
 local imagePath = "LunaOS/system/boot/boot.img"
 local image
-local sleepTime = .05
+local sleepTime = 0
 local image
 
 local function drawBar(text, percent)
@@ -167,23 +167,27 @@ drawText()
 loadAPIs()
 
 local tmp = lunaOS.getProp("tmpPath")
+local home = lunaOS.getProp("home")
+local systemPath = lunaOS.getProp("systemPath")
+local systemDataPath = lunaOS.getProp("systemDataPath")
 fs.delete(tmp)
 fs.makeDir(tmp)
 
-dofile("/LunaOS/system/boot/shellInit.lua")
 
---local pid = kernel.newProcess("/LunaOS/system/packages/LunaOS.lua")
-lunaOS.lock()
+dofile(fs.combine(systemPath, "boot/shellInit.lua"))
+shell.setDir(fs.combine(home))
 
+if not fs.exists(fs.combine(systemDataPath, "setupdone")) then
+	kernel.newRootProcess(fs.combine(systemPath, "packages/setup.lua"))
+else
+	kernel.newRootProcess("/LunaOS/system/packages/LunaOS.lua")
 
-kernel.newRootProcess("/LunaOS/system/packages/LunaOS.lua")
-kernel.newRootProcess("/LunaOS/system/bin/lua")
-kernel.newRootProcess("/LunaOS/system/bin/lua")
-kernel.newProcess("rom/programs/shell")
-kernel.newProcess("/LunaOS/system/bin/shell")
---kernel.runProgram("GUITest", nil, false)
---kernel.runProgram("GUITest", nil, true)
---kernel.runProgram("Explorer")
+	if password.hasPassword() then
+		--kernel.newProcess("/LunaOS/system/packages/keygaurd.lua")
+	end
+
+end
+
 
 t = function() print(mathUtils.time(function() f:draw(true) end, 60)) end
 os.pullEvent = oldPullEvent

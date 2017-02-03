@@ -7,11 +7,12 @@ Frame.cursorColour = 1
 Frame.cursorXPos = nil
 Frame.cursorYPos = nil
 
-function Frame:init(window)
+function Frame:init(window, blockTerminate)
 	self.window = window or term.current()
 	
 	local x, y = self.window.getSize()
 	
+	self.blockTerminate = blockTerminate
 	self.xPos = 1
 	self.yPos = 1
 	self.width = x
@@ -55,6 +56,11 @@ function Frame:mainLoop()
 	while self.running do
 		self:draw()
 		local event = {coroutine.yield()}
+
+		if event[1] == "terminate" and not self.blockTerminate then
+			return
+		end
+
 		self:handleEvent(event)
 	end
 end

@@ -5,7 +5,7 @@ function Label:init(xPos, yPos, width, height, text)
 	
 	self:setText(text or "")
 	self:setMargin(0, 0, 0, 0)
-	self:setAlignment("left", "center")
+	self:setAlignment("left", "up")
 end
 
 function Label:setText(text)

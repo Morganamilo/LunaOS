@@ -1,8 +1,8 @@
 local isLoading = {}
 local oldGetfenv = getfenv
 local loadfile = loadfile
-local G = _G
-local ENV = _ENV
+local __G = _G
+local __ENV = _ENV
 
 
 
@@ -10,6 +10,13 @@ local function loadAPIInternal(path, locally, req)
 	if type(path) ~= "string" then error("String expected got " .. type(path), 2) end
 	
 	local name = fs.getName(path):gmatch("([^.]+)")():gsub(" ", "_") --replace spaces with underscores and truncate after the first .
+
+	local G = __G
+	local ENV = __ENV
+	if kernel and kernel.getRunning() then
+		G = _G
+		ENV = _ENV
+	end
         
 	if isLoading[path] then
 			return false
@@ -45,10 +52,10 @@ local function loadAPIInternal(path, locally, req)
 	
 	if req then
 		for k, v in pairs(APITable) do
-			_G[k] = v
+			G[k] = v
 		end
 	elseif not locally then
-		_G[name] = APITable
+		G[name] = APITable
 	end
 	
 	isLoading[path] = nil
@@ -124,7 +131,7 @@ function multishell.getCount()
 end
 
 function multishell.launch(env, path, ...)
-	return kernel.runFile(path, kernel.getRunning(), nil, nil, unpack(arg))
+	return kernel.newProcess(path, kernel.getRunning(), nil, nil, ...)
 end
 
 function multishell.setFocus(PID)

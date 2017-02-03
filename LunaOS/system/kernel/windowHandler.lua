@@ -24,6 +24,7 @@ local kernel
 
 ---Whether or not the banner is hiden.
 local hidden = true
+local locked = false
 
 
 ---Down arrow character.
@@ -175,7 +176,7 @@ end
 --@usage windowHandler.setHidden(true)
 function setHidden(state)
 	--if its locked and we're trying to show the banner just return
-	if lunaOS.isLocked() or state == hidden then return end
+	if locked or state == hidden then return end
 	
 	local newPos = 2
 	local newSize = ySize - 1
@@ -185,7 +186,7 @@ function setHidden(state)
 		newSize = ySize
 	end
 	
-	workingArea.setBackgroundColor(8)
+	workingArea.setVisible(false)
 
 	--hide the working area while we do ajustments
 	--workingArea.setVisible(false)
@@ -220,6 +221,10 @@ end
 
 function getHidden()
 	return hidden
+end
+
+function setLocked(state)
+	locked = state
 end
 
 function init()

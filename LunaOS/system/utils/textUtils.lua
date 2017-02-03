@@ -12,9 +12,21 @@ function split(str, sep)
 	errorUtils.expect(sep, "string", true)
 	
 	local matches = {}
+	local n = 1
 	
-	for match in str:gmatch("[^%" .. sep .. "]+") do
-		matches[#matches + 1] = match
+	sep = "%" .. sep
+
+	while true do
+		local s, e = str:find(sep, n)
+
+    if not s then
+      matches[#matches + 1] = str:sub(n, #str)
+      break
+    end
+
+		matches[#matches + 1] = str:sub(n, s - 1)
+
+		n = e + 1
 	end
 	
 	return matches
@@ -120,7 +132,7 @@ function wrap(str, width, height)
   local wrapped = {}
   
   --wraps each line of text within the given size limit
-  for _, line in pairs(lines) do
+  for _, line in ipairs(lines) do
     wrapped = wrapInternal(line, width, height, wrapped)
   end
  

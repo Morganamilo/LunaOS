@@ -99,6 +99,14 @@ function Scrollbar:scrollDown(amount)
 	self.scrollLevel = math.min(self.steps, self.scrollLevel + (amount or 1))
 end
 
+function Scrollbar:scroll(amount)
+	if amount > 0 then
+		self:scrollUp(amount)
+	elseif amount < 0 then
+		self:scrollDown(-amount)
+	end
+end
+
 function Scrollbar:getBarSize()
 	--calculates how big the bar is
 	return math.max(self:getLength() - self.steps + 1, 1)

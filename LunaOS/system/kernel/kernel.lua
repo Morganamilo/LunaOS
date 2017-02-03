@@ -224,6 +224,7 @@ function _private.newProcessInternal(path, parent, name, desc, SU, ...)
 	errorUtils.expect(name, 'string', false, 3)
 	errorUtils.expect(desc, 'string', false, 3)
 	
+	errorUtils.assert(fs.exists(path), "File does not exist")
 	---@warning Using the same function for multiple processes breaks sandboxing because they share local varibles.
 	local PID = tableUtils.getEmptyIndex(_private._processes)
 	local env = _private.getEnv()
@@ -540,15 +541,21 @@ function _private.resume(co, data)
 end
 
 ---Sets the visability of the top bar.
---@param visable The visablility of the top bar.
---@usage kernel.setBarVisable(true)
-function setBarVisable(visable)
-	windowHandler.setHidden(not visable)
+--@param visible The visablility of the top bar.
+--@usage kernel.setBarVisible(true)
+function setFullscreen(fullscreen)
+	windowHandler.setHidden(fullscreen)
 end
 
-function getBarVisable()
-	return not windowHandler.getHidden()
+function getFullscreen()
+	return windowHandler.getHidden()
 end
+
+function setLocked(state)
+	errorUtils.assert(kernel.isSU(), "SuperUser required to lock banner", 0)
+	windowHandler.setLocked(state)
+end
+
 ---Kill the currently running process.
 --@usage kernel.die()
 function die()
@@ -559,7 +566,7 @@ end
 --@return The total amout of alive processes.
 --@usage local count = kernel.getProcessCount()
 function getProcessCount()
-	local count
+	local count = 0
 
 	for _ in pairs(_private._processes) do
 		count = count + 1

@@ -66,4 +66,14 @@ function encodeToFile(path, image)
 	file.write(encodeImage(image))
 	file.close()
 end
-	
+
+function emptyImage()
+	local img = {}
+
+	img.size = {0,0}
+	img.text = {}
+	img.textColour = {}
+	img.colour = {}
+
+	return img
+end

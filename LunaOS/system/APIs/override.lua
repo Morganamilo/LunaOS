@@ -95,4 +95,3 @@ if not _has8BitCharacters then
 	end
 end
 
-

@@ -2,7 +2,10 @@ if not kernel.setSU(true) then
 	error("Can not get Super User")
 end
 
-local dataPath = lunaOS.getProp("systemDataPath")
+kernel.setFullscreen(true)
+kernel.setLocked(true)
+
+local systemPath = lunaOS.getProp("systemPath")
 local default = GUI.Theme()
 local frame = GUI.Frame(term.current())
 local passwordField = GUI.TextField()
@@ -17,7 +20,8 @@ local function tryPassword(self)
 	local correct = password.isPassword(passwordField.text)
 
 	if correct then
-		lunaOS.unlock()
+		kernel.setLocked(false)
+		kernel.setFullscreen(false)
 		kernel.die()
 	else
 		loginLabel.textColour = colourUtils.blits.red
@@ -73,7 +77,7 @@ function initComponents()
 	infoLabel.textColour = colourUtils.blits.grey
 	infoLabel:setAlignment("center", "top")
 
-	image:setImageFromFile(fs.combine(dataPath, "logon.img"))
+	image:setImageFromFile(fs.combine(systemPath, "logo.img"))
 	image:setPos(1 + math.floor(frame.width/2 - image.width/2), 7)
 
 	passwordField:setSize(32)
