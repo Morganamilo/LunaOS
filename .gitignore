@@ -3,10 +3,7 @@ LunaOS/programs/test
 html
 doc.bat
 *.luadoc
-LunaOS/data/system/password/hash
-LunaOS/data/system/password/salt
-LunaOS/data/system/perms.json
 PANIC
 LunaOS/home/.lsh_history
-LunaOS/data/system/setupdone
+LunaOS/data/*
 /test*
