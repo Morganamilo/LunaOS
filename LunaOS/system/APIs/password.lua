@@ -1,3 +1,4 @@
+local fs=fs
 local dataPath = "/LunaOS/data/system/password"
 local saltPath = fs.combine(dataPath, "salt")
 local passwordPath = fs.combine(dataPath, "hash")
@@ -35,7 +36,7 @@ local function getPassword()
 end
 
 local function isPasswordInternal(password)
-	if not (fs.exists(saltPath) and fs.exists(passwordPath)) then
+	if not (fs.exists(saltPath) or fs.exists(passwordPath)) then
 		setPassword("")
 	end
 	

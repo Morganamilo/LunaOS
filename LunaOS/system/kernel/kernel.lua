@@ -269,6 +269,12 @@ function _private.newProcessInternal(path, parent, name, desc, SU, ...)
 
 	windowHandler.updateBanner()
 	
+	if _running then
+		local current = term.current()
+		_private.pushEvent(PID, {})
+		term.redirect(current)
+	end
+
 	return PID
 end
 
@@ -672,6 +678,7 @@ end
 --@param PID The PID of the process to switch to.
 --@usage kernel.gotoPID(4)
 function gotoPID(PID)
+	if not _running then return end
 	errorUtils.expect(PID, 'number', true, 2)
 	errorUtils.assert(_private._processes[PID], format(PIDError, PID), 2)
 

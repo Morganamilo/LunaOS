@@ -180,11 +180,6 @@ if not fs.exists(fs.combine(systemDataPath, "setupdone")) then
 	kernel.newRootProcess(fs.combine(systemPath, "packages/setup.lua"))
 else
 	kernel.newRootProcess("/LunaOS/system/packages/LunaOS.lua")
-
-	if password.hasPassword() then
-		--kernel.newProcess("/LunaOS/system/packages/keygaurd.lua")
-	end
-
 end
 
 
