@@ -167,6 +167,13 @@ function encode(tbl, readable)
 	return encoded
 end
 
+function encodeToFile(tbl, path, readable)
+	local json = encode(tbl, readable)
+	local file = fs.open(path, "w")
+	file.write(json)
+	file.close()
+end
+
 ---Gets the next non whitespace value of a string starting from a given point.
 --@lfunction nextValue
 --@param str The string to Parse.
@@ -186,7 +193,7 @@ function nextValue(str, start)
 		end
 	end
 	
-	error("Unexpected end of input near" .. start, 0)
+	error("Unexpected end of input near " .. start, 0)
 end
 
 ---Parse a json array and returns the array as a lua table.
@@ -200,8 +207,14 @@ end
 function parseArray(str, start)
 	local array = {}
 	local counter = 1
+	local closeChar, closePos
 	
-	local closeChar, closePos = nextValue(str, start + 1) 
+	closeChar, closePos = nextValue(str, start + 1)
+	if closeChar == "]" then
+		return array, closePos + 1
+	end
+
+	closeChar, closePos = nextValue(str, start + 1)
 	if closeChar == "]" then 
 		closeChar, closePos = nextValue(str, closePos + 1)
 		return array, closePos
@@ -218,7 +231,7 @@ function parseArray(str, start)
 		if c == "]" then
 			return array, start + 1
 		elseif c ~= "," then
-			error("Expected ',' near" .. start, 0)
+			error("Expected ',' near " .. start, 0)
 		end
 	end
 end
@@ -235,7 +248,10 @@ function parseObject(str, start)
 	local c
 	local object = {}
 	
-	if nextValue(str, start + 1) == "}" then return object, start + 2 end
+	local closeChar, closePos = nextValue(str, start + 1)
+	if closeChar == "}" then
+		return boject, closePos + 1
+	end
 	
 	while true do
 		local k, v
@@ -271,7 +287,7 @@ function parsePair(str, start)
 	
 	key, start = parseValue(str, start)
 	c, start = nextValue(str, start)
-	errorUtils.assert(type(key) == "string", "Key must be string near" .. start, 0)
+	errorUtils.assert(type(key) == "string", "Key must be string near " .. start, 0)
 	
 	if c ~= ":" then
 		error("Expected ':' near " .. start, 0)
@@ -354,7 +370,7 @@ function parseNonString(str, start)
 		end
 	end
 	
-	if not endPos then error("Unexpected end of input near" .. start, 0) end
+	if not endPos then error("Unexpected end of input near " .. start, 0) end
 	prevC = str:sub(start, endPos - 1)
 	
 	if prevC == "null" then
@@ -367,7 +383,7 @@ function parseNonString(str, start)
 		return tonumber(prevC), endPos
 	end
 	
-	error("Invalid value near" .. start, 0)
+	error("Invalid value near " .. start, 0)
 end
 
 
