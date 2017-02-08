@@ -7,7 +7,7 @@ kernel.setLocked(true)
 
 local systemPath = lunaOS.getProp("systemPath")
 local default = GUI.Theme()
-local frame = GUI.Frame(term.current())
+local frame = GUI.Frame(term.current(), true)
 local passwordField = GUI.TextField()
 local image = GUI.Image()
 local loginLabel = GUI.Label()

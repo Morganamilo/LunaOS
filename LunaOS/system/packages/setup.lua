@@ -131,7 +131,7 @@ local function initComponents()
 	end
 
 	--create the objects
-	frame = GUI.Frame(term.current())
+	frame = GUI.Frame(term.current(), true)
 	banner = GUI.View()
 	pageHanlder = GUI.MultiView()
 	default = GUI.Theme()
