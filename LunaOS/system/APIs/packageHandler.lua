@@ -4,138 +4,209 @@ local tmp = lunaOS.getProp("tmpPath")
 local dataPath = lunaOS.getProp("dataPath")
 local systemDataPath = lunaOS.getProp("systemDataPath")
 local packagePath = lunaOS.getProp("packagePath")
+local APIPath = lunaOS.getProp("APIPath")
+local manifestPath = lunaOS.getProp("manifestPath")
 local fs = fs
 
-local required = {"name", "desc", "version", "release", "author", "reslease", "main"}
---optional data, depend
+local required = {"name", "desc", "version", "release", "author"}
+local optional = {"data", "api", "main"}
+--optional data, depend, api
 
-local function verifyPackage(installData, packagePath)
-	for k,v in pairs(required) do
-		if not type(installData[v]) == "string" then
-			return nil, "install.json: mising " .. v
+
+
+local function verifyPackage(installData, packageData)
+	if type(installData.name) ~= "string" then
+		return nil, "Missing required field: name"
+	end
+
+	if type(installData.desc) ~= "string" then
+		return nil, "Missing required field: desc"
+	end
+
+	if type(installData.version) ~= "string" then
+		return nil, "Missing required field: version"
+	end
+
+	if not installData.release then
+		return nil, "Missing required field: release"
+	end
+
+	if type(installData.release) ~= "number" or math.floor(installData.release) ~= installData.release then
+		return nil, "realease must be an integer"
+	end
+
+	if type(installData.author) ~= "string" then
+		return nil, "Missing required field: author"
+	end
+
+	for _, field in pairs(optional) do
+		print(field)
+		if type(installData[field]) ~= "table" and type(installData[field]) ~= "nil" then
+			return nil, field .. " should either be nil or table"
 		end
-	end
+		if installData[field] then
+			for _, path in pairs(installData[field]) do
+				print(path)
+				if type(path) ~= "string" then
+					return nil, field .. ": " .. path .. " should be string"
+				end
 
-	if installData.name:find("[\\/]") then
-		return nil, "install.json: name can not inclide \\ or /"
-	end
+				if path:find("%.%.") then
+					return nil, field .. ": " .. path .. " can not contain '..'"
+				end
 
-	if installData.main:find("[\\/]") then
-		return nil, "install.json: main can not inclide \\ or /"
-	end
+				if path:find("[\\/]") then
+					return nil, field .. ": " .. path .. " can not contain directories"
+				end
 
-	if not _G.fs.isFile(fs.combine(packagePath, installData.main)) then
-		return nil, "install.json: [" .. package.main .. "] does not exist"
-	end
-
-	if type(installData.data) ~= "nil" and type(installData.data) ~= "table" then
-		return nil, "install.json: invalid data"
-	end
-
-	if type(installData.depend) ~= "nil" and type(installData.depend) ~= "table" then
-		return nil, "install.json: invalid depend"
-	end
-
-	for k, v in pairs(installData.data) do
-		if type(v) ~= "string" then
-			return nil, "install.json: data value is not a string"
+				if not packageData.files[fs.combine(path, "")] then
+					return nil, "Missing: " .. path
+				end
+			end
 		end
 
-		if not _G.fs.isFile(fs.combine(packagePath, v)) then
-			return nil, "install.json: [" .. v .. "] does not exist"
-		end
 	end
 
-	for k, v in pairs(installData.depend) do
-		if type(v) ~= "string" then
-			return nil, "install.json: depend value is not a string"
-		end
+	--make sure its not already installed
+	if tableUtils.indexOf(getInstalled(), installData.name) then
+		return nil, "Package already installed"
 	end
 
+
+--	for path, data in pairs(installData.main) do
+--		if path:find("[\\/]") then
+--			return nil, "main files can not contain directories"
+--		end
+--
+--		if fs.exists(fs.combine(packagePath, path)) then
+--			return nil, "main: " .. path .. "already exists"
+--		end
+--	end
 	return true
 end
 
 
-function listInstalled()
-	return fs.list(fs.combine(systemDataPath, "packages"))
+function getInstalled()
+	local packageData = jsonUtils.decodeFile(manifestPath)
+	local names = {}
+
+
+	for k, v in pairs(packageData) do
+		names[#names + 1] = v.name
+	end
+
+	return names
 end
 
 function getPackageData(name)
-	local filePath = _G.fs.combine(systemDataPath, "packages", name)
+	local packageData = jsonUtils.decodeFile(manifestPath)
 
-	if not fs.exists(filePath) or fs.isDir(filePath) then
-		return nil, "Package does not exist"
+	for k, v in pairs(packageData) do
+		if v.name == name then
+			return v
+		end
 	end
 
-	local file = fs.open(filePath, "r")
-
-	if not file then
-		return nil, "Can not open package data"
-	end
-
-	local data = file.readAll()
-	file.close()
-
-	local success, json = pcall(jsonUtils.decode, data)
-
-	if not success then
-		return nil, "Can not unpack package"
-	end
-
-	return json
+	return false
 end
-
 
 function installPackage(package)
 	if not kernel.isSU() then
 		return nil, "SuperUser is needed to install packages"
 	end
 	
-	local packageName = fs.getName(package)
-	local tmpPackage = fs.combine(tmp, package)
-	local installer = fs.combine(tmpPackage, "install.json")
-	
-	if #packagePath <= 1 then
-		return nil, "Invalid tmp path"
-	end
-
-	fs.delete(tmpPackage)
-	lzip.unZipToDir(package, tmpPackage)
-
-	if not _G.fs.isFile(installer) then
-		return nil, "Missing insall.json"
-	end
-
-	local success, installData = pcall(jsonUtils.decodeFile, installer)
+	--get the name
+	local fileName = fs.getName(package)
+	local success, packageData = pcall(jsonUtils.decodeFile, package)
 
 	if not success then
 		return nil, "Can not unpack package"
 	end
 	
-	if tableUtils.indexOf(getInstalled(), installData.name) then
-		return nil, "Package already installed"
+	local installDataJSON = packageData.files["install.json"]
+
+	if not installDataJSON then
+		return nil, "Missing install.json"
 	end
 	
-	local res, err = verifyPackage(installData, tmpPackage)
-
-	if not res then
-		return nil, err
+	local success, installData = pcall(jsonUtils.decode, installDataJSON)
+	if not installData then
+		return nil, "Can not unpack install.lua"
 	end
 
-	fs.delete(_G.fs.combine(dataPath, installData.name))
-	fs.delete(_G.fs.combine(packagePath, installData.main))
-	fs.delete(_G.fs.combine(systemDataPath, "packages", installData.name))
+	local success, res = verifyPackage(installData, packageData)
+	if not success then
+		return nil, res
+	end
+--
+--	if installData.data then
+--		for k, v in pairs(installData.data) do
+--			local file = fs.open(fs.combine(dataPath, installData.name))
+--
+--			if not file then
+--				error("Can not open " .. fs.combine(dataPath, installData.name), "w")
+--			end
+--
+--			file.write(data)
+--		end
+--	end
+--
+--	if installData.APIs then
+--		for k, v in pairs(installData.APIs) do
+--			fs.move(fs.combine(tmpPackage, v), _G.fs.combine(APIPath, v))
+--		end
+--	end
+--
+--	if installData.main then
+--		for k, v in pairs(installData.main) do
+--			fs.move(fs.combine(tmpPackage, v), _G.fs.combine(APIPath, v))
+--		end
+--	end
+--
+--	fs.move(fs.combine(tmpPackage, installData.main), fs.combine(packagePath, installData.main))
+--	fs.move(fs.combine(tmpPackage, "install.json"), _G.fs.combine(systemDataPath, "packages", installData.name))
+--
+--	fs.delete(tmpPackage)
+
+	local manifest = jsonUtils.decodeFile(manifestPath)
+	manifest[#manifest + 1] = installData
+	jsonUtils.encodeToFile(manifest, manifestPath, true)
 
 	if installData.data then
 		for k, v in pairs(installData.data) do
-			fs.move(fs.combine(tmpPackage, v), _G.fs.combine(dataPath, installData.name, v))
+			local path = fs.combine(dataPath, v)
+			local file = fs.open(path, "w")
+			if not file then
+				error("Can not open " .. path)
+			end
+			file.write(packageData.files[v])
+			file.close()
 		end
 	end
 
-	fs.move(fs.combine(tmpPackage, installData.main), fs.combine(packagePath, installData.main))
-	fs.move(fs.combine(tmpPackage, "install.json"), _G.fs.combine(systemDataPath, "packages", installData.name))
+	if installData.main then
+		for k, v in pairs(installData.main) do
+			local path = fs.combine(packagePath, v)
+			local file = fs.open(path, "w")
+			if not file then
+				error("Can not open " .. path)
+			end
+			file.write(packageData.files[v])
+			file.close()
+		end
+	end
 
-	fs.delete(tmpPackage)
+	if installData.apis then
+		for k, v in pairs(installData.apis) do
+			local path = fs.combine(APIPath, v)
+			local file = fs.open(path, "w")
+			if not file then
+				error("Can not open " .. path)
+			end
+			file.write(packageData.files[v])
+			file.close()
+		end
+	end
 
 	return true
 end
@@ -145,15 +216,52 @@ function removePackage(name)
 		return nil, "SuperUser is needed to remove packages"
 	end
 
-	local data, err = getPackageData(name)
+	local installData, err = getPackageData(name)
 
-	if not data then
+	if not installData then
 		return nil, err
 	end
 
-	fs.delete(_G.fs.combine(dataPath, name))
-	fs.delete(_G.fs.combine(packagePath, data.main))
-	fs.delete(_G.fs.combine(systemDataPath, "packages", name))
+
+	if installData.data then
+		for k, v in pairs(installData.data) do
+			local path = fs.combine(dataPath, v)
+			fs.delete(path)
+		end
+	end
+
+	if installData.main then
+		for k, v in pairs(installData.main) do
+			local path = fs.combine(packagePath, v)
+			fs.delete(path)
+		end
+	end
+
+	if installData.apis then
+		for k, v in pairs(installData.apis) do
+			local path = fs.combine(APIPath, v)
+			fs.delete(path)
+		end
+	end
+
+	local manifestData = jsonUtils.decodeFile(manifestPath)
+	local index
+
+	for k, v in pairs(manifestData) do
+		if v.name == name then
+			index = k
+			break
+		end
+	end
+
+	table.remove(manifestData, index)
+	jsonUtils.encodeToFile(manifestData, manifestPath)
 
 	return true
+end
+
+if not fs.exists(manifestPath) then
+	local file = fs.open(manifestPath, "w")
+	file.write("[]")
+	file.close()
 end

@@ -37,7 +37,7 @@ function zipToFile(path, savePath)
 	file.close()
 end
 
-function unZipToDir(path, savePath)
+function unZip(path)
 	local f = fs.open(path, "r")
 
 	if not f then
@@ -46,8 +46,11 @@ function unZipToDir(path, savePath)
 
 	local data = f.readAll()
 	f.close()
+	return jsonUtils.decode(data)
+end
 
-	data = jsonUtils.decode(data)
+function unZipToDir(path, savePath)
+	local data = unZip(path)
 
 	local files = data.files
 	local dirs = data.dirs
