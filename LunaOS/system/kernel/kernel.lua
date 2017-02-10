@@ -446,6 +446,9 @@ end
 function _private.getEvent()
 	--the event we get + extra data
 	event = {coroutine.yield()}
+	if event[1] == "flush" then
+		event = _private.getEvent()
+	end
 		
 	keyHandler.handleKeyEvent(event)
 	event = windowHandler.handleEvent(event)
@@ -475,6 +478,7 @@ function _private.pushEvent(PID, event)
 		--resume the thread and get its yeild
 		local data = _private.resume(currentProc.co, event)
 
+
 		--windowHandler.setCurrentWindow(PID)
 		
 		if  _private._processes[PID] then
@@ -498,7 +502,7 @@ function _private.tick(event)
 	local processes = {}
 	local isFocusEvent = tableUtils.indexOf(focusEvents, event[1])
 	
-	--fil ptocesses table
+	--fil processes table
 	for PID, _ in pairs(_private._processes) do
 		processes[#processes + 1] = PID
 	end
@@ -711,8 +715,7 @@ function gotoPID(PID)
 	
 	---@warning When this function is called mid thread a goto event is pushed globally.
 	--This is not intentional and may be changed.
-	os.queueEvent("goto")
-	coroutine.yield("goto")
+	os.queueEvent("flush")
 end
 
 ---Gets all children of a process including itself.
