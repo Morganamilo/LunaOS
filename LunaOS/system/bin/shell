@@ -200,11 +200,13 @@ local function makePipeWindow()
         local lineSize = #t[pipeWindow.yCursor]
         local xCursor = pipeWindow.xCursor 
         
+		str = tostring(str)
+		
         if lineSize + 1 < xCursor and xCursor > 0 then
            t[pipeWindow.yCursor] = t[pipeWindow.yCursor] .. string.rep(" ", xCursor):sub(lineSize)
         end
         
-        t[pipeWindow.yCursor] = t[pipeWindow.yCursor]:sub(1, xCursor - 1) .. tostring(str) .. t[pipeWindow.yCursor]:sub(xCursor + #tostring(str)):sub(1, pipeWindow.xSize)
+        t[pipeWindow.yCursor] = t[pipeWindow.yCursor]:sub(1, xCursor - 1) .. str .. t[pipeWindow.yCursor]:sub(xCursor + #str):sub(1, pipeWindow.xSize)
         t[pipeWindow.yCursor]:sub(1, pipeWindow.xSize)
         pipeWindow.xCursor = pipeWindow.xCursor + #str
     end
@@ -353,7 +355,7 @@ local function parseTokens(tokens, n, inBracket)
                 local nestedCommands, nestedOut, nestedN = parseTokens(tokens, n + 1, true)
                 
                 if not nestedCommands or #nestedCommands <= 0 then
-                    --printError("Invalid token after " .. token)
+                    printError("Invalid token after " .. token)
                     return
                 end
                 
@@ -411,25 +413,26 @@ local function parseTokens(tokens, n, inBracket)
                 
             elseif token == "<" or token == "$<" then
                 n = n + 1
-                
                 local path = tokens[n]
                 
                 if not path or tableUtils.indexOf(special, path) then
-                    return nil, "Unexpected token after " .. token
+                    printError("Unexpected token after " .. token)
+					return
                 end
                 
                 path = unescape(path)
                 
-                local resolvedPath = shell.resolveProgram(path)
+                local resolvedPath = shell.resolve(path)
                 
                 if not resolvedPath then
-                    return nil, "No such file: " .. path
+                    printError("No such file: " .. path)
                 end
                 
-                local file = fs.open(path, "r")
+                local file = fs.open(resolvedPath, "r")
                 
                 if not file then
-                    return nil, "Can not open: " .. path
+                	printError("Can not open: " .. path)
+					return
                 end
                 
                 local data = file.readAll()
@@ -452,14 +455,16 @@ local function parseTokens(tokens, n, inBracket)
                 local path = tokens[n]
                 
                 if not path or tableUtils.indexOf(special, path) then
-                    return nil, "Unexpected token after " .. token
+                    printError("Unexpected token after " .. token)
+					return
                 end
                 
                 path = unescape(path)
                 path = shell.resolve(path)
                 
                 if fs.isDir(path) then
-                    return nil, "Is directory: " .. path
+                    printError("Is directory: " .. path)
+					return
                 end
                 
                 out[#out + 1] = {path, (token == ">" and "w" or "a")}
@@ -501,6 +506,7 @@ local function runTokens(tokens)
     while n and n <= #tokens do
         parsedTokens, out, n = parseTokens(tokens, n)
 
+		printError(out)
         if not parsedTokens then
            printError(out)
            return false
