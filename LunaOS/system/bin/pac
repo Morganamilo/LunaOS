@@ -1,0 +1,15 @@
+local args = {...}
+
+local function downloadPackage(name)
+	local request = http.get("http://lunadb.ddns.net/package/" .. name)
+	
+	if not request then
+		error("can't connect to the repository")
+	end
+	
+	local response = request.readAll()
+	
+	
+end
+
+downloadPackage(args[1])

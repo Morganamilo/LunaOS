@@ -183,6 +183,5 @@ else
 end
 
 
-t = function() print(mathUtils.time(function() f:draw(true) end, 60)) end
 os.pullEvent = oldPullEvent
 kernel.startProcesses(1)

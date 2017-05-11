@@ -19,9 +19,15 @@ lunaOS.lock()
 kernel.setFullscreen(false)
 frame:draw()
 
-kernel.newRootProcess("/LunaOS/system/bin/lua")
-kernel.newRootProcess("/LunaOS/system/bin/lua")
-kernel.newProcess("rom/programs/shell")
-kernel.newProcess("/LunaOS/system/bin/shell")
+
+kernel.newRootProcess("/LunaOS/system/bin/shell")
+kernel.newRootProcess("/LunaOS/system/packages/Explorer.lua")
+kernel.newRootProcess("/LunaOS/system/packages/eventprinter")
+kernel.newRootProcess("/LunaOS/system/packages/GUITest.lua")
+
+--kernel.newRootProcess("/LunaOS/system/bin/lua")
+--kernel.newRootProcess("/LunaOS/system/bin/lua")
+--kernel.newProcess("rom/programs/shell")
+--kernel.newProcess("/LunaOS/system/bin/shell")
 
 frame:mainLoop()

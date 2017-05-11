@@ -15,7 +15,7 @@ local function initTime()
 	local timezone = file.readLine()
 	file.close()
 
-	local request, err = http.timedRequest("http://lunadb.ddns.net/time.php?timezone=" .. textutils.urlEncode(timezone), 2)
+	local request, err = http.timedRequest("http://lunadb.ddns.net/time?timezone=" .. textutils.urlEncode(timezone), 2)
 	
 	if not request then
 		log.i("No connection to server, using local time")
